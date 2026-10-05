@@ -469,3 +469,28 @@ thiếu. Idempotent nhờ anti-join + `on conflict do nothing`.
 **Lý do.** Nguyên tắc #6: không sửa migration đã chạy trên database thật. Sửa
 0002 sẽ khiến nó khác với thứ đã thực sự áp dụng, và vẫn không chữa được những
 hàng đã mồ côi.
+
+---
+
+### D-038 · Cột `jsonb` nhận object thô, không nhận chuỗi đã `JSON.stringify`
+
+**Bối cảnh.** Sau khi import thành công, mọi thẻ học hiện ra **trống chữ**: có chủ
+đề, có nút, nhưng không có câu tiếng Đức. Nguyên nhân: `importCourse` truyền
+`JSON.stringify(fields)` vào cột `jsonb`. PGlite parse chuỗi đó thành object;
+postgres.js **mã hoá JSON thêm lần nữa** và lưu một jsonb *string*, khiến mọi
+`fields->>'text'` trả `null`. Thêm `::jsonb` cũng không gỡ được — đã thử nghiệm
+trực tiếp trên database thật.
+
+**Quyết định.** `src/core/content/import.ts` truyền object thô cho mọi cột
+`jsonb`. Cả hai driver đều đồng ý về object.
+
+**Vì sao 217 test không bắt được.** Đây không phải lỗ hổng độ phủ mà là **giới
+hạn cấu trúc**: PGlite chấp nhận *cả hai* dạng và cho ra object, nên không
+assertion nào chạy trên PGlite có thể tái hiện hành vi của postgres.js. Guard mới
+vì vậy kiểm tra **nguyên nhân** thay vì hậu quả — bắt tham số `importCourse` gửi
+đi và fail nếu có chuỗi JSON mã hoá sẵn. Đã xác nhận guard fail trên code cũ.
+
+**Bài học.** Hai lỗi liên tiếp (D-036, D-038) đều lọt qua test vì PGlite dễ tính
+hơn driver thật. PGlite chứng minh được logic SQL và RLS, nhưng **không** chứng
+minh được tầng tuần tự hoá tham số. Những gì thuộc về tầng đó phải kiểm ở chỗ
+code tạo ra tham số, hoặc chạy trên Postgres thật.

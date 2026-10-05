@@ -222,3 +222,43 @@ describe('script import — đường transaction', () => {
     expect(source).toMatch(/connect_timeout/);
   });
 });
+
+describe('tham số jsonb', () => {
+  /**
+   * Regression guard for a bug the PGlite suite structurally cannot reproduce.
+   *
+   * PGlite parses a JSON string bound to a jsonb column into an object, so every
+   * assertion here passed while the real import wrote a jsonb *string* into every
+   * `fields` column: postgres.js JSON-encodes such a string a second time, and
+   * `fields->>'text'` then returns null for every row. Every sentence rendered
+   * blank in the app.
+   *
+   * The drivers only agree on objects, so the contract is checked at its source
+   * — what importCourse binds — rather than at what one driver stores.
+   */
+  it('không truyền chuỗi JSON đã mã hoá sẵn vào cột jsonb', async () => {
+    const seen: unknown[] = [];
+    const spy: SqlExecutor = {
+      query: async <T>(_text: string, params?: unknown[]) => {
+        if (params) seen.push(...params);
+        return [] as T[];
+      },
+    };
+
+    await importCourse(spy, course, items.slice(0, 5));
+    expect(seen.length).toBeGreaterThan(0);
+
+    const preEncoded = seen.filter((value) => {
+      if (typeof value !== 'string') return false;
+      const text = value.trim();
+      if (!text.startsWith('{') && !text.startsWith('[')) return false;
+      try {
+        return typeof JSON.parse(text) === 'object';
+      } catch {
+        return false;
+      }
+    });
+
+    expect(preEncoded, 'phải truyền object thô, không phải JSON.stringify(...)').toEqual([]);
+  });
+});
