@@ -74,7 +74,8 @@
           "to": "Khối từ",
           "effect": "cả khối được giữ nguyên trong đầu, không rơi rụng từng từ"
         }
-      ]
+      ],
+      "contributionLabel": "Đóng góp"
     },
     "howItWorks": {
       "eyebrow": "Mỗi ngày",
@@ -149,11 +150,36 @@
     "title": "Bảng điều khiển",
     "greeting": "Chào {name}",
     "emptyTitle": "Chưa có khóa học nào",
-    "emptyBody": "Phần ghi danh khóa học và phiên học sẽ có trong Phase 2.",
+    "emptyBody": "Tạo lộ trình đầu tiên của bạn — chọn ngôn ngữ, trình độ và thời gian, hệ thống sẽ tính phần còn lại.",
     "yourAccount": "Tài khoản của bạn",
     "email": "Email",
     "timezone": "Múi giờ",
-    "locale": "Ngôn ngữ giao diện"
+    "locale": "Ngôn ngữ giao diện",
+    "today": "Hôm nay",
+    "todayDone": "Hôm nay bạn đã học xong",
+    "streak": "Chuỗi ngày",
+    "streakDays": "{count} ngày",
+    "longestStreak": "Dài nhất: {count} ngày",
+    "noStreak": "Bắt đầu chuỗi đầu tiên hôm nay",
+    "activity": "Hoạt động",
+    "heatmapCell": "{newItems} câu mới, {reviews} lượt ôn",
+    "heatmapLess": "Ít",
+    "heatmapMore": "Nhiều",
+    "levelProgress": "Tiến độ theo cấp độ",
+    "levelProgressLabel": "Tiến độ tổng thể {percent}%",
+    "levelNoContent": "chưa có nội dung",
+    "accuracy": "Độ chính xác",
+    "studyTime": "Thời gian học",
+    "minutes": "{count} phút",
+    "hours": "{count} giờ",
+    "mastered": "Đã thuộc vững",
+    "masteredHint": "Câu đã ôn đúng từ 3 lần trở lên",
+    "totalReviews": "Tổng lượt ôn",
+    "activeDays": "Số ngày đã học",
+    "wordList": "Danh sách từ đã học",
+    "viewPlan": "Kế hoạch",
+    "newCourse": "Thêm khóa mới",
+    "noData": "Chưa có dữ liệu"
   },
   "sentenceType": {
     "declarative": "Câu trần thuật",
@@ -360,5 +386,44 @@
       "backToDashboard": "Về bảng điều khiển",
       "encouragement": "Mỗi ngày một ít, cộng lại thành cả một ngôn ngữ."
     }
+  },
+  "words": {
+    "title": "Từ đã học",
+    "subtitle": "{count} câu bạn đã học trong khóa này.",
+    "search": "Tìm câu, nghĩa hoặc từ vựng...",
+    "searchLabel": "Tìm kiếm",
+    "allLevels": "Mọi cấp độ",
+    "onlyHard": "Chỉ câu khó",
+    "empty": "Chưa có câu nào khớp với bộ lọc.",
+    "emptyAll": "Bạn chưa học câu nào trong khóa này.",
+    "reps": "{count} lần ôn",
+    "lapses": "{count} lần quên",
+    "nextReview": "Ôn lại: {date}",
+    "markHard": "Đánh dấu khó",
+    "unmarkHard": "Bỏ đánh dấu khó",
+    "showing": "Hiện {from}–{to} trong {total}",
+    "previous": "Trước",
+    "next": "Sau",
+    "back": "Quay lại"
+  },
+  "settings": {
+    "title": "Cài đặt",
+    "language": "Ngôn ngữ giao diện",
+    "languageHint": "Thay đổi áp dụng ngay cho toàn bộ giao diện.",
+    "vi": "Tiếng Việt",
+    "en": "English",
+    "appearance": "Giao diện",
+    "theme": "Chủ đề",
+    "themeLight": "Sáng",
+    "themeDark": "Tối",
+    "themeSystem": "Theo hệ thống",
+    "fontScale": "Cỡ chữ",
+    "fontScaleHint": "Áp dụng cho toàn bộ ứng dụng.",
+    "saved": "Đã lưu",
+    "back": "Quay lại"
+  },
+  "offline": {
+    "title": "Bạn đang ngoại tuyến",
+    "body": "Không có kết nối mạng. Khi có mạng trở lại, mở lại trang này để tiếp tục học."
   }
 }

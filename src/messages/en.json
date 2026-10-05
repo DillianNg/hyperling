@@ -74,7 +74,8 @@
           "to": "Chunks",
           "effect": "the whole phrase stays intact instead of decaying word by word"
         }
-      ]
+      ],
+      "contributionLabel": "Contributes"
     },
     "howItWorks": {
       "eyebrow": "Every day",
@@ -149,11 +150,36 @@
     "title": "Dashboard",
     "greeting": "Hello {name}",
     "emptyTitle": "No course yet",
-    "emptyBody": "Course enrolment and study sessions arrive in Phase 2.",
+    "emptyBody": "Build your first plan — pick a language, a level and a timeframe, and the system works out the rest.",
     "yourAccount": "Your account",
     "email": "Email",
     "timezone": "Time zone",
-    "locale": "Interface language"
+    "locale": "Interface language",
+    "today": "Today",
+    "todayDone": "You are done for today",
+    "streak": "Streak",
+    "streakDays": "{count} days",
+    "longestStreak": "Longest: {count} days",
+    "noStreak": "Start your first streak today",
+    "activity": "Activity",
+    "heatmapCell": "{newItems} new, {reviews} reviews",
+    "heatmapLess": "Less",
+    "heatmapMore": "More",
+    "levelProgress": "Progress by level",
+    "levelProgressLabel": "Overall progress {percent}%",
+    "levelNoContent": "no content yet",
+    "accuracy": "Accuracy",
+    "studyTime": "Study time",
+    "minutes": "{count} min",
+    "hours": "{count} h",
+    "mastered": "Known firmly",
+    "masteredHint": "Sentences reviewed correctly three times or more",
+    "totalReviews": "Total reviews",
+    "activeDays": "Days studied",
+    "wordList": "Sentences learned",
+    "viewPlan": "Plan",
+    "newCourse": "Add a course",
+    "noData": "No data yet"
   },
   "sentenceType": {
     "declarative": "Statement",
@@ -360,5 +386,44 @@
       "backToDashboard": "Back to dashboard",
       "encouragement": "A little every day adds up to a whole language."
     }
+  },
+  "words": {
+    "title": "Sentences learned",
+    "subtitle": "{count} sentences you have studied on this course.",
+    "search": "Search sentences, meanings or words...",
+    "searchLabel": "Search",
+    "allLevels": "All levels",
+    "onlyHard": "Hard only",
+    "empty": "Nothing matches those filters.",
+    "emptyAll": "You have not studied any sentences on this course yet.",
+    "reps": "{count} reviews",
+    "lapses": "{count} lapses",
+    "nextReview": "Next review: {date}",
+    "markHard": "Mark as hard",
+    "unmarkHard": "Remove hard mark",
+    "showing": "Showing {from}-{to} of {total}",
+    "previous": "Previous",
+    "next": "Next",
+    "back": "Back"
+  },
+  "settings": {
+    "title": "Settings",
+    "language": "Interface language",
+    "languageHint": "Takes effect immediately across the app.",
+    "vi": "Tiếng Việt",
+    "en": "English",
+    "appearance": "Appearance",
+    "theme": "Theme",
+    "themeLight": "Light",
+    "themeDark": "Dark",
+    "themeSystem": "System",
+    "fontScale": "Text size",
+    "fontScaleHint": "Applies across the whole app.",
+    "saved": "Saved",
+    "back": "Back"
+  },
+  "offline": {
+    "title": "You are offline",
+    "body": "No network connection. Reopen this page once you are back online to keep studying."
   }
 }

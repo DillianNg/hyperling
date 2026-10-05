@@ -134,7 +134,8 @@
   --color-gender-das-subtle: var(--gender-das-subtle);
 
   --font-sans: var(--font-inter), ui-sans-serif, system-ui, sans-serif;
-  --font-display: var(--font-display), var(--font-inter), ui-sans-serif, system-ui, sans-serif;
+  /* Headings share the family and lean on weight and tracking for hierarchy. */
+  --font-display: var(--font-inter), ui-sans-serif, system-ui, sans-serif;
 
   /* Generous spacing scale: the layout leans on whitespace rather than borders. */
   --spacing-section: 6rem;
@@ -173,8 +174,8 @@
   h3,
   h4 {
     font-family: var(--font-display);
-    line-height: 1.25;
-    letter-spacing: -0.015em;
+    line-height: 1.2;
+    letter-spacing: -0.021em;
     text-wrap: balance;
   }
 
