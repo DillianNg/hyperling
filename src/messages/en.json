@@ -59,9 +59,21 @@
       "synergyTitle": "Why the combination beats any one of them",
       "synergyBody": "Used alone, each method has a hole. Chunks without review are gone in weeks. Steady review in a random order makes every sentence a shock. A good order built from isolated words still leaves you assembling sentences on the spot. Combined, each one covers exactly where the other two are weak.",
       "synergyPoints": [
-        { "from": "Chunks", "to": "i+1 order", "effect": "something to remember, learned easy-to-hard" },
-        { "from": "i+1 order", "to": "Spaced repetition", "effect": "each review reinforces what you already understood" },
-        { "from": "Spaced repetition", "to": "Chunks", "effect": "the whole phrase stays intact instead of decaying word by word" }
+        {
+          "from": "Chunks",
+          "to": "i+1 order",
+          "effect": "something to remember, learned easy-to-hard"
+        },
+        {
+          "from": "i+1 order",
+          "to": "Spaced repetition",
+          "effect": "each review reinforces what you already understood"
+        },
+        {
+          "from": "Spaced repetition",
+          "to": "Chunks",
+          "effect": "the whole phrase stays intact instead of decaying word by word"
+        }
       ]
     },
     "howItWorks": {
@@ -176,5 +188,177 @@
     "notFoundTitle": "Page not found",
     "notFoundBody": "The page you opened does not exist.",
     "backHome": "Back home"
+  },
+  "onboarding": {
+    "title": "Build your plan",
+    "stepOf": "Step {current} of {total}",
+    "back": "Back",
+    "next": "Continue",
+    "confirm": "Start learning",
+    "creating": "Creating...",
+    "steps": {
+      "targetLanguage": {
+        "question": "Which language do you want to learn?",
+        "hint": "These are the courses available today. Adding a language means adding content files."
+      },
+      "sourceLanguage": {
+        "question": "Which language should meanings be in?",
+        "hint": "Used for meanings and explanations."
+      },
+      "currentLevel": {
+        "question": "What is your current level?",
+        "hint": "Pick what you already have. The course starts from the next level up.",
+        "a0": "Complete beginner",
+        "a0Hint": "Starting from zero",
+        "levelHint": "You already have {level}"
+      },
+      "goalLevel": {
+        "question": "How far do you want to get?",
+        "hint": "Only levels with enough content appear here.",
+        "itemCount": "{count} sentences",
+        "noGoals": "This course has no content yet above the level you selected.",
+        "comingSoon": "Content for {level} is being added."
+      },
+      "startDate": {
+        "question": "When do you start?",
+        "hint": "Usually today or tomorrow.",
+        "today": "Today",
+        "tomorrow": "Tomorrow",
+        "custom": "Pick another date"
+      },
+      "targetDate": {
+        "question": "When do you want to reach your goal?",
+        "hint": "The daily dose is calculated from this timeframe.",
+        "restDays": "Rest days (optional)",
+        "restDaysHint": "Days you are sure you will not study. Nothing is scheduled on them.",
+        "presetMonths": "{count} months",
+        "custom": "Pick another date"
+      },
+      "preview": {
+        "question": "Your plan",
+        "hint": "Review it before you start. You can change it any time under Plan.",
+        "newPerDay": "New sentences per day",
+        "studyDays": "Study days",
+        "bufferDays": "Buffer days",
+        "totalItems": "Total sentences",
+        "forecast": "At this pace you will reach {level} on {date}.",
+        "hardDeadline": "Even using all {buffer} buffer days, the deadline is {date}.",
+        "estimatedTime": "About {minutes} minutes a day."
+      }
+    },
+    "blocked": {
+      "title": "That timeframe does not work yet",
+      "suggestTarget": "Use {date}",
+      "adjust": "Pick another date"
+    },
+    "weekdays": {
+      "1": "Mon",
+      "2": "Tue",
+      "3": "Wed",
+      "4": "Thu",
+      "5": "Fri",
+      "6": "Sat",
+      "7": "Sun"
+    }
+  },
+  "plan": {
+    "title": "Plan",
+    "today": "Today",
+    "newPerDay": "New per day",
+    "progress": "Progress",
+    "completed": "{done}/{total} sentences",
+    "percent": "{percent}%",
+    "forecast": "Projected finish",
+    "forecastAtPace": "At your current pace: {date}",
+    "onTrack": "You are on track.",
+    "aheadOfSchedule": "You are ahead of schedule.",
+    "behindTitle": "You are {days} days behind",
+    "behindBody": "You should be at {expected} sentences and you are at {actual}. Pick one of the three below — the plan is never changed for you.",
+    "chooseOption": "Choose this",
+    "applying": "Applying...",
+    "unavailable": "Not available",
+    "strategies": {
+      "catch-up": "Slightly more per day, same target",
+      "use-buffer": "Spend buffer days",
+      "move-target": "Move the target date"
+    },
+    "settings": "Session settings",
+    "stages": {
+      "review": "Review",
+      "learn": "Learn new",
+      "consolidate": "End-of-day consolidation"
+    },
+    "stageHints": {
+      "review": "Cards due according to spaced repetition.",
+      "learn": "New sentences from today's plan.",
+      "consolidate": "A mini-quiz on what you learned today."
+    },
+    "calendar": "Calendar",
+    "restDay": "Rest"
+  },
+  "study": {
+    "title": "Session",
+    "start": "Start studying",
+    "resume": "Resume session",
+    "stages": {
+      "review": "Review",
+      "learn": "Learn",
+      "consolidate": "Consolidate"
+    },
+    "progress": "{current}/{total}",
+    "deferredReviews": "{count} more due cards will be scheduled into a later session.",
+    "nothingToday": "Nothing left for today",
+    "nothingTodayBody": "Come back tomorrow, or open Plan if you want to study more.",
+    "show": "Show answer",
+    "flipHint": "Press Space to flip",
+    "typeHere": "Type the sentence...",
+    "typePlaceholder": "Type the sentence in the target language",
+    "check": "Check",
+    "correct": "Correct",
+    "almost": "Almost",
+    "incorrect": "Not quite",
+    "expectedAnswer": "Answer: {answer}",
+    "continue": "Continue",
+    "rate": "How well did you know it?",
+    "ratings": {
+      "again": "Again",
+      "hard": "Hard",
+      "good": "Good",
+      "easy": "Easy"
+    },
+    "ratingHints": {
+      "again": "Comes back later in this session",
+      "hard": "Comes back sooner than usual",
+      "good": "Normal interval",
+      "easy": "Longer interval"
+    },
+    "interval": {
+      "minute": "{value} min",
+      "hour": "{value} h",
+      "day": "{value} d",
+      "month": "{value} mo"
+    },
+    "glossary": "Words in this sentence",
+    "grammarNote": "Grammar point",
+    "transliteration": "Pronunciation",
+    "showTransliteration": "Show pronunciation",
+    "hideTransliteration": "Hide pronunciation",
+    "playAudio": "Play pronunciation",
+    "audioUnavailable": "Your browser has no voice for this language.",
+    "markHard": "Mark as hard",
+    "unmarkHard": "Remove mark",
+    "exit": "Exit",
+    "exitConfirm": "Leave the session? What you have done is saved.",
+    "keyboardHints": "Space: flip · 1-4: rate · Enter: continue",
+    "summary": {
+      "title": "Today's session is done",
+      "reviewed": "{count} cards reviewed",
+      "learned": "{count} new sentences",
+      "accuracy": "{percent}% accuracy",
+      "duration": "{minutes} minutes",
+      "streak": "{days} day streak",
+      "backToDashboard": "Back to dashboard",
+      "encouragement": "A little every day adds up to a whole language."
+    }
   }
 }

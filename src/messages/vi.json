@@ -59,9 +59,21 @@
       "synergyTitle": "Vì sao ghép lại thì hiệu quả hơn từng cái riêng lẻ",
       "synergyBody": "Dùng riêng, mỗi phương pháp đều có lỗ hổng. Học khối mà không ôn thì vài tuần sau quên sạch. Ôn đều mà thứ tự lộn xộn thì mỗi câu đều là một cú sốc. Thứ tự tốt mà học từ rời thì đến lúc nói vẫn phải tự lắp ghép, vẫn chậm. Ghép cả ba thì mỗi cái bù đúng chỗ hổng của hai cái kia.",
       "synergyPoints": [
-        { "from": "Khối từ", "to": "Thứ tự i+1", "effect": "có thứ để nhớ, và nhớ theo đúng trình tự dễ → khó" },
-        { "from": "Thứ tự i+1", "to": "Lặp ngắt quãng", "effect": "mỗi lần ôn đều củng cố thứ đã hiểu, không phải học lại" },
-        { "from": "Lặp ngắt quãng", "to": "Khối từ", "effect": "cả khối được giữ nguyên trong đầu, không rơi rụng từng từ" }
+        {
+          "from": "Khối từ",
+          "to": "Thứ tự i+1",
+          "effect": "có thứ để nhớ, và nhớ theo đúng trình tự dễ → khó"
+        },
+        {
+          "from": "Thứ tự i+1",
+          "to": "Lặp ngắt quãng",
+          "effect": "mỗi lần ôn đều củng cố thứ đã hiểu, không phải học lại"
+        },
+        {
+          "from": "Lặp ngắt quãng",
+          "to": "Khối từ",
+          "effect": "cả khối được giữ nguyên trong đầu, không rơi rụng từng từ"
+        }
       ]
     },
     "howItWorks": {
@@ -176,5 +188,177 @@
     "notFoundTitle": "Không tìm thấy trang",
     "notFoundBody": "Đường dẫn bạn vừa mở không tồn tại.",
     "backHome": "Về trang chủ"
+  },
+  "onboarding": {
+    "title": "Tạo lộ trình của bạn",
+    "stepOf": "Bước {current}/{total}",
+    "back": "Quay lại",
+    "next": "Tiếp tục",
+    "confirm": "Bắt đầu học",
+    "creating": "Đang tạo...",
+    "steps": {
+      "targetLanguage": {
+        "question": "Bạn muốn học ngôn ngữ nào?",
+        "hint": "Hiện tại HyperLing có các khóa dưới đây. Thêm ngôn ngữ mới chỉ cần thêm file nội dung."
+      },
+      "sourceLanguage": {
+        "question": "Bạn muốn xem nghĩa bằng ngôn ngữ nào?",
+        "hint": "Ngôn ngữ dùng để giải nghĩa và hướng dẫn."
+      },
+      "currentLevel": {
+        "question": "Trình độ hiện tại của bạn?",
+        "hint": "Chọn đúng trình độ bạn đã có. Hệ thống sẽ bắt đầu từ cấp kế tiếp.",
+        "a0": "Chưa biết gì",
+        "a0Hint": "Bắt đầu từ con số không",
+        "levelHint": "Đã nắm được cấp {level}"
+      },
+      "goalLevel": {
+        "question": "Bạn muốn đạt tới đâu?",
+        "hint": "Chỉ những cấp độ đã có đủ nội dung mới hiện ở đây.",
+        "itemCount": "{count} câu",
+        "noGoals": "Khóa này chưa có nội dung cho cấp nào cao hơn trình độ bạn chọn.",
+        "comingSoon": "Cấp {level} đang được bổ sung nội dung."
+      },
+      "startDate": {
+        "question": "Bạn bắt đầu từ ngày nào?",
+        "hint": "Thường là hôm nay hoặc ngày mai.",
+        "today": "Hôm nay",
+        "tomorrow": "Ngày mai",
+        "custom": "Chọn ngày khác"
+      },
+      "targetDate": {
+        "question": "Bạn muốn đạt mục tiêu vào ngày nào?",
+        "hint": "Hệ thống sẽ tính số câu mỗi ngày từ khung thời gian này.",
+        "restDays": "Ngày nghỉ trong tuần (tùy chọn)",
+        "restDaysHint": "Những ngày bạn chắc chắn không học. Hệ thống sẽ không xếp bài vào các ngày này.",
+        "presetMonths": "{count} tháng",
+        "custom": "Chọn ngày khác"
+      },
+      "preview": {
+        "question": "Kế hoạch của bạn",
+        "hint": "Xem lại trước khi bắt đầu. Bạn có thể đổi bất cứ lúc nào trong phần Kế hoạch.",
+        "newPerDay": "Câu mới mỗi ngày",
+        "studyDays": "Số ngày học",
+        "bufferDays": "Ngày đệm",
+        "totalItems": "Tổng số câu",
+        "forecast": "Với tốc độ này bạn sẽ đạt {level} vào ngày {date}.",
+        "hardDeadline": "Kể cả khi dùng hết {buffer} ngày đệm, hạn chót vẫn là {date}.",
+        "estimatedTime": "Khoảng {minutes} phút mỗi ngày."
+      }
+    },
+    "blocked": {
+      "title": "Khung thời gian này chưa khả thi",
+      "suggestTarget": "Dùng ngày {date}",
+      "adjust": "Chọn ngày khác"
+    },
+    "weekdays": {
+      "1": "T2",
+      "2": "T3",
+      "3": "T4",
+      "4": "T5",
+      "5": "T6",
+      "6": "T7",
+      "7": "CN"
+    }
+  },
+  "plan": {
+    "title": "Kế hoạch",
+    "today": "Hôm nay",
+    "newPerDay": "Câu mới/ngày",
+    "progress": "Tiến độ",
+    "completed": "{done}/{total} câu",
+    "percent": "{percent}%",
+    "forecast": "Dự báo hoàn thành",
+    "forecastAtPace": "Với tốc độ hiện tại: {date}",
+    "onTrack": "Bạn đang đúng tiến độ.",
+    "aheadOfSchedule": "Bạn đang đi trước kế hoạch.",
+    "behindTitle": "Bạn đang trễ {days} ngày",
+    "behindBody": "Đáng lẽ đã học {expected} câu, hiện tại là {actual} câu. Chọn một trong ba cách dưới đây — hệ thống không tự đổi kế hoạch của bạn.",
+    "chooseOption": "Chọn cách này",
+    "applying": "Đang áp dụng...",
+    "unavailable": "Không dùng được",
+    "strategies": {
+      "catch-up": "Dồn nhẹ, giữ ngày mục tiêu",
+      "use-buffer": "Dùng ngày đệm",
+      "move-target": "Dời ngày mục tiêu"
+    },
+    "settings": "Cài đặt phiên học",
+    "stages": {
+      "review": "Ôn tập",
+      "learn": "Học mới",
+      "consolidate": "Củng cố cuối ngày"
+    },
+    "stageHints": {
+      "review": "Thẻ đến hạn theo thuật toán lặp lại ngắt quãng.",
+      "learn": "Câu mới theo kế hoạch trong ngày.",
+      "consolidate": "Mini-quiz các câu vừa học hôm nay."
+    },
+    "calendar": "Lịch học",
+    "restDay": "Nghỉ"
+  },
+  "study": {
+    "title": "Phiên học",
+    "start": "Bắt đầu học",
+    "resume": "Tiếp tục phiên học",
+    "stages": {
+      "review": "Ôn tập",
+      "learn": "Học mới",
+      "consolidate": "Củng cố"
+    },
+    "progress": "{current}/{total}",
+    "deferredReviews": "Còn {count} thẻ đến hạn sẽ được xếp vào phiên sau.",
+    "nothingToday": "Hôm nay bạn không còn gì để học",
+    "nothingTodayBody": "Quay lại vào ngày mai, hoặc mở phần Kế hoạch nếu muốn học thêm.",
+    "show": "Xem đáp án",
+    "flipHint": "Nhấn Space để lật thẻ",
+    "typeHere": "Gõ câu tiếng Đức...",
+    "typePlaceholder": "Gõ câu ở ngôn ngữ đích",
+    "check": "Kiểm tra",
+    "correct": "Chính xác",
+    "almost": "Gần đúng",
+    "incorrect": "Chưa đúng",
+    "expectedAnswer": "Đáp án: {answer}",
+    "continue": "Tiếp tục",
+    "rate": "Bạn nhớ câu này thế nào?",
+    "ratings": {
+      "again": "Chưa nhớ",
+      "hard": "Khó",
+      "good": "Nhớ được",
+      "easy": "Dễ"
+    },
+    "ratingHints": {
+      "again": "Sẽ gặp lại ngay trong phiên này",
+      "hard": "Gặp lại sớm hơn bình thường",
+      "good": "Khoảng cách bình thường",
+      "easy": "Giãn cách xa hơn"
+    },
+    "interval": {
+      "minute": "{value} phút",
+      "hour": "{value} giờ",
+      "day": "{value} ngày",
+      "month": "{value} tháng"
+    },
+    "glossary": "Từ trong câu",
+    "grammarNote": "Điểm ngữ pháp",
+    "transliteration": "Phiên âm",
+    "showTransliteration": "Hiện phiên âm",
+    "hideTransliteration": "Ẩn phiên âm",
+    "playAudio": "Nghe phát âm",
+    "audioUnavailable": "Trình duyệt của bạn chưa có giọng đọc cho ngôn ngữ này.",
+    "markHard": "Đánh dấu khó",
+    "unmarkHard": "Bỏ đánh dấu",
+    "exit": "Thoát",
+    "exitConfirm": "Thoát phiên học? Tiến độ đã làm vẫn được lưu.",
+    "keyboardHints": "Space: lật thẻ · 1–4: đánh giá · Enter: tiếp tục",
+    "summary": {
+      "title": "Xong phiên hôm nay",
+      "reviewed": "Đã ôn {count} thẻ",
+      "learned": "Đã học {count} câu mới",
+      "accuracy": "Độ chính xác {percent}%",
+      "duration": "Thời gian {minutes} phút",
+      "streak": "Chuỗi {days} ngày",
+      "backToDashboard": "Về bảng điều khiển",
+      "encouragement": "Mỗi ngày một ít, cộng lại thành cả một ngôn ngữ."
+    }
   }
 }
