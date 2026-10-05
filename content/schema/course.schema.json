@@ -1,0 +1,298 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://hyperling.app/schema/course.json",
+  "type": "object",
+  "properties": {
+    "id": {
+      "type": "string",
+      "pattern": "^[a-z0-9]+(-[a-z0-9]+)*$"
+    },
+    "schemaVersion": {
+      "type": "number",
+      "const": 1
+    },
+    "version": {
+      "type": "string",
+      "pattern": "^\\d+\\.\\d+\\.\\d+$"
+    },
+    "title": {
+      "type": "object",
+      "properties": {
+        "vi": {
+          "type": "string",
+          "minLength": 1
+        },
+        "en": {
+          "type": "string",
+          "minLength": 1
+        }
+      },
+      "required": [
+        "vi"
+      ]
+    },
+    "description": {
+      "type": "object",
+      "properties": {
+        "vi": {
+          "type": "string",
+          "minLength": 1
+        },
+        "en": {
+          "type": "string",
+          "minLength": 1
+        }
+      },
+      "required": [
+        "vi"
+      ]
+    },
+    "targetLanguage": {
+      "type": "string",
+      "pattern": "^[a-z]{2,3}(-[A-Z][a-z]{3})?(-([A-Z]{2}|\\d{3}))?$"
+    },
+    "sourceLanguage": {
+      "type": "string",
+      "pattern": "^[a-z]{2,3}(-[A-Z][a-z]{3})?(-([A-Z]{2}|\\d{3}))?$"
+    },
+    "levelFramework": {
+      "type": "string",
+      "const": "CEFR"
+    },
+    "levelFrom": {
+      "type": "string",
+      "enum": [
+        "A0",
+        "A1",
+        "A2",
+        "B1",
+        "B2",
+        "C1",
+        "C2"
+      ]
+    },
+    "levelTo": {
+      "type": "string",
+      "enum": [
+        "A0",
+        "A1",
+        "A2",
+        "B1",
+        "B2",
+        "C1",
+        "C2"
+      ]
+    },
+    "levels": {
+      "minItems": 1,
+      "type": "array",
+      "items": {
+        "type": "string",
+        "enum": [
+          "A0",
+          "A1",
+          "A2",
+          "B1",
+          "B2",
+          "C1",
+          "C2"
+        ]
+      }
+    },
+    "primaryItemKind": {
+      "type": "string",
+      "enum": [
+        "sentence",
+        "word",
+        "phrase"
+      ]
+    },
+    "fields": {
+      "minItems": 1,
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {
+          "key": {
+            "type": "string",
+            "pattern": "^[a-z][a-zA-Z0-9]*$"
+          },
+          "role": {
+            "type": "string",
+            "enum": [
+              "prompt",
+              "answer",
+              "hint",
+              "note",
+              "tag",
+              "badge",
+              "audio"
+            ]
+          },
+          "label": {
+            "type": "object",
+            "properties": {
+              "vi": {
+                "type": "string",
+                "minLength": 1
+              },
+              "en": {
+                "type": "string",
+                "minLength": 1
+              }
+            },
+            "required": [
+              "vi"
+            ]
+          },
+          "required": {
+            "default": false,
+            "type": "boolean"
+          },
+          "display": {
+            "default": "always",
+            "type": "string",
+            "enum": [
+              "always",
+              "toggle",
+              "reveal"
+            ]
+          },
+          "colorCoded": {
+            "default": false,
+            "type": "boolean"
+          },
+          "enum": {
+            "minItems": 1,
+            "type": "array",
+            "items": {
+              "type": "string",
+              "minLength": 1
+            }
+          }
+        },
+        "required": [
+          "key",
+          "role"
+        ]
+      }
+    },
+    "glossaryFields": {
+      "default": [],
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {
+          "key": {
+            "type": "string",
+            "pattern": "^[a-z][a-zA-Z0-9]*$"
+          },
+          "role": {
+            "type": "string",
+            "enum": [
+              "prompt",
+              "answer",
+              "hint",
+              "note",
+              "tag",
+              "badge",
+              "audio"
+            ]
+          },
+          "label": {
+            "type": "object",
+            "properties": {
+              "vi": {
+                "type": "string",
+                "minLength": 1
+              },
+              "en": {
+                "type": "string",
+                "minLength": 1
+              }
+            },
+            "required": [
+              "vi"
+            ]
+          },
+          "required": {
+            "default": false,
+            "type": "boolean"
+          },
+          "display": {
+            "default": "always",
+            "type": "string",
+            "enum": [
+              "always",
+              "toggle",
+              "reveal"
+            ]
+          },
+          "colorCoded": {
+            "default": false,
+            "type": "boolean"
+          },
+          "enum": {
+            "minItems": 1,
+            "type": "array",
+            "items": {
+              "type": "string",
+              "minLength": 1
+            }
+          }
+        },
+        "required": [
+          "key",
+          "role"
+        ]
+      }
+    },
+    "tts": {
+      "type": "object",
+      "properties": {
+        "lang": {
+          "type": "string",
+          "minLength": 2
+        },
+        "rate": {
+          "default": 0.9,
+          "type": "number",
+          "minimum": 0.5,
+          "maximum": 2
+        }
+      },
+      "required": [
+        "lang"
+      ]
+    },
+    "source": {
+      "type": "object",
+      "properties": {
+        "name": {
+          "type": "string",
+          "minLength": 1
+        },
+        "note": {
+          "type": "string"
+        }
+      },
+      "required": [
+        "name"
+      ]
+    }
+  },
+  "required": [
+    "id",
+    "schemaVersion",
+    "version",
+    "title",
+    "targetLanguage",
+    "sourceLanguage",
+    "levelFramework",
+    "levelFrom",
+    "levelTo",
+    "levels",
+    "primaryItemKind",
+    "fields"
+  ]
+}

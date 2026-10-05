@@ -1,0 +1,123 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://hyperling.app/schema/items.json",
+  "type": "object",
+  "properties": {
+    "courseId": {
+      "type": "string",
+      "pattern": "^[a-z0-9]+(-[a-z0-9]+)*$"
+    },
+    "schemaVersion": {
+      "type": "number",
+      "const": 1
+    },
+    "items": {
+      "minItems": 1,
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {
+          "stableKey": {
+            "type": "string",
+            "pattern": "^[A-Z]\\d{4,6}$"
+          },
+          "kind": {
+            "type": "string",
+            "enum": [
+              "sentence",
+              "word",
+              "phrase"
+            ]
+          },
+          "level": {
+            "type": "string",
+            "enum": [
+              "A0",
+              "A1",
+              "A2",
+              "B1",
+              "B2",
+              "C1",
+              "C2"
+            ]
+          },
+          "topic": {
+            "type": "string",
+            "minLength": 1
+          },
+          "orderIndex": {
+            "type": "integer",
+            "exclusiveMinimum": 0,
+            "maximum": 9007199254740991
+          },
+          "fields": {
+            "type": "object",
+            "propertyNames": {
+              "type": "string"
+            },
+            "additionalProperties": {
+              "type": "string"
+            }
+          },
+          "glossary": {
+            "default": [],
+            "type": "array",
+            "items": {
+              "type": "object",
+              "properties": {
+                "term": {
+                  "type": "string",
+                  "minLength": 1
+                },
+                "meaning": {
+                  "type": "string",
+                  "minLength": 1
+                },
+                "partOfSpeech": {
+                  "default": "other",
+                  "type": "string",
+                  "enum": [
+                    "noun",
+                    "verb",
+                    "reflexive_verb",
+                    "adjective",
+                    "adverb",
+                    "phrase",
+                    "other"
+                  ]
+                },
+                "fields": {
+                  "default": {},
+                  "type": "object",
+                  "propertyNames": {
+                    "type": "string"
+                  },
+                  "additionalProperties": {
+                    "type": "string"
+                  }
+                }
+              },
+              "required": [
+                "term",
+                "meaning"
+              ]
+            }
+          }
+        },
+        "required": [
+          "stableKey",
+          "kind",
+          "level",
+          "topic",
+          "orderIndex",
+          "fields"
+        ]
+      }
+    }
+  },
+  "required": [
+    "courseId",
+    "schemaVersion",
+    "items"
+  ]
+}
