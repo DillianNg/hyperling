@@ -80,6 +80,9 @@ function main(): number {
   const { course } = parsedCourse;
   const declaredFields = new Set(course.fields.map((f) => f.key));
 
+  // Gender articles come from the course's own declaration, never from the code.
+  const genderArticles = course.glossaryFields.find((f) => f.key === 'gender')?.enum ?? [];
+
   const rows = parseTable(input);
   console.log(`Đọc ${rows.length} dòng từ ${input}`);
 
@@ -124,7 +127,7 @@ function main(): number {
       fields.sentenceType = SENTENCE_TYPES[typeLabel.toLowerCase()] ?? typeLabel;
     }
 
-    const { entries, malformed } = parseGlossary(cell.newWords ?? '');
+    const { entries, malformed } = parseGlossary(cell.newWords ?? '', genderArticles);
     for (const bad of malformed) {
       problems.push(`dòng ${lineNo} (${stableKey}): mục từ mới "${bad}" thiếu dấu "=" theo dạng "từ = nghĩa".`);
     }

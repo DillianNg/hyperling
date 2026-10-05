@@ -49,7 +49,12 @@ export const SENTENCE_TYPES: Record<string, string> = {
   'liệt kê': 'enumeration',
 };
 
-const GENDER_PREFIXES: Record<string, string> = { der: 'der', die: 'die', das: 'das' };
+/**
+ * Articles that mark noun gender, taken from the course's own `glossaryFields`
+ * declaration rather than hardcoded. German declares der/die/das, French le/la,
+ * Spanish el/la — the parser has no opinion about which language it is reading.
+ */
+export type GenderArticles = readonly string[];
 
 export function norm(value: string | undefined | null): string {
   return (value ?? '').normalize('NFC').replace(/\s+/g, ' ').trim();
@@ -62,10 +67,15 @@ export function canonicalHeader(header: string): string {
 
 /**
  * Parse the free-text glossary column, e.g. `der Morgen = buổi sáng; gut = tốt`.
- * Noun gender is read off the article when the term carries one, which is how the
- * source workbook encodes it. Entries without a `=` are reported, not guessed.
+ * Noun gender is read off the leading article when it is one the course declared,
+ * so the same parser handles `der Tag`, `le jour` and `el día`.
+ * Entries without a `=` are reported, not guessed.
  */
-export function parseGlossary(raw: string): { entries: GlossaryEntry[]; malformed: string[] } {
+export function parseGlossary(
+  raw: string,
+  genderArticles: GenderArticles = [],
+): { entries: GlossaryEntry[]; malformed: string[] } {
+  const articles = new Set(genderArticles.map((a) => a.toLowerCase()));
   const entries: GlossaryEntry[] = [];
   const malformed: string[] = [];
 
@@ -86,8 +96,9 @@ export function parseGlossary(raw: string): { entries: GlossaryEntry[]; malforme
       continue;
     }
 
-    const article = term.split(' ')[0]?.toLowerCase() ?? '';
-    const gender = GENDER_PREFIXES[article];
+    const leadingWord = term.split(' ')[0]?.toLowerCase() ?? '';
+    // A term that starts with one of the course's gender articles is a noun.
+    const gender = articles.has(leadingWord) ? leadingWord : null;
     const partOfSpeech: PartOfSpeech = gender ? 'noun' : 'other';
 
     entries.push({ term, meaning, partOfSpeech, fields: gender ? { gender } : {} });

@@ -46,9 +46,13 @@ describe('norm', () => {
   });
 });
 
+/** Articles each course declares in its own course.json glossaryFields. */
+const DE_ARTICLES = ['der', 'die', 'das'];
+const FR_ARTICLES = ['le', 'la', "l'", 'les'];
+
 describe('parseGlossary', () => {
   it('tách đúng định dạng "từ = nghĩa; từ = nghĩa" của file gốc', () => {
-    const { entries, malformed } = parseGlossary('der Morgen = buổi sáng; gut = tốt');
+    const { entries, malformed } = parseGlossary('der Morgen = buổi sáng; gut = tốt', DE_ARTICLES);
     expect(malformed).toEqual([]);
     expect(entries).toEqual([
       { term: 'der Morgen', meaning: 'buổi sáng', partOfSpeech: 'noun', fields: { gender: 'der' } },
@@ -56,32 +60,53 @@ describe('parseGlossary', () => {
     ]);
   });
 
-  it('suy ra giống danh từ từ mạo từ der/die/das', () => {
-    const { entries } = parseGlossary('die Karte = tấm thẻ; das Geschenk = món quà; der Tag = ngày');
+  it('suy ra giống danh từ từ mạo từ mà khóa học khai báo', () => {
+    const { entries } = parseGlossary(
+      'die Karte = tấm thẻ; das Geschenk = món quà; der Tag = ngày',
+      DE_ARTICLES,
+    );
     expect(entries.map((e) => e.fields.gender)).toEqual(['die', 'das', 'der']);
     expect(entries.every((e) => e.partOfSpeech === 'noun')).toBe(true);
   });
 
+  it('cùng một parser nhận mạo từ tiếng Pháp — engine không biết ngôn ngữ nào', () => {
+    const { entries } = parseGlossary('le jour = ngày; la gare = nhà ga; aller = đi', FR_ARTICLES);
+    expect(entries.map((e) => e.fields.gender)).toEqual(['le', 'la', undefined]);
+    expect(entries.map((e) => e.partOfSpeech)).toEqual(['noun', 'noun', 'other']);
+  });
+
+  it('không khai báo mạo từ nào thì không suy giống cho từ nào', () => {
+    const { entries } = parseGlossary('der Morgen = buổi sáng', []);
+    expect(entries[0]!.fields.gender).toBeUndefined();
+    expect(entries[0]!.partOfSpeech).toBe('other');
+  });
+
+  it('mạo từ của ngôn ngữ khác không bị nhận nhầm', () => {
+    // "le" là mạo từ tiếng Pháp, không phải tiếng Đức.
+    const { entries } = parseGlossary('le jour = ngày', DE_ARTICLES);
+    expect(entries[0]!.fields.gender).toBeUndefined();
+  });
+
   it('báo lại mục thiếu dấu "=" thay vì đoán', () => {
-    const { entries, malformed } = parseGlossary('gut = tốt; thiếu dấu bằng; schön = đẹp');
+    const { entries, malformed } = parseGlossary('gut = tốt; thiếu dấu bằng; schön = đẹp', DE_ARTICLES);
     expect(entries).toHaveLength(2);
     expect(malformed).toEqual(['thiếu dấu bằng']);
   });
 
   it('báo lại mục chỉ có một nửa', () => {
-    const { entries, malformed } = parseGlossary('= chỉ có nghĩa; từ không nghĩa =');
+    const { entries, malformed } = parseGlossary('= chỉ có nghĩa; từ không nghĩa =', DE_ARTICLES);
     expect(entries).toEqual([]);
     expect(malformed).toEqual(['= chỉ có nghĩa', 'từ không nghĩa =']);
   });
 
   it('bỏ qua dấu ; thừa và chuỗi rỗng', () => {
-    expect(parseGlossary('').entries).toEqual([]);
-    expect(parseGlossary(';;;').entries).toEqual([]);
-    expect(parseGlossary('gut = tốt;').entries).toHaveLength(1);
+    expect(parseGlossary('', DE_ARTICLES).entries).toEqual([]);
+    expect(parseGlossary(';;;', DE_ARTICLES).entries).toEqual([]);
+    expect(parseGlossary('gut = tốt;', DE_ARTICLES).entries).toHaveLength(1);
   });
 
   it('giữ nguyên dấu "=" nằm trong phần nghĩa', () => {
-    const { entries } = parseGlossary('gleich = bằng = ngang nhau');
+    const { entries } = parseGlossary('gleich = bằng = ngang nhau', DE_ARTICLES);
     expect(entries[0]).toMatchObject({ term: 'gleich', meaning: 'bằng = ngang nhau' });
   });
 });
