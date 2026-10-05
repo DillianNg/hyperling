@@ -12,7 +12,10 @@ export function SiteHeader({ signedIn = false }: { signedIn?: boolean }) {
   return (
     <header className="sticky top-0 z-50 border-b border-border bg-surface/85 backdrop-blur-sm">
       <div className="container-page flex h-16 items-center justify-between gap-4">
-        <Link href="/" className="font-display text-lg font-semibold tracking-tight">
+        <Link
+          href="/"
+          className="-mx-2 inline-flex min-h-11 items-center px-2 font-display text-lg font-semibold tracking-tight"
+        >
           {tApp('name')}
         </Link>
 

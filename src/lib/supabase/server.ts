@@ -1,6 +1,6 @@
 import { cookies } from 'next/headers';
 import { createServerClient } from '@supabase/ssr';
-import { getPublicEnv } from '@/lib/env';
+import { getPublicEnv, isSupabaseConfigured } from '@/lib/env';
 
 /**
  * Supabase client for server components, route handlers and server actions.
@@ -29,8 +29,14 @@ export async function createClient() {
   });
 }
 
-/** The signed-in user, or null. Never throws, so layouts can branch on it. */
+/**
+ * The signed-in user, or null. Never throws, so layouts and private pages can
+ * branch on it — including when the project has no Supabase configured at all,
+ * where the right outcome is "nobody is signed in", not a 500.
+ */
 export async function getCurrentUser() {
+  if (!isSupabaseConfigured()) return null;
+
   const supabase = await createClient();
   const { data, error } = await supabase.auth.getUser();
   if (error) return null;

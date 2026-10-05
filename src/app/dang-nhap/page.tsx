@@ -32,7 +32,10 @@ export default async function SignInPage({
   return (
     <main className="container-page flex min-h-dvh flex-col justify-center py-16">
       <div className="mx-auto w-full max-w-md">
-        <Link href="/" className="font-display text-lg font-semibold tracking-tight">
+        <Link
+          href="/"
+          className="-mx-2 inline-flex min-h-11 items-center px-2 font-display text-lg font-semibold tracking-tight"
+        >
           {tApp('name')}
         </Link>
 
