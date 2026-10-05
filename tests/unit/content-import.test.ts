@@ -190,3 +190,35 @@ describe('content:import', () => {
     expect(row[0]!.fields.text).toBe('Guten Morgen!');
   }, 60_000);
 });
+
+describe('script import — đường transaction', () => {
+  /**
+   * Regression guard for a deadlock that the tests above cannot reach: they call
+   * importCourse directly, so nothing exercised the script's transaction wrapper.
+   *
+   * The script runs the import inside `sql.begin` on a pool of one connection.
+   * Issuing the statements on the outer pool handle instead of the transaction's
+   * own waits for a connection that the transaction is holding — the import hung
+   * silently forever — and would also place the writes outside the transaction,
+   * so a mid-import failure could not roll back.
+   */
+  const source = readFileSync(
+    join(resolve(dirname(fileURLToPath(import.meta.url)), '..', '..'), 'scripts', 'content-import.ts'),
+    'utf8',
+  );
+
+  it('chạy câu lệnh trên handle của transaction, không trên pool bên ngoài', () => {
+    const begin = /sql\.begin\(.*\);/.exec(source);
+    expect(begin, 'không tìm thấy lời gọi sql.begin trong script').not.toBeNull();
+
+    const call = begin![0];
+    expect(call).toMatch(/\btx\b/);
+    // `sql.unsafe` / `sql.query` inside the transaction is the deadlock.
+    expect(call).not.toMatch(/\bsql\.(unsafe|query)\b/);
+  });
+
+  it('đặt statement_timeout để lỗi hiện ra thay vì treo im lặng', () => {
+    expect(source).toMatch(/statement_timeout/);
+    expect(source).toMatch(/connect_timeout/);
+  });
+});
