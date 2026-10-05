@@ -107,6 +107,7 @@ Máy đang chạy **macOS 12 / Node 21.5.0**, dẫn tới ba ràng buộc:
 | Vitest 5 + Vite 8 cần `node:util.styleText` (Node ≥ 22) | Ghim Vitest 4 + Vite 7 |
 | `next-intl/plugin` kéo `@swc/core`, native binary không load trên macOS 12 | Bỏ plugin, tự set alias `next-intl/config` trong `next.config.ts` |
 | Playwright không hỗ trợ `mac12-arm64` | E2E chạy trên CI (Ubuntu). Local chưa chạy được. |
+| Lighthouse 13 cần Node ≥ 22.19 | Dùng `npx lighthouse@12` khi đo trên máy này |
 
 Nâng lên Node 22 (`.nvmrc` đã ghi sẵn) sẽ gỡ ràng buộc thứ nhất.
 
@@ -114,4 +115,6 @@ Nâng lên Node 22 (`.nvmrc` đã ghi sẵn) sẽ gỡ ràng buộc thứ nhất
 
 - ✅ **Phase 1** — nền tảng, schema + RLS, auth email, pipeline nội dung, landing page.
 - ✅ **Phase 2** — planner, FSRS, onboarding, trang kế hoạch, phiên học đầy đủ.
-- ⬜ **Phase 3** — dashboard, heatmap, streak, PWA, i18n tiếng Anh, e2e, deploy.
+- ✅ **Phase 3** — dashboard, heatmap, streak, danh sách từ, PWA, i18n, e2e, deploy.
+
+Triển khai: [`docs/DEPLOYMENT.md`](docs/DEPLOYMENT.md).

@@ -335,3 +335,80 @@ sách giọng đọc là trạng thái của trình duyệt, không phải của
 **Lý do.** Lõi thuần chạy được ở cả hai phía — đó là lợi ích của việc giữ
 `src/core` không phụ thuộc framework. Nhưng trần mỗi ngày phải đứng vững cả khi
 request bị chế tác, nên con số lưu vào database luôn là con số server tự tính.
+
+---
+
+## Phase 3 — 2026-10-05
+
+### D-029 · Một họ chữ duy nhất, không dùng font riêng cho tiêu đề
+
+**Bối cảnh.** Bản đầu dùng Inter cho nội dung và Be Vietnam Pro cho tiêu đề. Đo
+Lighthouse trên production build: **Performance 86**, với Largest Contentful Paint
+3,8 giây mà 88% là *render delay* — trình duyệt phải tải 13 file woff2 trước khi
+dòng tiêu đề lớn nhất ổn định.
+
+**Quyết định.** Bỏ Be Vietnam Pro. Inter là variable font phủ cả Vietnamese lẫn
+Latin Extended, nên `Nghĩa tiếng Việt` và `Grüße` vẫn cùng một face. Tiêu đề phân
+cấp bằng độ đậm và letter-spacing.
+
+**Kết quả.** 13 file font còn **7**. Performance **86 → 92**.
+
+**Lý do.** Một font chữ thứ hai là thứ người học không bao giờ nhận ra thiếu,
+nhưng ba giây chờ tiêu đề thì có.
+
+---
+
+### D-030 · Service worker cố ý bảo thủ
+
+**Quyết định.** Service worker chỉ cache `/_next/static/` (đã băm nội dung nên
+không bao giờ cũ) và trang ngoại tuyến. **Mọi trang và mọi lời gọi API đều
+network-only**, không ghi vào cache.
+
+**Lý do.** Đây là ứng dụng nhiều người dùng. Cache nhầm một trang đã render nghĩa
+là có khả năng hiện dữ liệu của người này cho người khác. Lợi ích của việc cache
+trang không đáng để đánh đổi rủi ro đó.
+
+---
+
+### D-031 · Cường độ heatmap tính theo chính người học
+
+**Quyết định.** Mức đậm nhạt của ô trong heatmap so với **ngày bận nhất của chính
+người đó**, không theo thang cố định.
+
+**Lý do.** Người học 600 câu trong 90 ngày có nhịp 7 câu/ngày. Nếu thang đo cố
+định lấy mốc 20 câu, lưới của họ sẽ luôn nhạt — trông như đang lười, trong khi
+họ theo đúng kế hoạch của mình.
+
+---
+
+### D-032 · Ngày nghỉ đã khai báo không làm đứt chuỗi
+
+**Quyết định.** `computeStreak` bỏ qua ngày nghỉ mà người học đã khai báo trong
+`rest_weekdays`: không tính là ngày học, nhưng cũng không cắt chuỗi.
+
+**Lý do.** Người học khai báo nghỉ Thứ Bảy và Chủ Nhật rồi bị mất chuỗi vào mỗi
+cuối tuần thì tính năng ngày nghỉ trở thành vô nghĩa. Chuỗi nên đo sự đều đặn so
+với kế hoạch của họ, không so với một tuần bảy ngày tưởng tượng.
+
+---
+
+### D-033 · Bộ lọc danh sách từ nằm trong URL
+
+**Quyết định.** Tìm kiếm, lọc cấp độ và lọc "chỉ câu khó" lưu trong query string,
+không trong state của component.
+
+**Lý do.** Một danh sách đã lọc là thứ người học muốn quay lại. Đặt trong URL thì
+nó bookmark được, chia sẻ được, và sống sót qua reload — miễn phí.
+
+---
+
+### D-034 · Mạo từ chỉ giống danh từ lấy từ `course.json`
+
+**Bối cảnh.** Thêm khóa tiếng Pháp làm lộ ra `parseGlossary` hardcode
+`der/die/das` — chính xác là loại vi phạm mà nguyên tắc "engine không biết ngôn
+ngữ nào" nhằm ngăn chặn.
+
+**Quyết định.** Danh sách mạo từ truyền vào từ `course.glossaryFields[].enum`.
+
+**Lý do.** Đây là lý do nên thêm ngôn ngữ thứ hai sớm: nó biến một nguyên tắc
+kiến trúc thành thứ kiểm chứng được, và chỉ ra chỗ nguyên tắc đó đang bị phá.

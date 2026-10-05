@@ -38,8 +38,10 @@ Cột `Từ mới trong câu` theo đúng định dạng file gốc:
 der Morgen = buổi sáng; gut = tốt
 ```
 
-Giống danh từ được suy ra từ mạo từ `der`/`die`/`das` ở đầu từ. Mục thiếu dấu `=`
-sẽ bị báo lỗi kèm số dòng, **không bị đoán bừa**.
+Giống danh từ được suy ra từ mạo từ đứng đầu — nhưng **danh sách mạo từ lấy từ
+`course.json`**, không hardcode trong code. Khóa tiếng Đức khai báo `der/die/das`,
+khóa tiếng Pháp khai báo `le/la/l'/les`, và cùng một parser xử lý cả hai. Mục
+thiếu dấu `=` sẽ bị báo lỗi kèm số dòng, **không bị đoán bừa**.
 
 Dòng không có câu sẽ bị bỏ qua và đếm lại — không bao giờ bị điền nội dung tự sinh.
 
@@ -80,6 +82,12 @@ cấp độ đã có đủ item trong database.
 ## Tình huống 2 — Thêm ngôn ngữ hoàn toàn mới
 
 Ví dụ: tiếng Pháp, A1–B2, nghĩa bằng tiếng Việt.
+
+> **Đã làm thật.** Khóa `fr-a1-b2` trong repo này (20 câu A1) được tạo đúng theo
+> bốn bước dưới đây, không sửa một dòng code lõi nào. Quá trình đó lộ ra một chỗ
+> engine còn hardcode tiếng Đức — mạo từ `der/die/das` nằm trong parser — và đã
+> được sửa thành đọc từ `course.json`. Đây chính là giá trị của việc thêm ngôn
+> ngữ thứ hai: nó chứng minh nguyên tắc, hoặc phát hiện chỗ nguyên tắc bị vi phạm.
 
 ### Bước 1 — Sinh khung khóa
 
