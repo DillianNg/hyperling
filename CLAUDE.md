@@ -49,7 +49,19 @@ diễn đạt được. `src/lib/db/schema.ts` chỉ phản chiếu để có ty
 Sửa schema = sửa file SQL trước, rồi cập nhật Drizzle cho khớp. Đừng dùng
 `drizzle-kit push`.
 
-### 7. RLS không có ngoại lệ
+### 7. Planner đề xuất, không bao giờ tự quyết
+Khi người học bỏ lỡ ngày, planner trả về **ba lựa chọn** kèm hệ quả cụ thể và để
+người học chọn. Không bao giờ âm thầm tăng số mục/ngày hay dời ngày mục tiêu.
+
+Trần `MAX_NEW_PER_DAY` là **cứng**. Hệ quả đáng chú ý: khi kế hoạch đã chạy đúng
+trần (20/ngày), phương án "dồn nhẹ" không bao giờ khả dụng — không còn chỗ để dồn.
+
+### 8. Ngày tháng là `CalendarDate`, không phải `Date`
+`src/core/planner/calendar.ts` định nghĩa `CalendarDate` = chuỗi `YYYY-MM-DD` có
+brand. Mọi phép tính ngày chạy trên số ngày, không trên mili giây, nên DST và múi
+giờ không làm lệch kết quả. `Date` chỉ dùng cho thời điểm thật (FSRS due time).
+
+### 9. RLS không có ngoại lệ
 Mọi bảng dữ liệu người dùng đều bật RLS, quyền sở hữu luôn lấy từ `auth.uid()`
 trực tiếp trên dòng dữ liệu, không bao giờ từ giá trị client gửi lên.
 `review_logs` cố ý **không có** policy UPDATE/DELETE — nhật ký ôn tập là bất biến.
@@ -101,5 +113,5 @@ Nâng lên Node 22 (`.nvmrc` đã ghi sẵn) sẽ gỡ ràng buộc thứ nhất
 ## Trạng thái
 
 - ✅ **Phase 1** — nền tảng, schema + RLS, auth email, pipeline nội dung, landing page.
-- ⬜ **Phase 2** — planner, onboarding, phiên học.
-- ⬜ **Phase 3** — dashboard, PWA, i18n tiếng Anh, e2e, deploy.
+- ✅ **Phase 2** — planner, FSRS, onboarding, trang kế hoạch, phiên học đầy đủ.
+- ⬜ **Phase 3** — dashboard, heatmap, streak, PWA, i18n tiếng Anh, e2e, deploy.

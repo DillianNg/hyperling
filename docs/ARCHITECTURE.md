@@ -224,5 +224,5 @@ Motion trong các sơ đồ.
 | Phase | Nội dung | Trạng thái |
 |---|---|---|
 | 1 | Nền tảng, schema + RLS, auth, pipeline nội dung, landing | ✅ xong |
-| 2 | Planner (pure, test đầy đủ), FSRS wrapper, onboarding, phiên học | ⬜ |
-| 3 | Dashboard, rebalance, PWA, i18n tiếng Anh, e2e, deploy | ⬜ |
+| 2 | Planner (pure, test đầy đủ), FSRS wrapper, onboarding, phiên học | ✅ xong |
+| 3 | Dashboard, heatmap, streak, PWA, i18n tiếng Anh, e2e, deploy | ⬜ |

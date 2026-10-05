@@ -1,10 +1,17 @@
+import Link from 'next/link';
 import { redirect } from 'next/navigation';
 import type { Metadata } from 'next';
 import { getTranslations } from 'next-intl/server';
+import { ArrowRight, Plus } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { ThemeToggle } from '@/components/theme-toggle';
 import { createClient, getCurrentUser } from '@/lib/supabase/server';
+import { getCourse } from '@/lib/data/courses';
+import { countCompletedItems, listEnrollments } from '@/lib/data/enrollments';
+import { getTodaySession } from '@/lib/data/study';
+import { countItemsForGoal } from '@/core/planner/levels';
+import { formatVi } from '@/core/planner/plan';
 import { signOut } from './actions';
 
 export async function generateMetadata(): Promise<Metadata> {
@@ -12,12 +19,10 @@ export async function generateMetadata(): Promise<Metadata> {
   return { title: t('title') };
 }
 
-/**
- * Phase 1 dashboard: proves end to end that sign-in works and that a profile row
- * exists and is readable by its owner only. The real dashboard arrives in Phase 3.
- */
 export default async function DashboardPage() {
   const t = await getTranslations('dashboard');
+  const tStudy = await getTranslations('study');
+  const tPlan = await getTranslations('plan');
   const tAuth = await getTranslations('auth');
   const tApp = await getTranslations('app');
 
@@ -25,13 +30,36 @@ export default async function DashboardPage() {
   if (!user) redirect('/dang-nhap?tiep-tuc=/bang-dieu-khien');
 
   const supabase = await createClient();
-  const { data: profile } = await supabase
-    .from('profiles')
-    .select('email, display_name, ui_locale, timezone')
-    .eq('id', user.id)
-    .single();
+  const [{ data: profile }, enrollments] = await Promise.all([
+    supabase.from('profiles').select('email, display_name').eq('id', user.id).maybeSingle(),
+    listEnrollments('active'),
+  ]);
 
-  const name = profile?.display_name ?? profile?.email?.split('@')[0] ?? '';
+  // Each enrollment tracks independently: two learners, or one learner on two
+  // courses, never share a queue.
+  const cards = await Promise.all(
+    enrollments.map(async (enrollment) => {
+      const course = await getCourse(enrollment.courseId);
+      if (!course) return null;
+
+      const totalItems = countItemsForGoal({
+        currentLevel: enrollment.levelFrom,
+        goalLevel: enrollment.levelTo,
+        itemCountByLevel: course.itemCountByLevel,
+      });
+
+      const [session, completedItems] = await Promise.all([
+        getTodaySession({ enrollment, userId: user.id, totalItems, now: new Date() }),
+        countCompletedItems(enrollment.id),
+      ]);
+
+      return { enrollment, course, totalItems, session, completedItems };
+    }),
+  );
+
+  const visible = cards.flatMap((card) => (card ? [card] : []));
+  const name = (profile as { display_name?: string; email?: string } | null);
+  const displayName = name?.display_name ?? name?.email?.split('@')[0] ?? '';
 
   return (
     <>
@@ -49,41 +77,103 @@ export default async function DashboardPage() {
         </div>
       </header>
 
-      <main className="container-page py-14">
-        <h1 className="text-3xl font-semibold">{t('greeting', { name })}</h1>
+      <main className="container-page py-12">
+        <h1 className="text-3xl font-semibold">{t('greeting', { name: displayName })}</h1>
 
-        <div className="mt-10 grid gap-6 lg:grid-cols-2">
-          <Card>
+        {visible.length === 0 ? (
+          <Card className="mt-10">
             <CardHeader>
               <CardTitle>{t('emptyTitle')}</CardTitle>
             </CardHeader>
             <CardContent>
               <p className="text-fg-muted">{t('emptyBody')}</p>
+              <Button className="mt-6" asChild>
+                <Link href="/bat-dau">
+                  <Plus aria-hidden="true" />
+                  {tStudy('start')}
+                </Link>
+              </Button>
             </CardContent>
           </Card>
+        ) : (
+          <div className="mt-10 space-y-5">
+            {visible.map(({ enrollment, course, totalItems, session, completedItems }) => {
+              const reviewCount = session.plan.review.length;
+              const learnCount = session.plan.learn.length;
+              const percent = totalItems > 0 ? Math.round((completedItems / totalItems) * 100) : 0;
 
-          <Card>
-            <CardHeader>
-              <CardTitle>{t('yourAccount')}</CardTitle>
-            </CardHeader>
-            <CardContent>
-              <dl className="grid gap-3 text-sm">
-                <div className="flex justify-between gap-4">
-                  <dt className="text-fg-subtle">{t('email')}</dt>
-                  <dd className="truncate">{profile?.email ?? user.email}</dd>
-                </div>
-                <div className="flex justify-between gap-4">
-                  <dt className="text-fg-subtle">{t('timezone')}</dt>
-                  <dd>{profile?.timezone ?? '—'}</dd>
-                </div>
-                <div className="flex justify-between gap-4">
-                  <dt className="text-fg-subtle">{t('locale')}</dt>
-                  <dd>{profile?.ui_locale ?? '—'}</dd>
-                </div>
-              </dl>
-            </CardContent>
-          </Card>
-        </div>
+              return (
+                <Card key={enrollment.id}>
+                  <CardHeader>
+                    <CardTitle>{course.title.vi ?? course.id}</CardTitle>
+                    <p className="text-sm text-fg-muted">
+                      {enrollment.levelFrom} → {enrollment.levelTo} ·{' '}
+                      {tPlan('completed', { done: completedItems, total: totalItems })} · {percent}%
+                    </p>
+                  </CardHeader>
+
+                  <CardContent>
+                    {/* Progress ring is Phase 3; the bar carries the same information today. */}
+                    <div
+                      className="h-2 overflow-hidden rounded-full bg-surface-sunken"
+                      role="progressbar"
+                      aria-valuenow={percent}
+                      aria-valuemin={0}
+                      aria-valuemax={100}
+                      aria-label={tPlan('progress')}
+                    >
+                      <div className="h-full bg-primary" style={{ width: `${percent}%` }} />
+                    </div>
+
+                    <dl className="mt-6 flex flex-wrap gap-x-8 gap-y-3 text-sm">
+                      <div>
+                        <dt className="text-fg-subtle">{tStudy('stages.review')}</dt>
+                        <dd className="mt-0.5 font-display text-xl font-semibold tabular-nums">
+                          {reviewCount}
+                        </dd>
+                      </div>
+                      <div>
+                        <dt className="text-fg-subtle">{tStudy('stages.learn')}</dt>
+                        <dd className="mt-0.5 font-display text-xl font-semibold tabular-nums">
+                          {learnCount}
+                        </dd>
+                      </div>
+                      <div>
+                        <dt className="text-fg-subtle">{tPlan('forecast')}</dt>
+                        <dd className="mt-0.5 font-display text-xl font-semibold">
+                          {formatVi(enrollment.targetDate)}
+                        </dd>
+                      </div>
+                    </dl>
+
+                    <div className="mt-7 flex flex-wrap gap-3">
+                      <Button size="lg" asChild disabled={session.plan.isEmpty}>
+                        <Link href={`/hoc/${enrollment.id}`}>
+                          {session.plan.isEmpty
+                            ? tStudy('nothingToday')
+                            : session.completedNewToday > 0
+                              ? tStudy('resume')
+                              : tStudy('start')}
+                          <ArrowRight aria-hidden="true" />
+                        </Link>
+                      </Button>
+                      <Button size="lg" variant="outline" asChild>
+                        <Link href={`/ke-hoach/${enrollment.id}`}>{tPlan('title')}</Link>
+                      </Button>
+                    </div>
+                  </CardContent>
+                </Card>
+              );
+            })}
+
+            <Button variant="ghost" asChild>
+              <Link href="/bat-dau">
+                <Plus aria-hidden="true" />
+                {tStudy('start')}
+              </Link>
+            </Button>
+          </div>
+        )}
       </main>
     </>
   );

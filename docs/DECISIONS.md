@@ -239,3 +239,99 @@ dữ liệu giữa hai người học.
 **Lý do.** Khi người dùng bổ sung `S0601`–`S1800` vào file riêng, trạng thái trung
 gian có thể khuyết số. Chặn cứng sẽ cản trở việc nhập liệu từng phần, trong khi
 cảnh báo vẫn giúp phát hiện mục bị sót.
+
+---
+
+## Phase 2 — 2026-10-05
+
+### D-021 · Ngày tháng là `CalendarDate`, tách khỏi thời điểm
+
+**Quyết định.** `src/core/planner/calendar.ts` định nghĩa `CalendarDate` = chuỗi
+`YYYY-MM-DD` có brand. Mọi phép tính ngày chạy trên số ngày kể từ epoch.
+
+**Lý do.** Một kế hoạch học gồm những **ngày trên lịch**, không phải những khoảnh
+khắc. Nếu dùng `Date`, cộng 24 giờ qua mốc đổi giờ sẽ rơi sang ngày khác, và kết
+quả phụ thuộc múi giờ của máy chạy. `Date` vẫn dùng cho thời điểm thật — hạn ôn
+của FSRS — và chỉ chuyển thành ngày lịch đúng một nơi: `calendarDateInTimezone`.
+
+---
+
+### D-022 · Kế hoạch không lưu sẵn 90 dòng `daily_plans`
+
+**Quyết định.** Lịch học tính bằng `computePlan()` lúc cần. Bảng `daily_plans` chỉ
+có dòng cho những ngày **đã có hoạt động**, tạo khi người học học câu đầu tiên
+trong ngày.
+
+**Lý do.** Lịch là hàm thuần của (ngày bắt đầu, ngày mục tiêu, mục/ngày, ngày nghỉ).
+Lưu sẵn 90 dòng tạo ra thứ phải đồng bộ mỗi lần rebalance, mà không thêm thông tin
+gì. Dòng chỉ cần tồn tại khi có số liệu thật để ghi.
+
+---
+
+### D-023 · Khi kế hoạch chạy đúng trần, "dồn nhẹ" không khả dụng
+
+**Phát hiện.** Test cho thấy: ở nhịp 20 mục/ngày (đúng trần), chỉ cần trễ một ngày
+là phương án "dồn nhẹ" đã bất khả thi — không còn chỗ nào để dồn.
+
+**Quyết định.** Giữ nguyên hành vi, và **hiển thị phương án đó cùng lý do bị chặn**
+thay vì ẩn đi.
+
+**Lý do.** Đây là hệ quả trực tiếp của trần cứng, không phải lỗi. Ẩn phương án sẽ
+khiến người học thắc mắc vì sao cách hiển nhiên nhất không có; nêu rõ "cần 21
+mục/ngày, vượt trần 20" giải thích được chính sách. Người học luôn còn hai lối
+thoát: dùng ngày đệm, hoặc dời mục tiêu.
+
+---
+
+### D-024 · Bài kiểm tra sinh ra tất định, không ngẫu nhiên
+
+**Quyết định.** Mọi lựa chọn "ngẫu nhiên" (thứ tự đáp án trắc nghiệm, từ bị khoét
+trong bài điền chỗ trống, dạng bài) đều suy ra từ một hạt giống tính từ `itemId`.
+
+**Lý do.** Không chỉ để test. Người học tải lại trang giữa câu hỏi phải nhận lại
+**đúng câu hỏi đó**, không phải một câu khác — ngẫu nhiên thật sẽ biến việc reload
+thành một cách đổi đề.
+
+---
+
+### D-025 · Chấm bài gõ tay bỏ qua dấu câu, nhưng KHÔNG bỏ qua dấu tiếng Đức
+
+**Quyết định.** `checkTypedAnswer` chuẩn hoá chữ hoa/thường, khoảng trắng và dấu
+câu; nhưng `schon` ≠ `schön`, `Strasse` ≠ `Straße`.
+
+**Lý do.** Chấp nhận `schon` cho `schön` là dạy sai: đó là hai từ khác nhau. Trong
+khi viết hoa hay thiếu dấu chấm than thì không ảnh hưởng tới việc đã nhớ câu hay chưa.
+
+---
+
+### D-026 · "Chưa nhớ" đưa câu về cuối giai đoạn hiện tại
+
+**Quyết định.** Khi người học bấm "Chưa nhớ", câu được chèn lại vào cuối giai đoạn
+đang chạy của phiên, chứ không đợi tới ngày mai.
+
+**Lý do.** FSRS đã đặt hạn ôn vài phút sau, nên câu đó thuộc về chính phiên này.
+Gặp lại trong phiên biến một lần quên thành một lần thử lại, thay vì một lỗi bị
+ghi sổ.
+
+---
+
+### D-027 · Trạng thái thẻ học reset bằng remount, không bằng effect
+
+**Quyết định.** `SessionRunner` truyền `key={itemId-attempt}` cho `StudyCard`;
+`StudyCard` không có effect nào để dọn state.
+
+**Lý do.** Quy tắc `react-hooks/set-state-in-effect` bắt đúng bản đầu tiên: gọi
+`setState` trong effect gây cascading render. Remount là cách React làm việc này.
+Cùng lý do, trạng thái TTS đọc qua `useSyncExternalStore` thay vì effect — danh
+sách giọng đọc là trạng thái của trình duyệt, không phải của React.
+
+---
+
+### D-028 · Server tính lại kế hoạch, không tin số liệu client gửi lên
+
+**Quyết định.** Onboarding xem trước kế hoạch ngay trên trình duyệt bằng đúng hàm
+`computePlan` thuần, nhưng `createPlan` trên server tính lại từ đầu trước khi ghi.
+
+**Lý do.** Lõi thuần chạy được ở cả hai phía — đó là lợi ích của việc giữ
+`src/core` không phụ thuộc framework. Nhưng trần mỗi ngày phải đứng vững cả khi
+request bị chế tác, nên con số lưu vào database luôn là con số server tự tính.

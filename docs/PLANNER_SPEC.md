@@ -1,7 +1,8 @@
 # Đặc tả Planner
 
-> **Trạng thái:** đặc tả cho Phase 2. Code chưa viết. Tài liệu này để duyệt logic
-> trước khi implement, và sẽ là nguồn cho bộ unit test.
+> **Trạng thái:** đã triển khai ở Phase 2.
+> Code: `src/core/planner/`. Test: `tests/unit/planner.test.ts` (49 ca) và
+> `tests/unit/rebalance.test.ts` (21 ca), bám sát bảng edge case ở mục 5.
 
 Planner là hàm thuần trong `src/core/planner/`. Không I/O, không ngày giờ ngầm
 định — thời điểm "hôm nay" luôn được truyền vào, để test tái lập được.
@@ -149,7 +150,7 @@ Mỗi lựa chọn kèm hệ quả cụ thể: *"20 → 23 mục/ngày"* (bị c
 | Qua mốc DST | Số ngày không đổi — dùng ngày theo lịch, không dùng chênh lệch mili giây |
 | Múi giờ lệch ngày | "Hôm nay" theo `timezone` của người học, không theo server |
 | Đổi mục tiêu giữa chừng | Tính lại từ số mục **còn lại**, không phải từ `totalItems` |
-| `totalItems = 1800`, 90 ngày, không nghỉ | **`newPerDay = 20`** — xác nhận benchmark |
+| `totalItems = 1800`, 90 ngày, không nghỉ | **`newPerDay = 20`** — xác nhận benchmark ✅ |
 | `totalItems = 1800`, 60 ngày | `PlanBlocked`, `earliestFeasibleTarget` = ngày thứ 90 |
 | `totalItems = 600`, 90 ngày | `newPerDay = 7` (dữ liệu thật hiện có) |
 
