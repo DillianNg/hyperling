@@ -1,0 +1,254 @@
+@import 'tailwindcss';
+
+/* Dark mode is class-driven so the user's explicit choice can override the OS. */
+@custom-variant dark (&:where(.dark, .dark *));
+
+/* -----------------------------------------------------------------------------
+   Design tokens.
+
+   Light is the primary design; dark redefines the same variables so nothing in
+   the app has to know which theme is active. The palette is deliberately warm
+   and low-chroma: learners look at this for twenty minutes a day.
+
+   Every foreground/background pair below meets WCAG AA (4.5:1 for body text,
+   3:1 for large text and UI borders).
+-------------------------------------------------------------------------------*/
+
+:root {
+  /* Surfaces, warm off-white rather than pure white to reduce glare. */
+  --surface: oklch(0.985 0.006 75);
+  --surface-raised: oklch(1 0 0);
+  --surface-sunken: oklch(0.96 0.008 75);
+  --surface-hover: oklch(0.945 0.01 75);
+
+  /* Text. */
+  --fg: oklch(0.24 0.012 55); /* 13.4:1 on --surface */
+  --fg-muted: oklch(0.47 0.014 55); /* 5.6:1  */
+  --fg-subtle: oklch(0.58 0.014 55); /* 3.6:1, large text and labels only */
+
+  /* Borders and dividers. */
+  --border: oklch(0.89 0.01 75);
+  --border-strong: oklch(0.8 0.014 70);
+
+  /* Brand: warm clay. */
+  --primary: oklch(0.52 0.12 42);
+  --primary-hover: oklch(0.46 0.125 42);
+  --primary-fg: oklch(0.99 0.004 75);
+  --primary-subtle: oklch(0.95 0.025 48);
+  --primary-ring: oklch(0.62 0.13 42);
+
+  /* Feedback. */
+  --success: oklch(0.48 0.11 150);
+  --success-subtle: oklch(0.95 0.035 150);
+  --warning: oklch(0.57 0.12 75);
+  --warning-subtle: oklch(0.96 0.045 85);
+  --danger: oklch(0.52 0.16 25);
+  --danger-subtle: oklch(0.95 0.035 25);
+
+  /*
+    German noun gender. Declared here once and used wherever a gender badge
+    appears, so der/die/das always read the same. Which languages use these is
+    decided by course.json (glossaryFields[].colorCoded), not by the colours.
+  */
+  --gender-der: oklch(0.47 0.13 250);
+  --gender-der-subtle: oklch(0.94 0.03 250);
+  --gender-die: oklch(0.5 0.15 2);
+  --gender-die-subtle: oklch(0.95 0.03 2);
+  --gender-das: oklch(0.46 0.1 165);
+  --gender-das-subtle: oklch(0.94 0.03 165);
+
+  /* Learner-adjustable text size, persisted on the profile. */
+  --font-scale: 1;
+
+  color-scheme: light;
+}
+
+.dark {
+  --surface: oklch(0.19 0.008 55);
+  --surface-raised: oklch(0.235 0.009 55);
+  --surface-sunken: oklch(0.155 0.007 55);
+  --surface-hover: oklch(0.28 0.01 55);
+
+  --fg: oklch(0.95 0.008 75);
+  --fg-muted: oklch(0.76 0.012 70);
+  --fg-subtle: oklch(0.63 0.012 70);
+
+  --border: oklch(0.32 0.01 60);
+  --border-strong: oklch(0.42 0.012 60);
+
+  --primary: oklch(0.74 0.11 48);
+  --primary-hover: oklch(0.8 0.1 48);
+  --primary-fg: oklch(0.18 0.015 48);
+  --primary-subtle: oklch(0.3 0.045 45);
+  --primary-ring: oklch(0.7 0.12 45);
+
+  --success: oklch(0.74 0.12 152);
+  --success-subtle: oklch(0.29 0.05 152);
+  --warning: oklch(0.8 0.12 85);
+  --warning-subtle: oklch(0.32 0.05 80);
+  --danger: oklch(0.7 0.15 25);
+  --danger-subtle: oklch(0.3 0.06 25);
+
+  --gender-der: oklch(0.76 0.11 250);
+  --gender-der-subtle: oklch(0.3 0.05 255);
+  --gender-die: oklch(0.78 0.11 5);
+  --gender-die-subtle: oklch(0.31 0.05 5);
+  --gender-das: oklch(0.76 0.1 165);
+  --gender-das-subtle: oklch(0.29 0.045 165);
+
+  color-scheme: dark;
+}
+
+/* Expose the tokens to Tailwind utilities: bg-surface, text-fg-muted, ... */
+@theme inline {
+  --color-surface: var(--surface);
+  --color-surface-raised: var(--surface-raised);
+  --color-surface-sunken: var(--surface-sunken);
+  --color-surface-hover: var(--surface-hover);
+
+  --color-fg: var(--fg);
+  --color-fg-muted: var(--fg-muted);
+  --color-fg-subtle: var(--fg-subtle);
+
+  --color-border: var(--border);
+  --color-border-strong: var(--border-strong);
+
+  --color-primary: var(--primary);
+  --color-primary-hover: var(--primary-hover);
+  --color-primary-fg: var(--primary-fg);
+  --color-primary-subtle: var(--primary-subtle);
+  --color-primary-ring: var(--primary-ring);
+
+  --color-success: var(--success);
+  --color-success-subtle: var(--success-subtle);
+  --color-warning: var(--warning);
+  --color-warning-subtle: var(--warning-subtle);
+  --color-danger: var(--danger);
+  --color-danger-subtle: var(--danger-subtle);
+
+  --color-gender-der: var(--gender-der);
+  --color-gender-der-subtle: var(--gender-der-subtle);
+  --color-gender-die: var(--gender-die);
+  --color-gender-die-subtle: var(--gender-die-subtle);
+  --color-gender-das: var(--gender-das);
+  --color-gender-das-subtle: var(--gender-das-subtle);
+
+  --font-sans: var(--font-inter), ui-sans-serif, system-ui, sans-serif;
+  --font-display: var(--font-display), var(--font-inter), ui-sans-serif, system-ui, sans-serif;
+
+  /* Generous spacing scale: the layout leans on whitespace rather than borders. */
+  --spacing-section: 6rem;
+  --spacing-section-lg: 9rem;
+
+  --radius-card: 1rem;
+  --radius-field: 0.625rem;
+
+  --ease-out-soft: cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+/* -----------------------------------------------------------------------------
+   Base
+-------------------------------------------------------------------------------*/
+
+@layer base {
+  html {
+    /* Learner-adjustable base size; 1rem stays tied to this. */
+    font-size: calc(100% * var(--font-scale));
+    -webkit-text-size-adjust: 100%;
+    scroll-behavior: smooth;
+  }
+
+  body {
+    background-color: var(--surface);
+    color: var(--fg);
+    font-family: var(--font-sans);
+    /* Vietnamese stacked diacritics need a little more line height to breathe. */
+    line-height: 1.65;
+    text-rendering: optimizeLegibility;
+    -webkit-font-smoothing: antialiased;
+  }
+
+  h1,
+  h2,
+  h3,
+  h4 {
+    font-family: var(--font-display);
+    line-height: 1.25;
+    letter-spacing: -0.015em;
+    text-wrap: balance;
+  }
+
+  p {
+    text-wrap: pretty;
+  }
+
+  /* One visible focus style everywhere, never removed. */
+  :focus-visible {
+    outline: 2px solid var(--primary-ring);
+    outline-offset: 2px;
+    border-radius: 0.25rem;
+  }
+
+  ::selection {
+    background-color: var(--primary-subtle);
+    color: var(--fg);
+  }
+
+  /* Respect the OS setting: no transforms, no fades, no smooth scrolling. */
+  @media (prefers-reduced-motion: reduce) {
+    html {
+      scroll-behavior: auto;
+    }
+    *,
+    *::before,
+    *::after {
+      animation-duration: 0.01ms !important;
+      animation-iteration-count: 1 !important;
+      transition-duration: 0.01ms !important;
+      scroll-behavior: auto !important;
+    }
+  }
+
+  /* Same, when the learner has turned motion off in their profile. */
+  :root[data-reduced-motion='true'] *,
+  :root[data-reduced-motion='true'] *::before,
+  :root[data-reduced-motion='true'] *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+  }
+}
+
+/* -----------------------------------------------------------------------------
+   Utilities
+-------------------------------------------------------------------------------*/
+
+@utility container-page {
+  margin-inline: auto;
+  width: 100%;
+  max-width: 72rem;
+  padding-inline: 1.25rem;
+
+  @media (width >= 48rem) {
+    padding-inline: 2rem;
+  }
+}
+
+/* Visible only to screen readers, until focused (skip links). */
+@utility sr-only-focusable {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+  clip-path: inset(50%);
+  white-space: nowrap;
+
+  &:focus-visible {
+    position: static;
+    width: auto;
+    height: auto;
+    overflow: visible;
+    clip-path: none;
+    white-space: normal;
+  }
+}
