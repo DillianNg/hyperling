@@ -24,6 +24,7 @@ Vào **SQL Editor**, chạy lần lượt **đúng thứ tự**, mỗi file mộ
 | 2 | `supabase/migrations/0002_user_schema.sql` | 7 bảng người dùng + trigger tạo profile |
 | 3 | `supabase/migrations/0003_rls_policies.sql` | RLS cho toàn bộ 13 bảng |
 | 4 | `supabase/migrations/0004_add_french.sql` | Thêm tiếng Pháp vào bảng `languages` |
+| 5 | `supabase/migrations/0005_backfill_profiles.sql` | Bù `profiles` cho tài khoản đăng ký trước khi 0002 chạy |
 
 Hoặc dùng Supabase CLI nếu đã cài:
 
@@ -89,7 +90,21 @@ dùng thật. Trước khi mở cho nhiều người, vào **Project Settings �
 
 ### 1.6 Import nội dung
 
-Trên máy bạn, với `DATABASE_URL` trỏ vào project vừa tạo:
+Đặt **ba dòng** này vào `.env.local` — không cần tự ghép URI, không lo mã hoá ký
+tự đặc biệt:
+
+```
+SUPABASE_PROJECT_REF=<phần trước .supabase.co trong Project URL>
+SUPABASE_DB_PASSWORD=<mật khẩu database, dán thô>
+SUPABASE_REGION=ap-southeast-1
+```
+
+> Mật khẩu database thường chứa `@ : / ?` — những ký tự mang nghĩa trong URI. Dán
+> thô vào đây thì script tự encode. Nếu không nhớ mật khẩu, **Project Settings →
+> Database → Reset database password**; việc này không ảnh hưởng đăng nhập, vì app
+> dùng anon key chứ không dùng mật khẩu này.
+
+Rồi chạy:
 
 ```bash
 pnpm content:validate
@@ -98,6 +113,19 @@ pnpm content:import
 
 Kiểm tra trong Table Editor: bảng `items` phải có **620 dòng** (600 tiếng Đức +
 20 tiếng Pháp), `courses` có **2 dòng**.
+
+Chạy `pnpm content:import` lần hai phải báo `Mục thêm mới : 0` — đó là bằng chứng
+import idempotent, tiến độ người học không bị ảnh hưởng.
+
+#### Nếu import báo lỗi
+
+| Lỗi | Nguyên nhân | Cách xử lý |
+|---|---|---|
+| `relation "courses" does not exist` | Migration ở mục 1.2 chưa chạy | Chạy 0001→0005 trong SQL Editor |
+| `getaddrinfo ENOTFOUND db.<ref>.supabase.co` | Host trực tiếp **chỉ có IPv6** | Dùng ba biến ở trên — script tự chọn Session pooler |
+| `password authentication failed` | Mật khẩu còn nguyên dấu `[...]` placeholder | Dán mật khẩu thật, hoặc reset như trên |
+| `SASL_SIGNATURE_MISMATCH` | Mật khẩu có ký tự đặc biệt chưa encode trong `DATABASE_URL` tự dán | Bỏ `DATABASE_URL`, dùng ba biến ở trên |
+| Treo ở `Đang import ...` không báo gì | Đã sửa (D-036). Nếu còn gặp, `statement_timeout` sẽ bắt sau 60s | Cập nhật lên commit mới nhất |
 
 ---
 
@@ -161,6 +189,8 @@ không đọc lúc chạy.
 | Báo *"cần mở trong CÙNG trình duyệt"* | Dạng `?code=` (PKCE) cần cookie từ trình duyệt đã yêu cầu | Mở mail đúng máy đã yêu cầu, hoặc đổi mẫu email theo 1.4b |
 | `requested path is invalid` | Thiếu Redirect URLs | Mục 1.4 |
 | Không nhận được email nào | Vượt hạn mức 4 email/giờ của bản miễn phí | Đợi, hoặc cấu hình SMTP riêng (mục 1.5) |
+| Đăng nhập được nhưng onboarding bước 1 không có ngôn ngữ nào | Database chưa có nội dung | Mục 1.6 |
+| Đăng nhập được nhưng app báo thiếu tài khoản | Đăng ký trước khi migration 0002 chạy, nên không có `profiles` | Chạy migration 0005 |
 
 ---
 

@@ -412,3 +412,60 @@ ngữ nào" nhằm ngăn chặn.
 
 **Lý do.** Đây là lý do nên thêm ngôn ngữ thứ hai sớm: nó biến một nguyên tắc
 kiến trúc thành thứ kiểm chứng được, và chỉ ra chỗ nguyên tắc đó đang bị phá.
+
+---
+
+### D-035 · Connection string lắp từ ba biến, không dán nguyên URI
+
+**Bối cảnh.** Lần kết nối thật đầu tiên thất bại ba lần liên tiếp vì ba nguyên
+nhân khác nhau: `tsx` không tự đọc `.env.local`; host trực tiếp
+`db.<ref>.supabase.co` **chỉ có IPv6** nên trả `ENOTFOUND` trên mạng IPv4; và mật
+khẩu dán vào vẫn còn nguyên dấu `[...]` placeholder của Supabase.
+
+**Quyết định.** `scripts/lib/database-url.ts` lắp connection string từ
+`SUPABASE_PROJECT_REF` + `SUPABASE_DB_PASSWORD` + `SUPABASE_REGION`, tự
+URL-encode mật khẩu, từ chối mật khẩu còn hình dạng placeholder, và từ chối host
+IPv6-only kèm lời giải thích. `DATABASE_URL` dán sẵn vẫn được ưu tiên nếu hợp lệ.
+
+**Lý do.** Mật khẩu database thường chứa `@ : / ?` — những ký tự mang nghĩa trong
+URI. Bắt người dùng tự ghép và tự encode là đặt một cái bẫy im lặng ngay ở bước
+đầu tiên. Dán mật khẩu thô thì không có gì để làm sai.
+
+---
+
+### D-036 · Câu lệnh import chạy trên handle của transaction
+
+**Bối cảnh.** `pnpm content:import` treo vô hạn sau dòng "Đang import ..." mà
+không báo lỗi. Nguyên nhân: script bọc import trong `sql.begin` trên pool chỉ có
+**một** connection (`max: 1`), nhưng `SqlExecutor` lại gọi `sql.unsafe()` trên
+pool bên ngoài — nó xếp hàng đợi một connection đang bị chính transaction giữ.
+Deadlock.
+
+**Quyết định.** `executorFor(tx)` nhận handle của transaction; không câu lệnh nào
+trong `sql.begin` được chạm vào pool bên ngoài. Thêm `connect_timeout` và
+`statement_timeout`.
+
+**Lý do.** Ngoài việc gỡ deadlock, đây còn là lỗi đúng đắn: chạy trên pool bên
+ngoài nghĩa là các INSERT nằm **ngoài** transaction, nên lời hứa "thất bại thì
+rollback" trong tài liệu là không thật.
+
+**Vì sao test không bắt được.** Mọi test gọi `importCourse` trực tiếp với PGlite,
+không đi qua lớp transaction của script — `postgres.js` cần socket thật nên không
+chạy được trên PGlite. Đã thêm guard tĩnh trong `tests/unit/content-import.test.ts`
+đọc mã nguồn script và fail nếu `sql.begin` không dùng `tx`. Guard đã được xác
+nhận fail trên dạng code cũ.
+
+---
+
+### D-037 · Backfill profile bằng migration mới, không sửa 0002
+
+**Bối cảnh.** Trigger `on_auth_user_created` chỉ chạy khi INSERT vào
+`auth.users`. Tài khoản đăng ký **trước khi** 0002 được chạy nên không có dòng
+`profiles` — và app coi thiếu profile là thiếu tài khoản.
+
+**Quyết định.** `0005_backfill_profiles.sql` đối chiếu hai bảng và chèn phần
+thiếu. Idempotent nhờ anti-join + `on conflict do nothing`.
+
+**Lý do.** Nguyên tắc #6: không sửa migration đã chạy trên database thật. Sửa
+0002 sẽ khiến nó khác với thứ đã thực sự áp dụng, và vẫn không chữa được những
+hàng đã mồ côi.
