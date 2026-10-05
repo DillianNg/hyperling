@@ -1,0 +1,180 @@
+{
+  "app": {
+    "name": "HyperLing",
+    "tagline": "Học ngôn ngữ bằng cả câu, theo đúng tốc độ của bạn",
+    "description": "Nền tảng học ngôn ngữ kết hợp ba phương pháp đã được kiểm chứng, tự tính lộ trình theo trình độ và khung thời gian của riêng bạn."
+  },
+  "nav": {
+    "methods": "Phương pháp",
+    "howItWorks": "Cách hoạt động",
+    "signIn": "Đăng nhập",
+    "dashboard": "Bảng điều khiển",
+    "skipToContent": "Bỏ qua, đi tới nội dung chính",
+    "toggleTheme": "Đổi giao diện sáng/tối",
+    "openMenu": "Mở menu",
+    "closeMenu": "Đóng menu"
+  },
+  "landing": {
+    "hero": {
+      "badge": "1.800 câu · A1 → B2 · 3 tháng",
+      "title": "Học ngôn ngữ bằng cả câu, không phải từ rời",
+      "subtitle": "Mỗi ngày 20 câu. Hệ thống tự nhắc bạn ôn đúng lúc sắp quên, và tự tính xem bạn sẽ đạt mục tiêu vào ngày nào.",
+      "ctaPrimary": "Bắt đầu miễn phí",
+      "ctaSecondary": "Xem phương pháp",
+      "note": "Chỉ cần email. Không cần mật khẩu, không cần thẻ."
+    },
+    "methods": {
+      "eyebrow": "Phương pháp",
+      "title": "Ba phương pháp, một lộ trình",
+      "intro": "HyperLing không phát minh lại cách học. Nó lấy ba phương pháp đã có người kiểm chứng và ghép chúng vào một thói quen hằng ngày duy nhất.",
+      "items": [
+        {
+          "id": "lexical",
+          "number": "01",
+          "name": "Lexical Approach",
+          "author": "Michael Lewis",
+          "claim": "Học theo khối, không lắp ghép từ rời",
+          "body": "Người bản xứ không dựng câu bằng cách lấy từ rồi gắn ngữ pháp vào. Họ nhớ sẵn từng khối: “wie geht es Ihnen”, “bis dann”. Mỗi mục trong HyperLing là một khối như vậy — bạn nhớ cả cụm, nên khi cần dùng thì nó bật ra nguyên khối.",
+          "contribution": "Cho bạn thứ để nhớ: những khối dùng được ngay."
+        },
+        {
+          "id": "sentences",
+          "number": "02",
+          "name": "10.000 Sentences / AJATT",
+          "author": "nguyên tắc i+1",
+          "claim": "Mỗi câu chỉ mới một chút",
+          "body": "Một câu dễ học khi nó gần như đã quen, chỉ thêm đúng một điều mới — một từ, một cấu trúc. Đó là “i+1”. 1.800 câu được xếp theo đúng thứ tự đó: câu hôm nay dựa trên câu hôm qua, nên bạn không bao giờ phải nhảy vực.",
+          "contribution": "Cho bạn thứ tự đúng: dễ trước, khó sau, không gãy."
+        },
+        {
+          "id": "srs",
+          "number": "03",
+          "name": "Mass Sentences",
+          "author": "Glossika SRS",
+          "claim": "Ôn đúng lúc sắp quên",
+          "body": "Ôn quá sớm thì mất thời gian, ôn quá muộn thì phải học lại từ đầu. Thuật toán lặp lại ngắt quãng tính riêng cho từng câu của từng người: câu nào bạn nhớ chắc thì giãn ra hàng tháng, câu nào bạn hay quên thì quay lại sớm.",
+          "contribution": "Cho bạn thời điểm đúng: ôn ít nhất mà nhớ lâu nhất."
+        }
+      ],
+      "synergyTitle": "Vì sao ghép lại thì hiệu quả hơn từng cái riêng lẻ",
+      "synergyBody": "Dùng riêng, mỗi phương pháp đều có lỗ hổng. Học khối mà không ôn thì vài tuần sau quên sạch. Ôn đều mà thứ tự lộn xộn thì mỗi câu đều là một cú sốc. Thứ tự tốt mà học từ rời thì đến lúc nói vẫn phải tự lắp ghép, vẫn chậm. Ghép cả ba thì mỗi cái bù đúng chỗ hổng của hai cái kia.",
+      "synergyPoints": [
+        { "from": "Khối từ", "to": "Thứ tự i+1", "effect": "có thứ để nhớ, và nhớ theo đúng trình tự dễ → khó" },
+        { "from": "Thứ tự i+1", "to": "Lặp ngắt quãng", "effect": "mỗi lần ôn đều củng cố thứ đã hiểu, không phải học lại" },
+        { "from": "Lặp ngắt quãng", "to": "Khối từ", "effect": "cả khối được giữ nguyên trong đầu, không rơi rụng từng từ" }
+      ]
+    },
+    "howItWorks": {
+      "eyebrow": "Mỗi ngày",
+      "title": "Một phiên học, ba bước",
+      "intro": "Bạn không phải tự quyết hôm nay học gì. Mở app là có sẵn danh sách.",
+      "steps": [
+        {
+          "number": "1",
+          "name": "Ôn tập",
+          "duration": "5–10 phút",
+          "body": "Những câu đã học mà hôm nay tới hạn. Danh sách do thuật toán chọn, không phải bạn chọn."
+        },
+        {
+          "number": "2",
+          "name": "Học mới",
+          "duration": "10–15 phút",
+          "body": "Số câu mới theo đúng kế hoạch của bạn. Mỗi câu đi qua bốn nhịp: xem trong ngữ cảnh và nghe phát âm → tự nhớ lại → làm bài kiểm tra ngắn → tự đánh giá mức độ nhớ."
+        },
+        {
+          "number": "3",
+          "name": "Củng cố",
+          "duration": "2–3 phút",
+          "body": "Mini-quiz các câu vừa học trong ngày, để chúng không rơi ngay trong đêm đầu tiên."
+        }
+      ],
+      "flexible": "Có thể tắt bất kỳ bước nào trong cài đặt nếu bạn muốn phiên học ngắn hơn."
+    },
+    "plan": {
+      "eyebrow": "Kế hoạch",
+      "title": "Hệ thống tính lộ trình, bạn chỉ chọn mục tiêu",
+      "body": "Bạn cho biết trình độ hiện tại, mục tiêu và ngày muốn đạt. Hệ thống tính số câu mỗi ngày, cộng thêm 10–15 ngày đệm cho những hôm bạn bận hoặc nghỉ.",
+      "guardrailTitle": "Một giới hạn có chủ đích",
+      "guardrailBody": "Trần tối đa là 20 câu mới mỗi ngày. Nếu khung thời gian bạn chọn ngắn hơn mức khả thi, hệ thống sẽ chặn và gợi ý ngày sớm nhất có thể đạt — thay vì nhận lời rồi để bạn thất bại giữa đường.",
+      "benchmark": "1.800 câu ÷ 20 câu/ngày = 90 ngày, cộng 15 ngày đệm."
+    },
+    "cta": {
+      "title": "Bắt đầu bằng một email",
+      "body": "Chúng tôi gửi bạn một đường dẫn đăng nhập. Không mật khẩu để quên, không thẻ để nhập.",
+      "button": "Gửi đường dẫn đăng nhập"
+    },
+    "footer": {
+      "builtWith": "Nội dung là dữ liệu, code là engine — thêm ngôn ngữ mới chỉ cần thêm file nội dung.",
+      "dataNote": "Khóa tiếng Đức hiện có 600 câu (A1–A2) đã sẵn sàng; phần B1–B2 đang được bổ sung."
+    }
+  },
+  "auth": {
+    "signIn": {
+      "title": "Đăng nhập",
+      "subtitle": "Nhập email, chúng tôi gửi bạn một đường dẫn đăng nhập. Không cần mật khẩu.",
+      "emailLabel": "Địa chỉ email",
+      "emailPlaceholder": "ban@example.com",
+      "submit": "Gửi đường dẫn đăng nhập",
+      "submitting": "Đang gửi...",
+      "sentTitle": "Kiểm tra hộp thư của bạn",
+      "sentBody": "Chúng tôi đã gửi đường dẫn đăng nhập tới {email}. Đường dẫn có hiệu lực trong 1 giờ.",
+      "resend": "Gửi lại",
+      "useAnotherEmail": "Dùng email khác",
+      "errorInvalidEmail": "Địa chỉ email không hợp lệ.",
+      "errorGeneric": "Không gửi được email. Vui lòng thử lại sau ít phút.",
+      "errorRateLimit": "Bạn vừa yêu cầu quá nhiều lần. Đợi một phút rồi thử lại.",
+      "notConfiguredTitle": "Chưa cấu hình Supabase",
+      "notConfiguredBody": "Dự án chưa có biến môi trường Supabase, nên chức năng đăng nhập đang tắt. Xem README.md để biết cách cấu hình."
+    },
+    "callback": {
+      "errorTitle": "Đường dẫn không hợp lệ",
+      "errorBody": "Đường dẫn đăng nhập có thể đã hết hạn hoặc đã được dùng. Hãy yêu cầu một đường dẫn mới.",
+      "backToSignIn": "Về trang đăng nhập"
+    },
+    "signOut": "Đăng xuất"
+  },
+  "dashboard": {
+    "title": "Bảng điều khiển",
+    "greeting": "Chào {name}",
+    "emptyTitle": "Chưa có khóa học nào",
+    "emptyBody": "Phần ghi danh khóa học và phiên học sẽ có trong Phase 2.",
+    "yourAccount": "Tài khoản của bạn",
+    "email": "Email",
+    "timezone": "Múi giờ",
+    "locale": "Ngôn ngữ giao diện"
+  },
+  "sentenceType": {
+    "declarative": "Câu trần thuật",
+    "question": "Câu hỏi",
+    "yes_no_question": "Câu hỏi Ja/Nein",
+    "negative": "Câu phủ định",
+    "imperative": "Mệnh lệnh",
+    "exclamation": "Câu cảm thán",
+    "compound": "Câu ghép",
+    "subordinate": "Câu phụ",
+    "answer": "Câu trả lời",
+    "passive": "Câu bị động",
+    "enumeration": "Liệt kê"
+  },
+  "partOfSpeech": {
+    "noun": "Danh từ",
+    "verb": "Động từ",
+    "reflexive_verb": "Động từ phản thân",
+    "adjective": "Tính từ",
+    "adverb": "Trạng từ",
+    "phrase": "Cụm từ / Thành ngữ",
+    "other": "Khác"
+  },
+  "common": {
+    "loading": "Đang tải...",
+    "error": "Có lỗi xảy ra",
+    "retry": "Thử lại",
+    "back": "Quay lại",
+    "close": "Đóng",
+    "cancel": "Huỷ",
+    "confirm": "Xác nhận",
+    "notFoundTitle": "Không tìm thấy trang",
+    "notFoundBody": "Đường dẫn bạn vừa mở không tồn tại.",
+    "backHome": "Về trang chủ"
+  }
+}

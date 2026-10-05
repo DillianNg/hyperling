@@ -1,0 +1,180 @@
+{
+  "app": {
+    "name": "HyperLing",
+    "tagline": "Learn a language in whole sentences, at your own pace",
+    "description": "A language learning platform combining three proven methods, with a plan calculated from your own level and timeframe."
+  },
+  "nav": {
+    "methods": "Method",
+    "howItWorks": "How it works",
+    "signIn": "Sign in",
+    "dashboard": "Dashboard",
+    "skipToContent": "Skip to main content",
+    "toggleTheme": "Toggle light/dark theme",
+    "openMenu": "Open menu",
+    "closeMenu": "Close menu"
+  },
+  "landing": {
+    "hero": {
+      "badge": "1,800 sentences · A1 → B2 · 3 months",
+      "title": "Learn in whole sentences, not isolated words",
+      "subtitle": "Twenty sentences a day. The system reminds you to review right before you would forget, and tells you the date you will reach your goal.",
+      "ctaPrimary": "Start free",
+      "ctaSecondary": "See the method",
+      "note": "Email only. No password, no card."
+    },
+    "methods": {
+      "eyebrow": "Method",
+      "title": "Three methods, one route",
+      "intro": "HyperLing does not reinvent learning. It takes three methods people have already tested and folds them into a single daily habit.",
+      "items": [
+        {
+          "id": "lexical",
+          "number": "01",
+          "name": "Lexical Approach",
+          "author": "Michael Lewis",
+          "claim": "Learn in chunks, not word-by-word assembly",
+          "body": "Native speakers do not build sentences by taking words and bolting grammar on. They recall ready-made chunks: “wie geht es Ihnen”, “bis dann”. Every item here is one of those chunks — you remember the whole phrase, so it comes out whole when you need it.",
+          "contribution": "Gives you something worth remembering: phrases usable immediately."
+        },
+        {
+          "id": "sentences",
+          "number": "02",
+          "name": "10,000 Sentences / AJATT",
+          "author": "the i+1 principle",
+          "claim": "Each sentence is only slightly new",
+          "body": "A sentence is easy when it is almost familiar and adds exactly one new thing — a word, a structure. That is “i+1”. All 1,800 sentences are ordered that way: today's builds on yesterday's, so you never face a cliff.",
+          "contribution": "Gives you the right order: easy first, hard later, no gaps."
+        },
+        {
+          "id": "srs",
+          "number": "03",
+          "name": "Mass Sentences",
+          "author": "Glossika SRS",
+          "claim": "Review just before you forget",
+          "body": "Review too early and you waste time; too late and you start over. The spaced repetition algorithm works per sentence per person: what you know firmly stretches out to months, what you keep forgetting comes back soon.",
+          "contribution": "Gives you the right timing: least reviewing, longest retention."
+        }
+      ],
+      "synergyTitle": "Why the combination beats any one of them",
+      "synergyBody": "Used alone, each method has a hole. Chunks without review are gone in weeks. Steady review in a random order makes every sentence a shock. A good order built from isolated words still leaves you assembling sentences on the spot. Combined, each one covers exactly where the other two are weak.",
+      "synergyPoints": [
+        { "from": "Chunks", "to": "i+1 order", "effect": "something to remember, learned easy-to-hard" },
+        { "from": "i+1 order", "to": "Spaced repetition", "effect": "each review reinforces what you already understood" },
+        { "from": "Spaced repetition", "to": "Chunks", "effect": "the whole phrase stays intact instead of decaying word by word" }
+      ]
+    },
+    "howItWorks": {
+      "eyebrow": "Every day",
+      "title": "One session, three steps",
+      "intro": "You never have to decide what to study. Open the app and the list is ready.",
+      "steps": [
+        {
+          "number": "1",
+          "name": "Review",
+          "duration": "5–10 min",
+          "body": "Sentences you have learned that fall due today. The algorithm picks the list, not you."
+        },
+        {
+          "number": "2",
+          "name": "Learn new",
+          "duration": "10–15 min",
+          "body": "New sentences per your plan. Each one passes through four beats: see it in context and hear it → recall it yourself → a short check → rate how well you knew it."
+        },
+        {
+          "number": "3",
+          "name": "Consolidate",
+          "duration": "2–3 min",
+          "body": "A mini-quiz on today's new sentences, so they do not slip away overnight."
+        }
+      ],
+      "flexible": "Any step can be switched off in settings if you want a shorter session."
+    },
+    "plan": {
+      "eyebrow": "Plan",
+      "title": "The system works out the route, you pick the goal",
+      "body": "Tell it your current level, your target and the date you want it by. It works out the daily dose and adds 10–15 buffer days for the days you are busy or away.",
+      "guardrailTitle": "One deliberate limit",
+      "guardrailBody": "The ceiling is 20 new sentences a day. If your timeframe is shorter than what is achievable, the system blocks it and suggests the earliest feasible date — rather than agreeing and letting you fail halfway.",
+      "benchmark": "1,800 sentences ÷ 20 a day = 90 days, plus 15 buffer days."
+    },
+    "cta": {
+      "title": "Start with an email",
+      "body": "We send you a sign-in link. No password to forget, no card to enter.",
+      "button": "Send sign-in link"
+    },
+    "footer": {
+      "builtWith": "Content is data, code is the engine — adding a language means adding content files.",
+      "dataNote": "The German course currently ships 600 sentences (A1–A2); B1–B2 is being added."
+    }
+  },
+  "auth": {
+    "signIn": {
+      "title": "Sign in",
+      "subtitle": "Enter your email and we will send you a sign-in link. No password needed.",
+      "emailLabel": "Email address",
+      "emailPlaceholder": "you@example.com",
+      "submit": "Send sign-in link",
+      "submitting": "Sending...",
+      "sentTitle": "Check your inbox",
+      "sentBody": "We sent a sign-in link to {email}. It is valid for one hour.",
+      "resend": "Send again",
+      "useAnotherEmail": "Use a different email",
+      "errorInvalidEmail": "That email address is not valid.",
+      "errorGeneric": "Could not send the email. Please try again in a few minutes.",
+      "errorRateLimit": "Too many requests just now. Wait a minute and try again.",
+      "notConfiguredTitle": "Supabase is not configured",
+      "notConfiguredBody": "This project has no Supabase environment variables, so sign-in is disabled. See README.md to configure it."
+    },
+    "callback": {
+      "errorTitle": "That link did not work",
+      "errorBody": "The sign-in link may have expired or already been used. Request a new one.",
+      "backToSignIn": "Back to sign in"
+    },
+    "signOut": "Sign out"
+  },
+  "dashboard": {
+    "title": "Dashboard",
+    "greeting": "Hello {name}",
+    "emptyTitle": "No course yet",
+    "emptyBody": "Course enrolment and study sessions arrive in Phase 2.",
+    "yourAccount": "Your account",
+    "email": "Email",
+    "timezone": "Time zone",
+    "locale": "Interface language"
+  },
+  "sentenceType": {
+    "declarative": "Statement",
+    "question": "Question",
+    "yes_no_question": "Yes/no question",
+    "negative": "Negative",
+    "imperative": "Imperative",
+    "exclamation": "Exclamation",
+    "compound": "Compound sentence",
+    "subordinate": "Subordinate clause",
+    "answer": "Answer",
+    "passive": "Passive",
+    "enumeration": "List"
+  },
+  "partOfSpeech": {
+    "noun": "Noun",
+    "verb": "Verb",
+    "reflexive_verb": "Reflexive verb",
+    "adjective": "Adjective",
+    "adverb": "Adverb",
+    "phrase": "Phrase / idiom",
+    "other": "Other"
+  },
+  "common": {
+    "loading": "Loading...",
+    "error": "Something went wrong",
+    "retry": "Try again",
+    "back": "Back",
+    "close": "Close",
+    "cancel": "Cancel",
+    "confirm": "Confirm",
+    "notFoundTitle": "Page not found",
+    "notFoundBody": "The page you opened does not exist.",
+    "backHome": "Back home"
+  }
+}
