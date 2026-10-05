@@ -144,7 +144,18 @@
       "errorBody": "Đường dẫn đăng nhập có thể đã hết hạn hoặc đã được dùng. Hãy yêu cầu một đường dẫn mới.",
       "backToSignIn": "Về trang đăng nhập"
     },
-    "signOut": "Đăng xuất"
+    "signOut": "Đăng xuất",
+    "verifying": {
+      "title": "Đang xác thực đăng nhập...",
+      "failedTitle": "Không xác thực được",
+      "failedBody": "Đường dẫn đăng nhập thiếu thông tin cần thiết, hoặc đã được dùng rồi. Hãy yêu cầu một đường dẫn mới.",
+      "backToSignIn": "Về trang đăng nhập"
+    },
+    "linkErrors": {
+      "thieu-ma": "Đường dẫn đăng nhập không mang theo mã xác thực. Hãy yêu cầu một đường dẫn mới.",
+      "het-han": "Đường dẫn đăng nhập đã hết hạn hoặc đã được dùng. Mỗi đường dẫn chỉ dùng được một lần, trong vòng 1 giờ.",
+      "khac-trinh-duyet": "Đường dẫn này cần được mở trong CÙNG trình duyệt đã yêu cầu nó. Nếu bạn yêu cầu trên máy tính thì hãy mở email trên máy tính, đừng mở trên điện thoại."
+    }
   },
   "dashboard": {
     "title": "Bảng điều khiển",

@@ -61,6 +61,26 @@ Kết quả phải **rỗng**. Nếu có bảng nào hiện ra, migration 0003 c
 > Thiếu bước Redirect URLs là lỗi phổ biến nhất: đường dẫn trong email sẽ báo
 > "requested path is invalid".
 
+### 1.4b Mẫu email (khuyến nghị đổi)
+
+**Authentication → Emails → Magic Link**. Mẫu mặc định dùng `{{ .ConfirmationURL }}`,
+đi qua endpoint của Supabase rồi mới quay về app — tuỳ cấu hình, nó có thể trả về
+`?code=` (cần đúng trình duyệt đã yêu cầu) hoặc `#access_token=` (nằm trong fragment).
+
+Đổi phần link trong mẫu thành:
+
+```html
+<a href="{{ .SiteURL }}/auth/callback?token_hash={{ .TokenHash }}&type=magiclink">
+  Đăng nhập vào HyperLing
+</a>
+```
+
+Cách này **mở được ở bất kỳ thiết bị nào** — yêu cầu trên máy tính, mở mail trên
+điện thoại vẫn vào được — vì nó không cần cookie từ trình duyệt đã gửi yêu cầu.
+
+Callback của app xử lý được cả ba dạng, nên nếu bạn không đổi mẫu thì vẫn chạy;
+chỉ là dạng `?code=` buộc phải mở link đúng trình duyệt đã yêu cầu.
+
 ### 1.5 Giới hạn gửi email
 
 Supabase miễn phí giới hạn **4 email/giờ**. Đủ để thử nghiệm, không đủ cho người
@@ -128,6 +148,19 @@ curl -s https://hyperling.vercel.app/dang-nhap | grep -c "Chưa cấu hình Supa
 Kết quả `0` nghĩa là xong. Kết quả `1` nghĩa là Vercel chưa thấy biến môi trường —
 nhớ **redeploy** sau khi thêm biến, vì `NEXT_PUBLIC_*` được nhúng lúc build chứ
 không đọc lúc chạy.
+
+---
+
+## Khi đăng nhập không vào được
+
+| Triệu chứng | Nguyên nhân | Cách xử lý |
+|---|---|---|
+| `localhost refused to connect` | Link trỏ về `localhost:3000` nhưng dev server không chạy | Chạy `pnpm dev`, hoặc đổi *Site URL* trong Supabase sang domain thật |
+| Trang đăng nhập báo *"Chưa cấu hình Supabase"* | Thiếu `.env.local` (local) hoặc thiếu biến môi trường trên Vercel | Mục 2.2. Trên Vercel nhớ **redeploy** sau khi thêm |
+| Quay về trang đăng nhập, báo *"đã hết hạn hoặc đã được dùng"* | Link dùng quá 1 lần, hoặc quá 1 giờ | Yêu cầu đường dẫn mới |
+| Báo *"cần mở trong CÙNG trình duyệt"* | Dạng `?code=` (PKCE) cần cookie từ trình duyệt đã yêu cầu | Mở mail đúng máy đã yêu cầu, hoặc đổi mẫu email theo 1.4b |
+| `requested path is invalid` | Thiếu Redirect URLs | Mục 1.4 |
+| Không nhận được email nào | Vượt hạn mức 4 email/giờ của bản miễn phí | Đợi, hoặc cấu hình SMTP riêng (mục 1.5) |
 
 ---
 

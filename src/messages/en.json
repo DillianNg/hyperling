@@ -144,7 +144,18 @@
       "errorBody": "The sign-in link may have expired or already been used. Request a new one.",
       "backToSignIn": "Back to sign in"
     },
-    "signOut": "Sign out"
+    "signOut": "Sign out",
+    "verifying": {
+      "title": "Signing you in...",
+      "failedTitle": "Could not sign you in",
+      "failedBody": "The sign-in link is missing what it needs, or has already been used. Request a new one.",
+      "backToSignIn": "Back to sign in"
+    },
+    "linkErrors": {
+      "thieu-ma": "That sign-in link carried no verification token. Request a new one.",
+      "het-han": "That sign-in link has expired or was already used. Each link works once, within one hour.",
+      "khac-trinh-duyet": "This link has to be opened in the SAME browser that requested it. If you asked for it on your computer, open the email there rather than on your phone."
+    }
   },
   "dashboard": {
     "title": "Dashboard",
