@@ -83,6 +83,10 @@ Kiểm tra trong Table Editor: bảng `items` phải có **620 dòng** (600 ti�
 
 ## Phần 2 — Vercel
 
+> **Đã nối rồi.** Dự án này hiện đã gắn với Vercel: production chạy ở
+> https://hyperling.vercel.app và mỗi PR tự sinh một preview deployment.
+> Nếu vậy, bỏ qua 2.1 và 2.3, chỉ cần làm **2.2 (biến môi trường)**.
+
 ### 2.1 Nối repository
 
 1. https://vercel.com/new → chọn repo `hyperling`
@@ -112,7 +116,18 @@ Bấm **Deploy**. Build khoảng 1–2 phút.
 ### 2.4 Cập nhật lại URL trong Supabase
 
 Sau khi có domain thật, quay lại **Supabase → Authentication → URL Configuration**
-và thay `<tên-dự-án>.vercel.app` bằng domain thật.
+và thay `<tên-dự-án>.vercel.app` bằng domain thật — với dự án này là
+`https://hyperling.vercel.app`.
+
+### 2.5 Kiểm tra đã cấu hình xong chưa
+
+```bash
+curl -s https://hyperling.vercel.app/dang-nhap | grep -c "Chưa cấu hình Supabase"
+```
+
+Kết quả `0` nghĩa là xong. Kết quả `1` nghĩa là Vercel chưa thấy biến môi trường —
+nhớ **redeploy** sau khi thêm biến, vì `NEXT_PUBLIC_*` được nhúng lúc build chứ
+không đọc lúc chạy.
 
 ---
 
