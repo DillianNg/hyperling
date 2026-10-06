@@ -8,8 +8,9 @@ Web app học ngôn ngữ đa ngôn ngữ. Người học chọn ngôn ngữ đ�
 trình độ hiện tại, mục tiêu và khung thời gian; hệ thống tự tính số mục mỗi ngày
 và lịch ôn tập.
 
-Dữ liệu khởi đầu: khóa tiếng Đức `de-a1-b2`, hiện có **600 câu** (A1–A2) chuyển từ
-file Excel gốc. 1.200 câu B1–B2 sẽ được bổ sung bằng `pnpm content:ingest`.
+Dữ liệu: khóa tiếng Đức `de-a1-b2` đã đủ **1.800 câu** (A1 300, A2 300, B1 600,
+B2 600), mỗi câu kèm **phiên âm IPA**, chuyển từ `data-source/1800 Completed.xlsx`
+bằng `pnpm xlsx:convert`.
 
 Benchmark của hệ thống: **1.800 mục ÷ 20 mục/ngày = 90 ngày**, cộng 10–15 ngày đệm.
 

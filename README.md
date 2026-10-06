@@ -3,7 +3,7 @@
 Web app học ngôn ngữ bằng cả câu. Người học chọn ngôn ngữ đích, trình độ hiện tại,
 mục tiêu và khung thời gian; hệ thống tự tính số mục mỗi ngày và lịch ôn tập riêng.
 
-Khóa khởi đầu: **tiếng Đức `de-a1-b2`** — 600 câu A1–A2 chuyển từ file Excel gốc,
+Khóa khởi đầu: **tiếng Đức `de-a1-b2`** — đủ 1.800 câu A1–B2 kèm phiên âm IPA,
 kèm 739 cặp từ–nghĩa có chú thích giống danh từ. Kèm khóa mẫu **tiếng Pháp
 `fr-a1-b2`** (20 câu) tạo hoàn toàn bằng file nội dung, không sửa code lõi.
 
@@ -87,7 +87,7 @@ Và từ **Project Settings → Database → Connection string → URI**:
 
 ```bash
 pnpm content:validate      # kiểm tra trước, không cần database
-pnpm content:import        # upsert 600 mục + 823 liên kết từ vựng
+pnpm content:import        # upsert 1.800 mục + 2.203 liên kết từ vựng
 ```
 
 Chạy lại bao nhiêu lần cũng được: upsert theo `(course_id, stable_key)` nên

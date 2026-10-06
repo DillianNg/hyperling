@@ -9,6 +9,8 @@ Quyết định đã bị thay thế thì đánh dấu ~~gạch ngang~~ thay vì
 
 ### D-001 · Khóa tiếng Đức có 600 mục, không phải 1.800
 
+> **Đã được thay thế bởi [D-041](#d-041--đủ-1800-câu-và-phiên-âm-chuyển-sang-ipa) (2026-10-06).** Giữ lại để ghi nhận bối cảnh lúc đó.
+
 **Bối cảnh.** File `Customized Learning Deustch.xlsx` có 1.800 dòng, nhưng chỉ
 600 dòng (`S0001`–`S0600`, Ngày 1–30) có nội dung thật. 1.200 dòng còn lại
 (`S0601`–`S1800`, Ngày 31–90) chỉ có ID, ngày dự kiến và công thức theo dõi.
@@ -538,3 +540,39 @@ bộ khoá, cùng biến nội suy (`{count}`), và không chuỗi rỗng.
 chỉ có trong `vi.json` là màn hình lỗi cho người đọc tiếng Anh — trên trang mà
 không ai trong dự án này mở theo mặc định. Đúng loại sai sót nên để test bắt thay
 vì người dùng. Bản dịch đánh rơi `{count}` cũng vậy: câu vẫn hiện, chỉ mất mất con số.
+
+---
+
+### D-041 · Đủ 1.800 câu, và phiên âm chuyển sang IPA
+
+**Bối cảnh.** Người dùng cung cấp `1800 Completed.xlsx`: 1.200 câu B1–B2 còn
+thiếu đã được điền, và **toàn bộ 1.800 phiên âm đổi từ kiểu đọc-theo-tiếng-Việt
+sang IPA chuẩn Duden**. Thay thế [D-001](#d-001--khóa-tiếng-đức-có-600-mục-không-phải-1800),
+vốn chỉ import 600 câu vì không được phép bịa phần còn lại.
+
+**Quyết định.**
+
+- `items.json` sinh lại từ file mới: 1.800 mục, 2.203 liên kết từ vựng, 1.909 từ
+  riêng biệt, 90 chủ đề. `version` của khóa lên `2.0.0`.
+- Giữ nguyên dạng ngoặc vuông của IPA (`[ˈɡuːtən ˈmɔʁɡən]`) đúng như file nguồn —
+  đó là ký hiệu phiên âm ngữ âm chuẩn, không phải thứ cần gọt.
+- Nhãn field `transliteration` đổi thành "Phiên âm IPA". Khóa tiếng Pháp **giữ**
+  nhãn "Phiên âm (đọc theo tiếng Việt)" vì dữ liệu của nó vẫn là kiểu đọc Việt —
+  đúng như kiến trúc dự định: nhãn thuộc về từng khóa, không thuộc về engine.
+- Thêm 8 giá trị `sentenceType`. `Câu phụ` và `Mệnh đề phụ` **không** gộp làm một
+  dù nghĩa gần nhau, vì file nguồn phân biệt chúng; gộp là sửa dữ liệu, không
+  phải import dữ liệu.
+
+**Giữ nguyên tiến độ.** 600 mục cũ được cập nhật tại chỗ nhờ khóa
+`(course_id, stable_key)`, nên `items.id` không đổi và mọi `card_states` trỏ vào
+chúng vẫn còn — import báo đúng "1.200 thêm mới, 600 cập nhật".
+
+**Ba chỗ thiếu trong file nguồn, không tự điền.** `S0935`, `S1761`, `S1771` có
+cụm từ ở cột "Từ mới" nhưng không có dòng VOCAB tương ứng, nên ba câu này không
+có chú thích từ vựng. Script báo ra, không bịa thêm. `sich interessieren für`
+hiện chưa xuất hiện ở bất kỳ dòng VOCAB nào.
+
+**Chốt vị trí cột.** Lần chuyển đổi này tiêu đề cột đã đổi tên ("Phiên âm" →
+"Phiên âm IPA (chuẩn Duden)") trong khi script đọc theo **chỉ số cột**. Lần sau
+nếu cột bị xê dịch, dữ liệu sai sẽ vào đúng ô mà không ai hay. `xlsx-to-content.py`
+nay kiểm tiêu đề trước khi đọc một dòng nào và dừng hẳn nếu lệch.
