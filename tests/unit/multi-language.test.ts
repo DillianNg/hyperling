@@ -97,7 +97,7 @@ describe('khóa tiếng Pháp — thêm ngôn ngữ chỉ bằng file nội dung
       'select course_id, count(*)::int as n from items group by course_id order by course_id',
     );
     expect(counts).toEqual([
-      { course_id: 'de-a1-b2', n: 600 },
+      { course_id: 'de-a1-b2', n: 1800 },
       { course_id: 'fr-a1-b2', n: 20 },
     ]);
   }, 120_000);

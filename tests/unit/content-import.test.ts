@@ -6,9 +6,10 @@ import { createTestDb, type TestDb } from './helpers/test-db.js';
 import { importCourse, type SqlExecutor } from '../../src/core/content/import.js';
 import { parseCourse, validateItemsFile } from '../../src/core/content/validate.js';
 import { itemsFileSchema, type Course, type ContentItem } from '../../src/core/content/schema.js';
+import { BENCHMARK_NEW_PER_DAY } from '../../src/config/app.config.js';
 
 /**
- * Phase 1 acceptance test: import the real 600-item German course into a real
+ * Phase 1 acceptance test: import the real 1800-item German course into a real
  * Postgres and prove that running it twice changes nothing.
  */
 
@@ -53,63 +54,79 @@ afterAll(async () => {
 });
 
 describe('Dữ liệu tiếng Đức thật', () => {
-  it('600 mục, chia đều A1 và A2, 30 chủ đề', () => {
-    expect(items).toHaveLength(600);
+  it('1800 mục trải đều bốn cấp độ, 90 chủ đề', () => {
+    expect(items).toHaveLength(1800);
     const byLevel = items.reduce<Record<string, number>>((acc, item) => {
       acc[item.level] = (acc[item.level] ?? 0) + 1;
       return acc;
     }, {});
-    expect(byLevel).toEqual({ A1: 300, A2: 300 });
-    expect(new Set(items.map((i) => i.topic)).size).toBe(30);
+    expect(byLevel).toEqual({ A1: 300, A2: 300, B1: 600, B2: 600 });
+    expect(new Set(items.map((i) => i.topic)).size).toBe(90);
+
+    // The benchmark the whole planner is built around: 1800 ÷ 20 = 90 days.
+    expect(items.length / BENCHMARK_NEW_PER_DAY).toBe(90);
   });
 
-  it('ID ổn định liên tục từ S0001 đến S0600', () => {
+  it('ID ổn định liên tục từ S0001 đến S1800, không trùng không hở', () => {
     expect(items[0]!.stableKey).toBe('S0001');
-    expect(items.at(-1)!.stableKey).toBe('S0600');
-    expect(items.map((i) => i.orderIndex)).toEqual(Array.from({ length: 600 }, (_, i) => i + 1));
+    expect(items.at(-1)!.stableKey).toBe('S1800');
+    expect(items.map((i) => i.orderIndex)).toEqual(Array.from({ length: 1800 }, (_, i) => i + 1));
+    expect(new Set(items.map((i) => i.stableKey)).size).toBe(1800);
   });
 
-  it('giữ nguyên ký tự Đức và phiên âm tiếng Việt', () => {
+  it('giữ nguyên ký tự Đức, dấu tiếng Việt và ký hiệu IPA', () => {
     const umlauts = items.filter((i) => /[äöüßÄÖÜ]/.test(i.fields.text ?? ''));
     expect(umlauts.length).toBeGreaterThan(150);
-    const withTranslit = items.filter((i) => (i.fields.transliteration ?? '').length > 0);
-    expect(withTranslit).toHaveLength(600);
+
+    // Every sentence carries an IPA transcription in [brackets]; the characters
+    // below are the ones a mangled encoding would be most likely to destroy.
+    const translit = items.map((i) => i.fields.transliteration ?? '');
+    expect(translit.filter((t) => t.length > 0)).toHaveLength(1800);
+    expect(translit.every((t) => t.startsWith('[') && t.endsWith(']'))).toBe(true);
+    expect(translit.filter((t) => /[ˈˌːʁəɛɔøyʏʊɪ]/.test(t)).length).toBe(1800);
+
     // Vietnamese diacritics must survive the whole pipeline unmangled.
     expect(items[0]!.fields.meaning).toBe('Chào buổi sáng!');
+    expect(items[0]!.fields.transliteration).toBe('[ˈɡuːtən ˈmɔʁɡən]');
   });
 
-  it('không có mục nào rỗng lọt vào từ 1200 dòng trống', () => {
-    expect(items.every((i) => (i.fields.text ?? '').trim().length > 0)).toBe(true);
-    expect(items.some((i) => i.stableKey > 'S0600')).toBe(false);
+  it('không mục nào thiếu câu, nghĩa hay phiên âm', () => {
+    const incomplete = items.filter(
+      (i) =>
+        (i.fields.text ?? '').trim() === '' ||
+        (i.fields.meaning ?? '').trim() === '' ||
+        (i.fields.transliteration ?? '').trim() === '',
+    );
+    expect(incomplete.map((i) => i.stableKey)).toEqual([]);
   });
 
   it('pass toàn bộ kiểm tra của content:validate', () => {
     const report = validateItemsFile(course, loadJson(join(COURSE_DIR, 'items.json')));
     expect(report.issues).toEqual([]);
     expect(report.ok).toBe(true);
-    expect(report.stats.itemCount).toBe(600);
-    expect(report.stats.glossaryLinks).toBe(823);
-    // B1 and B2 are declared but have no content yet; validate must say so.
-    expect(report.stats.emptyDeclaredLevels).toEqual(['B1', 'B2']);
+    expect(report.stats.itemCount).toBe(1800);
+    expect(report.stats.glossaryLinks).toBe(2203);
+    // Every declared level now has content, so nothing should be reported empty.
+    expect(report.stats.emptyDeclaredLevels).toEqual([]);
   });
 });
 
 describe('content:import', () => {
-  it('lần 1: đưa đúng 600 mục và toàn bộ từ vựng vào DB', async () => {
+  it('lần 1: đưa đúng 1800 mục và toàn bộ từ vựng vào DB', async () => {
     const result = await importCourse(sql, course, items);
 
-    expect(result.itemsInserted).toBe(600);
+    expect(result.itemsInserted).toBe(1800);
     expect(result.itemsUpdated).toBe(0);
-    expect(result.glossaryLinks).toBe(823);
+    expect(result.glossaryLinks).toBe(2203);
     expect(result.orphanStableKeys).toEqual([]);
 
     expect(await counts()).toEqual({
       courses: 1,
-      items: 600,
+      items: 1800,
       glossary_terms: result.glossaryTermsUpserted,
-      item_glossary: 823,
+      item_glossary: 2203,
     });
-  }, 120_000);
+  }, 180_000);
 
   it('lần 2: không sinh thêm một bản ghi nào (idempotent)', async () => {
     const before = await counts();
@@ -120,7 +137,7 @@ describe('content:import', () => {
     const result = await importCourse(sql, course, items);
 
     expect(result.itemsInserted).toBe(0);
-    expect(result.itemsUpdated).toBe(600);
+    expect(result.itemsUpdated).toBe(1800);
     expect(await counts()).toEqual(before);
 
     // The decisive check: item ids are unchanged, so learner progress survives.
@@ -164,14 +181,14 @@ describe('content:import', () => {
   }, 120_000);
 
   it('báo cáo mục bị xoá khỏi file nhưng KHÔNG tự xoá trong DB', async () => {
-    const trimmed = items.slice(0, 599);
-    const result = await importCourse(sql, course, trimmed);
+    const dropped = items.at(-1)!.stableKey;
+    const result = await importCourse(sql, course, items.slice(0, -1));
 
-    expect(result.orphanStableKeys).toEqual(['S0600']);
+    expect(result.orphanStableKeys).toEqual([dropped]);
     // Still in the database: deleting it would destroy anyone's progress on it.
     const remaining = await sql.query<{ n: number }>('select count(*)::int as n from items');
-    expect(remaining[0]!.n).toBe(600);
-  }, 120_000);
+    expect(remaining[0]!.n).toBe(items.length);
+  }, 180_000);
 
   it('bỏ qua field không khai báo trong course.json', async () => {
     const sneaky: ContentItem[] = [
