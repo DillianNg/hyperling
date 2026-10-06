@@ -567,10 +567,9 @@ vốn chỉ import 600 câu vì không được phép bịa phần còn lại.
 `(course_id, stable_key)`, nên `items.id` không đổi và mọi `card_states` trỏ vào
 chúng vẫn còn — import báo đúng "1.200 thêm mới, 600 cập nhật".
 
-**Ba chỗ thiếu trong file nguồn, không tự điền.** `S0935`, `S1761`, `S1771` có
-cụm từ ở cột "Từ mới" nhưng không có dòng VOCAB tương ứng, nên ba câu này không
-có chú thích từ vựng. Script báo ra, không bịa thêm. `sich interessieren für`
-hiện chưa xuất hiện ở bất kỳ dòng VOCAB nào.
+**Ba chỗ thiếu trong file nguồn.** `S0935`, `S1761`, `S1771` có cụm từ ở cột
+"Từ mới" nhưng không có dòng VOCAB tương ứng. Script báo ra và bỏ trống, không
+bịa thêm. Người dùng sau đó yêu cầu điền; xem [D-043](#d-043--thêm-dòng-vocab-bằng-cách-sửa-xml-không-dùng-openpyxl).
 
 **Chốt vị trí cột.** Lần chuyển đổi này tiêu đề cột đã đổi tên ("Phiên âm" →
 "Phiên âm IPA (chuẩn Duden)") trong khi script đọc theo **chỉ số cột**. Lần sau
@@ -620,3 +619,31 @@ trần này, nên không test nào chạy trên PGlite có thể lộ ra.
 dung, theo tiến độ người học, hay theo thời gian — phải đi qua `count` hoặc
 `fetchAllRows`. `.select()` trần chỉ dùng cho tập có chặn trên rõ ràng (kế hoạch
 ngày ≤ 105 dòng, `.in()` đã chia khối, `.limit()` tường minh).
+
+---
+
+### D-043 · Thêm dòng VOCAB bằng cách sửa XML, không dùng openpyxl
+
+**Bối cảnh.** Người dùng yêu cầu điền chú thích từ vựng cho `S0935`, `S1761`,
+`S1771`. Cách hiển nhiên là mở file bằng openpyxl, thêm dòng, lưu lại.
+
+**Vì sao không làm vậy.** Kiểm tra trước khi ghi cho thấy workbook chứa **14.593
+công thức, 2 biểu đồ và 4 drawing**. openpyxl **không giữ được biểu đồ** khi lưu:
+thao tác "thêm ba dòng" sẽ âm thầm xoá mất phần DASHBOARD trực quan của người
+dùng. Với file do người dùng tạo ra và vẫn đang dùng, đó là cái giá không được
+phép trả.
+
+**Quyết định.** Sửa trực tiếp XML bên trong file zip `.xlsx`: chèn ba `<row>` vào
+`sheet5.xml`, thêm đúng **một** chuỗi mới vào `sharedStrings.xml`, nới
+`dimension`, `autoFilter` và dải `COUNTIF`. Mọi phần khác của zip được ghi lại
+nguyên vẹn.
+
+**Kiểm chứng.** So sánh với bản sao lưu: **0 ô cũ thay đổi**, không thành phần
+nào trong zip bị mất hay thêm, số công thức tăng đúng +6 (2 công thức × 3 dòng).
+
+**Nghĩa từ đâu ra.** Không có chữ nào do tự nghĩ: `mong chờ` lấy từ chính dòng
+VOCAB sẵn có của người dùng tại `S0596`; `quan tâm đến` lấy từ chính bản dịch của
+họ cho câu `S0935` — "Bạn **quan tâm đến** cái gì?".
+
+**Hệ quả.** 2.206 liên kết từ vựng, 1.910 từ riêng biệt, và `xlsx:convert` lần
+đầu báo "✓ Không phát hiện vấn đề nào trong dữ liệu nguồn."

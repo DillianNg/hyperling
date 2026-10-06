@@ -87,7 +87,7 @@ Và từ **Project Settings → Database → Connection string → URI**:
 
 ```bash
 pnpm content:validate      # kiểm tra trước, không cần database
-pnpm content:import        # upsert 1.800 mục + 2.203 liên kết từ vựng
+pnpm content:import        # upsert 1.800 mục + 2.206 liên kết từ vựng
 ```
 
 Chạy lại bao nhiêu lần cũng được: upsert theo `(course_id, stable_key)` nên

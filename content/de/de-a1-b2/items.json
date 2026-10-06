@@ -23021,7 +23021,14 @@
         "grammarNote": "wofür = cho/về cái gì",
         "sentenceType": "question"
       },
-      "glossary": []
+      "glossary": [
+        {
+          "term": "sich interessieren für",
+          "meaning": "quan tâm đến",
+          "partOfSpeech": "reflexive_verb",
+          "fields": {}
+        }
+      ]
     },
     {
       "stableKey": "S0936",
@@ -42840,7 +42847,14 @@
         "grammarNote": "auf = tương lai, über = đã xảy ra",
         "sentenceType": "common_mistake"
       },
-      "glossary": []
+      "glossary": [
+        {
+          "term": "sich freuen auf",
+          "meaning": "mong chờ",
+          "partOfSpeech": "reflexive_verb",
+          "fields": {}
+        }
+      ]
     },
     {
       "stableKey": "S1762",
@@ -43057,7 +43071,14 @@
         "grammarNote": "Giới từ cố định của động từ",
         "sentenceType": "common_mistake"
       },
-      "glossary": []
+      "glossary": [
+        {
+          "term": "sich interessieren für",
+          "meaning": "quan tâm đến",
+          "partOfSpeech": "reflexive_verb",
+          "fields": {}
+        }
+      ]
     },
     {
       "stableKey": "S1772",

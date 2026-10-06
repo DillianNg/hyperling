@@ -90,6 +90,13 @@ describe('Dữ liệu tiếng Đức thật', () => {
     expect(items[0]!.fields.transliteration).toBe('[ˈɡuːtən ˈmɔʁɡən]');
   });
 
+  it('mọi câu đều có ít nhất một chú thích từ vựng', () => {
+    // Three sentences shipped without one until their VOCAB rows were added;
+    // the converter reported them rather than inventing the entries.
+    const bare = items.filter((item) => item.glossary.length === 0);
+    expect(bare.map((item) => item.stableKey)).toEqual([]);
+  });
+
   it('không mục nào thiếu câu, nghĩa hay phiên âm', () => {
     const incomplete = items.filter(
       (i) =>
@@ -105,7 +112,7 @@ describe('Dữ liệu tiếng Đức thật', () => {
     expect(report.issues).toEqual([]);
     expect(report.ok).toBe(true);
     expect(report.stats.itemCount).toBe(1800);
-    expect(report.stats.glossaryLinks).toBe(2203);
+    expect(report.stats.glossaryLinks).toBe(2206);
     // Every declared level now has content, so nothing should be reported empty.
     expect(report.stats.emptyDeclaredLevels).toEqual([]);
   });
@@ -117,14 +124,14 @@ describe('content:import', () => {
 
     expect(result.itemsInserted).toBe(1800);
     expect(result.itemsUpdated).toBe(0);
-    expect(result.glossaryLinks).toBe(2203);
+    expect(result.glossaryLinks).toBe(2206);
     expect(result.orphanStableKeys).toEqual([]);
 
     expect(await counts()).toEqual({
       courses: 1,
       items: 1800,
       glossary_terms: result.glossaryTermsUpserted,
-      item_glossary: 2203,
+      item_glossary: 2206,
     });
   }, 180_000);
 
