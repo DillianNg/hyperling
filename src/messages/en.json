@@ -431,7 +431,20 @@
     "fontScale": "Text size",
     "fontScaleHint": "Applies across the whole app.",
     "saved": "Saved",
-    "back": "Back"
+    "back": "Back",
+    "reset": "Delete study plan",
+    "resetHint": "Start over with a new plan. Your account is kept.",
+    "resetCurrent": "Current plan: {course}.",
+    "resetConfirmTitle": "This cannot be undone. You will lose:",
+    "resetLosesCards": "{count} studied cards, with their whole review schedule",
+    "resetLosesLogs": "{count} reviews recorded in the log",
+    "resetLosesPlan": "Your day-by-day plan, streak and statistics",
+    "resetKeepsAccount": "Your account and email are kept — you stay signed in, and return to the plan-building steps.",
+    "resetConfirm": "Delete and start over",
+    "resetCancel": "Cancel",
+    "resetWorking": "Deleting…",
+    "resetFailed": "Could not delete. Reload the page and try again.",
+    "resetKeepsNotes": "Your notes and “hard” marks on {count} sentences are kept — that is text you wrote, not progress."
   },
   "offline": {
     "title": "You are offline",

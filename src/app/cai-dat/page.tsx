@@ -6,9 +6,12 @@ import { ArrowLeft } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { AppearanceSettings } from '@/components/dashboard/appearance-settings';
+import { ResetProgress } from '@/components/dashboard/reset-progress';
 import { LOCALES } from '@/config/app.config';
 import { getUserLocale } from '@/lib/i18n/locale';
 import { createClient, getCurrentUser } from '@/lib/supabase/server';
+import { getCourse } from '@/lib/data/courses';
+import { getEnrollmentFootprint, listEnrollments } from '@/lib/data/enrollments';
 import { changeLocale } from './actions';
 
 export async function generateMetadata(): Promise<Metadata> {
@@ -31,6 +34,14 @@ export default async function SettingsPage() {
   const profile = data as { font_scale?: string; timezone?: string; email?: string } | null;
   const fontScale = Number(profile?.font_scale ?? 1) || 1;
   const locale = await getUserLocale();
+
+  // Reset is only offered when there is a plan to reset; a learner who has not
+  // finished onboarding has nothing here but a confusing red box.
+  const [enrollment] = await listEnrollments();
+  const course = enrollment ? await getCourse(enrollment.courseId) : null;
+  const footprint = enrollment
+    ? await getEnrollmentFootprint(enrollment.id)
+    : { reviewedCards: 0, reviewLogs: 0, flaggedItems: 0 };
 
   return (
     <main className="container-page py-10">
@@ -64,6 +75,18 @@ export default async function SettingsPage() {
         </Card>
 
         <AppearanceSettings fontScale={fontScale} />
+
+        {enrollment ? (
+          <ResetProgress
+            enrollmentId={enrollment.id}
+            courseTitle={
+              course?.title[locale] ?? course?.title.vi ?? course?.title.en ?? enrollment.courseId
+            }
+            reviewedCards={footprint.reviewedCards}
+            reviewLogs={footprint.reviewLogs}
+            flaggedItems={footprint.flaggedItems}
+          />
+        ) : null}
       </div>
     </main>
   );

@@ -431,7 +431,20 @@
     "fontScale": "Cỡ chữ",
     "fontScaleHint": "Áp dụng cho toàn bộ ứng dụng.",
     "saved": "Đã lưu",
-    "back": "Quay lại"
+    "back": "Quay lại",
+    "reset": "Xoá lộ trình học",
+    "resetHint": "Bắt đầu lại từ đầu với một lộ trình mới. Tài khoản của bạn được giữ nguyên.",
+    "resetCurrent": "Lộ trình hiện tại: {course}.",
+    "resetConfirmTitle": "Xoá xong không khôi phục được. Bạn sẽ mất:",
+    "resetLosesCards": "{count} thẻ đã học cùng toàn bộ lịch ôn tập của chúng",
+    "resetLosesLogs": "{count} lượt ôn đã ghi trong nhật ký",
+    "resetLosesPlan": "Kế hoạch theo ngày, chuỗi ngày học và thống kê",
+    "resetKeepsAccount": "Tài khoản và email của bạn được giữ lại — bạn vẫn đăng nhập, và sẽ quay về bước tạo lộ trình.",
+    "resetConfirm": "Xoá và bắt đầu lại",
+    "resetCancel": "Huỷ",
+    "resetWorking": "Đang xoá…",
+    "resetFailed": "Không xoá được. Hãy tải lại trang rồi thử lại.",
+    "resetKeepsNotes": "Ghi chú và dấu “câu khó” của bạn trên {count} câu được giữ lại — đó là chữ bạn tự viết, không phải tiến độ."
   },
   "offline": {
     "title": "Bạn đang ngoại tuyến",
