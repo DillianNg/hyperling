@@ -16,6 +16,9 @@ describe('canonicalHeader', () => {
     expect(canonicalHeader('ID')).toBe('stableKey');
     expect(canonicalHeader('Câu tiếng Đức')).toBe('text');
     expect(canonicalHeader('Phiên âm (đọc theo tiếng Việt)')).toBe('transliteration');
+    // The completed workbook relabelled this column when it switched to IPA.
+    expect(canonicalHeader('Phiên âm IPA (chuẩn Duden)')).toBe('transliteration');
+    expect(canonicalHeader('IPA')).toBe('transliteration');
     expect(canonicalHeader('Nghĩa tiếng Việt')).toBe('meaning');
     expect(canonicalHeader('Từ mới trong câu')).toBe('newWords');
     expect(canonicalHeader('Điểm ngữ pháp')).toBe('grammarNote');
