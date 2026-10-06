@@ -282,3 +282,110 @@ describe('Trigger tạo profile tự động', () => {
     });
   });
 });
+
+describe('Xoá lộ trình học — cascade và những gì cố ý sống sót', () => {
+  /**
+   * The reset in Settings deletes one enrollment and lets foreign keys do the
+   * rest. These assert the blast radius is exactly what the confirmation dialog
+   * promises: all plan state for that enrollment, nothing of anyone else's, and
+   * neither the account nor the learner's own notes.
+   */
+  let dana: string;
+  let danaEnrollment: string;
+
+  beforeAll(async () => {
+    dana = await t.createUser('dana@example.com');
+    danaEnrollment = await t.asUser(dana, async () => {
+      const r = await t.db.query<{ id: string }>(
+        `insert into public.enrollments
+           (user_id, course_id, level_from, level_to, start_date, target_date, new_per_day, buffer_days)
+         values ($1, 'de-a1-b2', 'A1', 'A2', '2026-10-05', '2027-01-02', 20, 15)
+         returning id`,
+        [dana],
+      );
+      return r.rows[0]!.id;
+    });
+
+    await t.asUser(dana, async () => {
+      await t.db.query(
+        `insert into public.daily_plans (enrollment_id, plan_date, day_index, planned_new)
+         values ($1, '2026-10-05', 1, 20)`,
+        [danaEnrollment],
+      );
+      await t.db.query(
+        `insert into public.card_states (user_id, item_id, enrollment_id, due, state)
+         values ($1, $2, $3, now(), 2)`,
+        [dana, itemId, danaEnrollment],
+      );
+      await t.db.query(
+        `insert into public.review_logs (user_id, item_id, enrollment_id, rating, state_before)
+         values ($1, $2, $3, 3, 2)`,
+        [dana, itemId, danaEnrollment],
+      );
+      await t.db.query(
+        `insert into public.study_sessions (user_id, enrollment_id, session_date)
+         values ($1, $2, '2026-10-05')`,
+        [dana, danaEnrollment],
+      );
+      await t.db.query(
+        `insert into public.item_flags (user_id, item_id, is_hard, note)
+         values ($1, $2, true, 'Câu này khó nhớ')`,
+        [dana, itemId],
+      );
+    });
+  });
+
+  it('xoá enrollment cuốn theo toàn bộ trạng thái kế hoạch', async () => {
+    await t.asUser(dana, async () => {
+      await t.db.query('delete from public.enrollments where id = $1', [danaEnrollment]);
+    });
+
+    for (const table of ['enrollments', 'daily_plans', 'card_states', 'review_logs', 'study_sessions']) {
+      const left = await t.db.query<{ n: number }>(
+        `select count(*)::int as n from public.${table}
+          where ${table === 'daily_plans' ? 'enrollment_id' : 'user_id'} = $1`,
+        [table === 'daily_plans' ? danaEnrollment : dana],
+      );
+      expect(left.rows[0]!.n, `${table} còn sót dòng`).toBe(0);
+    }
+  });
+
+  it('cascade xoá được review_logs dù bảng này không có policy DELETE', async () => {
+    // Append-only is enforced for the owner's own statements. A cascade runs as
+    // the table owner, so discarding a whole course does take its log with it —
+    // the one path by which those rows can ever disappear.
+    const policies = await t.db.query<{ n: number }>(
+      `select count(*)::int as n from pg_policies
+        where tablename = 'review_logs' and cmd = 'DELETE'`,
+    );
+    expect(policies.rows[0]!.n).toBe(0);
+  });
+
+  it('KHÔNG đụng tới ghi chú của người học — đó là chữ họ tự viết', async () => {
+    const flags = await t.db.query<{ note: string | null }>(
+      'select note from public.item_flags where user_id = $1',
+      [dana],
+    );
+    expect(flags.rows).toHaveLength(1);
+    expect(flags.rows[0]!.note).toBe('Câu này khó nhớ');
+  });
+
+  it('KHÔNG đụng tới tài khoản — người học vẫn đăng nhập được', async () => {
+    const profile = await t.db.query<{ n: number }>(
+      'select count(*)::int as n from public.profiles where id = $1',
+      [dana],
+    );
+    expect(profile.rows[0]!.n).toBe(1);
+  });
+
+  it('KHÔNG đụng tới nội dung khóa học lẫn dữ liệu người khác', async () => {
+    const items = await t.db.query<{ n: number }>('select count(*)::int as n from public.items');
+    expect(items.rows[0]!.n).toBe(1);
+
+    const others = await t.db.query<{ n: number }>(
+      'select count(*)::int as n from public.enrollments where user_id in ($1, $2)',
+      [alice, bob],
+    );
+    expect(others.rows[0]!.n).toBe(2);
+  });
+});
