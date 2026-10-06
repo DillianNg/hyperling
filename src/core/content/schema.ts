@@ -39,7 +39,7 @@ export const localizedTextSchema = z.object({
 export const fieldRoleSchema = z.enum([
   'prompt', // what the learner is asked to produce/recognise (the target-language text)
   'answer', // the meaning in the learner's own language
-  'hint', // optional support, e.g. Vietnamese-style transliteration
+  'hint', // optional support, e.g. an IPA or Vietnamese-style transliteration
   'note', // explanatory text, e.g. the grammar point
   'tag', // short classifier, e.g. sentence type
   'badge', // tiny coloured marker, e.g. der/die/das

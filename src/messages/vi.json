@@ -118,7 +118,7 @@
     },
     "footer": {
       "builtWith": "Nội dung là dữ liệu, code là engine — thêm ngôn ngữ mới chỉ cần thêm file nội dung.",
-      "dataNote": "Khóa tiếng Đức hiện có 600 câu (A1–A2) đã sẵn sàng; phần B1–B2 đang được bổ sung."
+      "dataNote": "Khóa tiếng Đức có đủ 1.800 câu từ A1 đến B2, mỗi câu kèm phiên âm IPA."
     }
   },
   "auth": {
@@ -203,7 +203,15 @@
     "subordinate": "Câu phụ",
     "answer": "Câu trả lời",
     "passive": "Câu bị động",
-    "enumeration": "Liệt kê"
+    "enumeration": "Liệt kê",
+    "subordinate_clause": "Mệnh đề phụ",
+    "relative_clause": "Mệnh đề quan hệ",
+    "infinitive_clause": "Mệnh đề nguyên mẫu",
+    "idiom": "Thành ngữ",
+    "colloquial": "Khẩu ngữ",
+    "formal_written": "Văn viết",
+    "common_mistake": "Lưu ý lỗi",
+    "exam_pattern": "Mẫu câu thi"
   },
   "partOfSpeech": {
     "noun": "Danh từ",

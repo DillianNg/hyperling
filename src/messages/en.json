@@ -118,7 +118,7 @@
     },
     "footer": {
       "builtWith": "Content is data, code is the engine — adding a language means adding content files.",
-      "dataNote": "The German course currently ships 600 sentences (A1–A2); B1–B2 is being added."
+      "dataNote": "The German course ships all 1,800 sentences from A1 to B2, each with an IPA transcription."
     }
   },
   "auth": {
@@ -203,7 +203,15 @@
     "subordinate": "Subordinate clause",
     "answer": "Answer",
     "passive": "Passive",
-    "enumeration": "List"
+    "enumeration": "List",
+    "subordinate_clause": "Subordinate clause",
+    "relative_clause": "Relative clause",
+    "infinitive_clause": "Infinitive clause",
+    "idiom": "Idiom",
+    "colloquial": "Colloquial",
+    "formal_written": "Written register",
+    "common_mistake": "Common mistake",
+    "exam_pattern": "Exam pattern"
   },
   "partOfSpeech": {
     "noun": "Noun",
