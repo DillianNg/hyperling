@@ -66,6 +66,11 @@ Mọi bảng dữ liệu người dùng đều bật RLS, quyền sở hữu lu�
 trực tiếp trên dòng dữ liệu, không bao giờ từ giá trị client gửi lên.
 `review_logs` cố ý **không có** policy UPDATE/DELETE — nhật ký ôn tập là bất biến.
 
+Một ngoại lệ có chủ đích: xoá cả enrollment thì cascade từ khoá ngoại cuốn theo
+`review_logs` của nó, vì cascade chạy dưới quyền chủ bảng và đi vòng qua RLS. Bất
+biến ở đây nghĩa là "không viết lại lịch sử của khoá đang học", không phải "không
+bao giờ xoá được" (D-039).
+
 ## Lệnh
 
 ```bash

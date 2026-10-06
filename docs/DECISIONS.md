@@ -494,3 +494,47 @@ vì vậy kiểm tra **nguyên nhân** thay vì hậu quả — bắt tham số 
 hơn driver thật. PGlite chứng minh được logic SQL và RLS, nhưng **không** chứng
 minh được tầng tuần tự hoá tham số. Những gì thuộc về tầng đó phải kiểm ở chỗ
 code tạo ra tham số, hoặc chạy trên Postgres thật.
+
+---
+
+### D-039 · Xoá lộ trình học giữ lại ghi chú của người học
+
+**Bối cảnh.** Cần một cách bắt đầu lại từ đầu mà không phải đăng nhập lại — bản
+Supabase miễn phí chỉ cho 4 email magic link mỗi giờ, nên xoá cả tài khoản sẽ
+chặn chính việc thử nghiệm.
+
+**Quyết định.** Nút trong trang Cài đặt xoá **một** enrollment. Khoá ngoại
+`on delete cascade` cuốn theo `daily_plans`, `card_states`, `review_logs` và
+`study_sessions`. Hai thứ cố ý ở lại:
+
+- **`item_flags`** — khoá chính là `(user_id, item_id)`, gắn với *nội dung* chứ
+  không gắn với lộ trình, và cột `note` chứa chữ người học tự viết. Xoá văn bản
+  do người dùng soạn dưới một nút mang nhãn "Xoá lộ trình học" là mặc định sai.
+  Hộp xác nhận vì vậy **nói rõ chúng được giữ**, kèm số lượng.
+- **`profiles`** và tài khoản — người học vẫn đăng nhập, quay thẳng về onboarding.
+
+**Lý do.** Reset một nửa mà không nói gì là tệ hơn cả hai thái cực. Nguyên tắc
+phân định: xoá *trạng thái kế hoạch* do hệ thống sinh ra, giữ *thứ người học tự
+tạo ra*.
+
+**Ngoại lệ đối với nguyên tắc #9.** `review_logs` cố ý không có policy DELETE, nên
+chính chủ cũng không xoá được từng dòng. Nhưng cascade từ khoá ngoại chạy dưới
+quyền chủ bảng và **đi vòng qua RLS** — nên xoá cả khoá học vẫn xoá sạch nhật ký
+của khoá đó. Đây là con đường duy nhất những dòng ấy biến mất được, và nó đúng:
+bất biến ở đây nghĩa là "không viết lại lịch sử của khoá đang học", không phải
+"không bao giờ xoá được". Đã ghi thành test trong `tests/unit/rls.test.ts`.
+
+---
+
+### D-040 · Test đối chiếu khoá giữa `vi.json` và `en.json`
+
+**Bối cảnh.** Thêm 13 chuỗi cho tính năng xoá lộ trình làm lộ ra: 346 khoá i18n
+chưa từng có test nào canh.
+
+**Quyết định.** `tests/unit/messages.test.ts` kiểm ba điều giữa mọi locale: cùng
+bộ khoá, cùng biến nội suy (`{count}`), và không chuỗi rỗng.
+
+**Lý do.** next-intl **ném lỗi** khi thiếu khoá chứ không fallback, nên một khoá
+chỉ có trong `vi.json` là màn hình lỗi cho người đọc tiếng Anh — trên trang mà
+không ai trong dự án này mở theo mặc định. Đúng loại sai sót nên để test bắt thay
+vì người dùng. Bản dịch đánh rơi `{count}` cũng vậy: câu vẫn hiện, chỉ mất mất con số.
