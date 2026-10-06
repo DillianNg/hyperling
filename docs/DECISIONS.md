@@ -519,7 +519,7 @@ chặn chính việc thử nghiệm.
 phân định: xoá *trạng thái kế hoạch* do hệ thống sinh ra, giữ *thứ người học tự
 tạo ra*.
 
-**Ngoại lệ đối với nguyên tắc #9.** `review_logs` cố ý không có policy DELETE, nên
+**Ngoại lệ đối với nguyên tắc RLS (#10 trong `CLAUDE.md`).** `review_logs` cố ý không có policy DELETE, nên
 chính chủ cũng không xoá được từng dòng. Nhưng cascade từ khoá ngoại chạy dưới
 quyền chủ bảng và **đi vòng qua RLS** — nên xoá cả khoá học vẫn xoá sạch nhật ký
 của khoá đó. Đây là con đường duy nhất những dòng ấy biến mất được, và nó đúng:
@@ -576,3 +576,47 @@ hiện chưa xuất hiện ở bất kỳ dòng VOCAB nào.
 "Phiên âm IPA (chuẩn Duden)") trong khi script đọc theo **chỉ số cột**. Lần sau
 nếu cột bị xê dịch, dữ liệu sai sẽ vào đúng ô mà không ai hay. `xlsx-to-content.py`
 nay kiểm tiêu đề trước khi đọc một dòng nào và dừng hẳn nếu lệch.
+
+---
+
+### D-042 · Trần 1000 dòng của PostgREST — đếm ở database, phân trang khi cần mọi dòng
+
+**Bối cảnh.** Sau khi khóa tiếng Đức lên 1.800 câu, onboarding báo "Cấp B2 đang
+được bổ sung nội dung" dù B2 đã có đủ 600 câu. Con số B1 hiển thị `1000` chính là
+dấu vết: `getItemCountByLevel` tải **mọi dòng** về rồi đếm bằng JavaScript, mà
+Supabase chỉ trả tối đa **1000 dòng** mỗi request và **không báo là đã cắt**. Nó
+thấy A1 300, A2 300, B1 400, B2 **0**.
+
+Đây không phải lỗi hiếm gặp mà là **một lớp lỗi**. Soát lại toàn bộ `src/lib/data`
+tìm thấy sáu truy vấn nữa có kết quả lớn dần theo nội dung hoặc theo thời gian:
+
+| Nơi | Hỏng khi | Hậu quả |
+|---|---|---|
+| `getItemCountByLevel` | >1000 câu | **đang hỏng** — ẩn mất cấp độ đã có nội dung |
+| `getUnseenItems` (tập "đã gặp") | >1000 câu đã học | **dạy lại câu cũ như câu mới** |
+| `getEnrollmentStats` (thẻ) | >1000 thẻ | "đã thuộc vững" đếm thiếu |
+| `getEnrollmentStats` (nhật ký) | >1000 lượt ôn | độ chính xác tính trên 1000 lượt đầu |
+| `listLearnedItems` | >1000 câu đã học | danh sách từ mất phần đuôi |
+| `getStudiedLevels` | >1000 câu đã học | bộ lọc cấp độ thiếu |
+| `getTodaySession` (thẻ đến hạn) | >1000 thẻ đến hạn | truy vấn hỏng, URL quá dài |
+
+**Quyết định.** Hai cách, chọn theo mục đích:
+
+1. **Chỉ cần con số** → `select(col, { count: 'exact', head: true })`. Postgres
+   đếm, không dòng nào truyền về. Dùng cho đếm theo cấp độ và tổng thẻ đến hạn.
+2. **Thật sự cần mọi dòng** → `fetchAllRows()` trong `src/lib/data/paginate.ts`,
+   lặp `range()` cho tới khi gặp trang không đầy.
+
+Phiên học đổi sang cách 1 + `limit`: chỉ lấy 120 thẻ nó dùng được, còn số tồn
+đọng lấy từ `count`. `buildSession` vì vậy nhận thêm `totalDueCards`.
+
+**Vì sao không ai phát hiện sớm hơn.** Trần 1000 không sinh lỗi — nó trả về một
+câu trả lời **trông hoàn toàn hợp lệ**. Suốt thời gian khóa học có 600 câu, mọi
+truy vấn này đều đúng; dữ liệu vượt ngưỡng mới làm chúng sai, mà lúc sai thì
+không có dấu hiệu nào ngoài những con số hơi thấp. PGlite trong test không có
+trần này, nên không test nào chạy trên PGlite có thể lộ ra.
+
+**Nguyên tắc rút ra.** Mọi truy vấn Supabase có kết quả **lớn dần** — theo nội
+dung, theo tiến độ người học, hay theo thời gian — phải đi qua `count` hoặc
+`fetchAllRows`. `.select()` trần chỉ dùng cho tập có chặn trên rõ ràng (kế hoạch
+ngày ≤ 105 dòng, `.in()` đã chia khối, `.limit()` tường minh).

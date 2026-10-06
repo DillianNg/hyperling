@@ -62,7 +62,17 @@ trần (20/ngày), phương án "dồn nhẹ" không bao giờ khả dụng — 
 brand. Mọi phép tính ngày chạy trên số ngày, không trên mili giây, nên DST và múi
 giờ không làm lệch kết quả. `Date` chỉ dùng cho thời điểm thật (FSRS due time).
 
-### 9. RLS không có ngoại lệ
+### 9. Truy vấn Supabase lớn dần phải đếm hoặc phân trang
+
+Supabase trả tối đa **1000 dòng** mỗi request và **không báo là đã cắt**. Truy vấn
+nào có kết quả lớn dần theo nội dung, theo tiến độ hay theo thời gian đều phải
+dùng `count: 'exact', head: true` (khi chỉ cần con số) hoặc `fetchAllRows()`
+trong `src/lib/data/paginate.ts` (khi thật sự cần mọi dòng).
+
+`.select()` trần chỉ dành cho tập có chặn trên rõ ràng. PGlite trong test không
+có trần này nên sẽ không bao giờ phát hiện giúp bạn (D-042).
+
+### 10. RLS không có ngoại lệ
 Mọi bảng dữ liệu người dùng đều bật RLS, quyền sở hữu luôn lấy từ `auth.uid()`
 trực tiếp trên dòng dữ liệu, không bao giờ từ giá trị client gửi lên.
 `review_logs` cố ý **không có** policy UPDATE/DELETE — nhật ký ôn tập là bất biến.
