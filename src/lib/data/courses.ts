@@ -1,7 +1,11 @@
 import 'server-only';
 import { row, rows } from './rows';
+import { fetchAllRows } from './paginate';
 import { createClient } from '@/lib/supabase/server';
 import type { FieldSpec } from '@/core/content/schema';
+
+/** How many items to scan per request when looking for the next unseen ones. */
+const UNSEEN_PAGE = 500;
 
 /**
  * Course content queries. Everything here runs under RLS with the anon key, so
@@ -54,16 +58,38 @@ function toSummary(row: CourseRow, itemCountByLevel: Record<string, number>): Co
   };
 }
 
-/** Item counts grouped by level for one course. */
-export async function getItemCountByLevel(courseId: string): Promise<Record<string, number>> {
+/**
+ * Item counts grouped by level for one course.
+ *
+ * Counted by Postgres, one `count` per declared level, rather than by fetching
+ * the rows and counting them here. Fetching silently stopped at PostgREST's
+ * 1000-row cap: with 1800 German sentences it saw A1 300, A2 300, B1 400 and no
+ * B2 at all, so onboarding reported B2 as having no content yet.
+ *
+ * These counts gate which goals a learner may choose, so being short is not a
+ * cosmetic error — it hides levels that are fully written.
+ */
+export async function getItemCountByLevel(
+  courseId: string,
+  levels: readonly string[],
+): Promise<Record<string, number>> {
   const supabase = await createClient();
-  const { data, error } = await supabase.from('items').select('level_code').eq('course_id', courseId);
 
-  if (error || !data) return {};
+  const counted = await Promise.all(
+    levels.map(async (level) => {
+      const { count, error } = await supabase
+        .from('items')
+        .select('id', { count: 'exact', head: true })
+        .eq('course_id', courseId)
+        .eq('level_code', level);
+
+      return [level, error ? 0 : (count ?? 0)] as const;
+    }),
+  );
 
   const counts: Record<string, number> = {};
-  for (const item of rows<{ level_code: string }>(data)) {
-    counts[item.level_code] = (counts[item.level_code] ?? 0) + 1;
+  for (const [level, n] of counted) {
+    if (n > 0) counts[level] = n;
   }
   return counts;
 }
@@ -80,7 +106,9 @@ export async function listCourses(): Promise<CourseSummary[]> {
   if (error || !data) return [];
 
   const courseRows = rows<CourseRow>(data);
-  const counts = await Promise.all(courseRows.map((course) => getItemCountByLevel(course.id)));
+  const counts = await Promise.all(
+    courseRows.map((course) => getItemCountByLevel(course.id, course.levels ?? [])),
+  );
   return courseRows.map((course, index) => toSummary(course, counts[index] ?? {}));
 }
 
@@ -96,7 +124,7 @@ export async function getCourse(courseId: string): Promise<CourseSummary | null>
 
   if (error || !data) return null;
   const course = row<CourseRow>(data);
-  return course ? toSummary(course, await getItemCountByLevel(courseId)) : null;
+  return course ? toSummary(course, await getItemCountByLevel(courseId, course.levels ?? [])) : null;
 }
 
 export interface StudyItem {
@@ -189,24 +217,38 @@ export async function getUnseenItems(args: {
   const supabase = await createClient();
 
   // Which items the learner already has a card for. RLS scopes this to them.
-  const { data: seen } = await supabase.from('card_states').select('item_id').eq('user_id', userId);
-  const seenIds = new Set((seen ?? []).map((row: { item_id: string }) => row.item_id));
+  //
+  // Paged: a learner past 1000 studied sentences would otherwise get a clipped
+  // set here, and every sentence missing from it would be taught again as new.
+  const seen = await fetchAllRows<{ item_id: string }>((from, to) =>
+    supabase.from('card_states').select('item_id').eq('user_id', userId).range(from, to),
+  );
+  const seenIds = new Set(seen.map((card) => card.item_id));
 
-  // Over-fetch so the already-seen ones can be filtered out without a second trip.
-  const { data, error } = await supabase
-    .from('items')
-    .select(ITEM_SELECT)
-    .eq('course_id', courseId)
-    .in('level_code', levels)
-    .order('order_index')
-    .limit(limit + seenIds.size);
+  // Walk the course in teaching order, skipping what the learner has seen, and
+  // stop as soon as enough new items are in hand. Asking for `limit + seen` in
+  // one request stops working once that total passes the server's row cap.
+  const picked: ItemRow[] = [];
+  for (let offset = 0; picked.length < limit; offset += UNSEEN_PAGE) {
+    const { data, error } = await supabase
+      .from('items')
+      .select(ITEM_SELECT)
+      .eq('course_id', courseId)
+      .in('level_code', levels)
+      .order('order_index')
+      .range(offset, offset + UNSEEN_PAGE - 1);
 
-  if (error || !data) return [];
+    if (error || !data) break;
 
-  return rows<ItemRow>(data)
-    .filter((item) => !seenIds.has(item.id))
-    .slice(0, limit)
-    .map(toStudyItem);
+    const batch = rows<ItemRow>(data);
+    for (const item of batch) {
+      if (!seenIds.has(item.id)) picked.push(item);
+      if (picked.length >= limit) break;
+    }
+    if (batch.length < UNSEEN_PAGE) break;
+  }
+
+  return picked.map(toStudyItem);
 }
 
 /** A pool of meanings from the same course, used as multiple-choice distractors. */
