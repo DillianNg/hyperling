@@ -1,5 +1,6 @@
 import 'server-only';
 import { rows } from './rows';
+import { fetchAllRows } from './paginate';
 import { createClient } from '@/lib/supabase/server';
 import { parseCalendarDate, type CalendarDate } from '@/core/planner/calendar';
 import type { DayActivity } from '@/core/stats/streak';
@@ -34,8 +35,21 @@ export async function getEnrollmentStats(args: {
       .select('plan_date, completed_new, completed_reviews')
       .eq('enrollment_id', enrollmentId)
       .order('plan_date'),
-    supabase.from('card_states').select('item_id, reps, state').eq('enrollment_id', enrollmentId),
-    supabase.from('review_logs').select('is_correct').eq('enrollment_id', enrollmentId),
+    // Both of these outgrow the server's 1000-row response cap with ordinary
+    // use — one card per studied sentence, and several log rows per card — and
+    // a clipped read here would quietly understate every figure on the
+    // dashboard rather than fail.
+    fetchAllRows<{ item_id: string; reps: number; state: number }>((from, to) =>
+      supabase
+        .from('card_states')
+        .select('item_id, reps, state')
+        .eq('enrollment_id', enrollmentId)
+        .range(from, to),
+    ),
+    fetchAllRows<{ is_correct: boolean | null }>((from, to) =>
+      supabase.from('review_logs').select('is_correct').eq('enrollment_id', enrollmentId).range(from, to),
+    ),
+    // One row per study day, so this stays far below the cap.
     supabase.from('study_sessions').select('duration_ms').eq('enrollment_id', enrollmentId),
   ]);
 
@@ -50,19 +64,16 @@ export async function getEnrollmentStats(args: {
       : [];
   });
 
-  const cardRows = rows<{ item_id: string; reps: number; state: number }>(cards.data);
-
   // "Mastered" means the card has survived several successful reviews and is in
   // the review state, i.e. it has graduated out of learning and not lapsed back.
-  const masteredCount = cardRows.filter((row) => row.state === 2 && row.reps >= 3).length;
+  const masteredCount = cards.filter((row) => row.state === 2 && row.reps >= 3).length;
 
   const learnedByLevel = await countLearnedByLevel(
     courseId,
-    cardRows.filter((row) => row.reps > 0).map((row) => row.item_id),
+    cards.filter((row) => row.reps > 0).map((row) => row.item_id),
   );
 
-  const logRows = rows<{ is_correct: boolean | null }>(logs.data);
-  const graded = logRows.filter((row) => row.is_correct !== null);
+  const graded = logs.filter((row) => row.is_correct !== null);
   const accuracy =
     graded.length > 0 ? graded.filter((row) => row.is_correct === true).length / graded.length : null;
 
@@ -76,7 +87,7 @@ export async function getEnrollmentStats(args: {
     learnedByLevel,
     masteredCount,
     accuracy,
-    totalReviews: logRows.length,
+    totalReviews: logs.length,
     totalMinutes: Math.round(totalMs / 60_000),
   };
 }
@@ -146,26 +157,26 @@ export async function listLearnedItems(args: {
   const limit = args.limit ?? 50;
   const offset = args.offset ?? 0;
 
-  const { data: cardData } = await supabase
-    .from('card_states')
-    .select('item_id, reps, lapses, due')
-    .eq('enrollment_id', enrollmentId)
-    .gt('reps', 0)
-    .order('due');
-
-  const cards = rows<{ item_id: string; reps: number; lapses: number; due: string }>(cardData);
+  // The word list is the whole studied history, which passes the server's
+  // 1000-row cap on a finished course — and a clipped page would silently drop
+  // the sentences a learner is most likely to be looking for.
+  const cards = await fetchAllRows<{ item_id: string; reps: number; lapses: number; due: string }>(
+    (from, to) =>
+      supabase
+        .from('card_states')
+        .select('item_id, reps, lapses, due')
+        .eq('enrollment_id', enrollmentId)
+        .gt('reps', 0)
+        .order('due')
+        .range(from, to),
+  );
   if (cards.length === 0) return { words: [], total: 0 };
 
-  const { data: flagData } = await supabase
-    .from('item_flags')
-    .select('item_id, is_hard')
-    .eq('user_id', userId);
-
-  const hardIds = new Set(
-    rows<{ item_id: string; is_hard: boolean }>(flagData)
-      .filter((row) => row.is_hard)
-      .map((row) => row.item_id),
+  const flags = await fetchAllRows<{ item_id: string; is_hard: boolean }>((from, to) =>
+    supabase.from('item_flags').select('item_id, is_hard').eq('user_id', userId).range(from, to),
   );
+
+  const hardIds = new Set(flags.filter((row) => row.is_hard).map((row) => row.item_id));
 
   const candidateIds = cards
     .filter((card) => !onlyHard || hardIds.has(card.item_id))
@@ -285,13 +296,16 @@ async function fetchItems(itemIds: readonly string[], level?: string): Promise<F
 /** Levels that actually appear in the learner's studied items, for the filter. */
 export async function getStudiedLevels(enrollmentId: string, courseId: string): Promise<string[]> {
   const supabase = await createClient();
-  const { data: cardData } = await supabase
-    .from('card_states')
-    .select('item_id')
-    .eq('enrollment_id', enrollmentId)
-    .gt('reps', 0);
+  const cards = await fetchAllRows<{ item_id: string }>((from, to) =>
+    supabase
+      .from('card_states')
+      .select('item_id')
+      .eq('enrollment_id', enrollmentId)
+      .gt('reps', 0)
+      .range(from, to),
+  );
 
-  const ids = rows<{ item_id: string }>(cardData).map((row) => row.item_id);
+  const ids = cards.map((row) => row.item_id);
   if (ids.length === 0) return [];
 
   const counts = await countLearnedByLevel(courseId, ids);

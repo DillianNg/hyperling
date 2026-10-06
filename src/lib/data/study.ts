@@ -11,7 +11,7 @@ import {
   endOfDayInstant,
   type CalendarDate,
 } from '@/core/planner/calendar';
-import type { ExerciseKind, FsrsRatingName } from '@/config/app.config';
+import { MAX_REVIEWS_PER_SESSION, type ExerciseKind, type FsrsRatingName } from '@/config/app.config';
 import { getDistractorPool, getItemsByIds, getUnseenItems, type StudyItem } from './courses';
 import { getDailyPlan, type Enrollment } from './enrollments';
 
@@ -70,14 +70,31 @@ export async function getTodaySession(args: {
 
   // Due cards: everything whose due time has passed by the end of the learner's
   // day, so a card due at 22:00 is offered during the evening session.
-  const dueBefore = endOfDayInstant(today, enrollment.timezone);
-  const { data: dueRows } = await supabase
-    .from('card_states')
-    .select('item_id, due, reps')
-    .eq('enrollment_id', enrollment.id)
-    .neq('state', CARD_STATE_TO_DB.new)
-    .lte('due', dueBefore.toISOString())
-    .order('due');
+  const dueBefore = endOfDayInstant(today, enrollment.timezone).toISOString();
+
+  // Only the cards this session can actually use are fetched — a learner back
+  // from a long absence may have thousands due, and loading them all would both
+  // pass the server's row cap and build an `in (...)` list too long to send.
+  // The backlog figure comes from a count instead, so it stays honest.
+  //
+  // The two queries must keep the same three filters; they are written side by
+  // side so a change to one that misses the other is visible here.
+  const [{ data: dueRows }, { count: totalDue }] = await Promise.all([
+    supabase
+      .from('card_states')
+      .select('item_id, due, reps')
+      .eq('enrollment_id', enrollment.id)
+      .neq('state', CARD_STATE_TO_DB.new)
+      .lte('due', dueBefore)
+      .order('due')
+      .limit(MAX_REVIEWS_PER_SESSION),
+    supabase
+      .from('card_states')
+      .select('item_id', { count: 'exact', head: true })
+      .eq('enrollment_id', enrollment.id)
+      .neq('state', CARD_STATE_TO_DB.new)
+      .lte('due', dueBefore),
+  ]);
 
   const dueCardRows = rows<{ item_id: string; due: string; reps: number }>(dueRows);
   const dueItems = await getItemsByIds(dueCardRows.map((r) => r.item_id));
@@ -98,6 +115,7 @@ export async function getTodaySession(args: {
 
   const plan = buildSession({
     dueCards,
+    totalDueCards: totalDue ?? dueCards.length,
     unseenItems: unseen.map((item) => ({
       itemId: item.id,
       stableKey: item.stableKey,

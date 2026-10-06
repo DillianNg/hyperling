@@ -354,3 +354,56 @@ describe('xáo trộn có hạt giống', () => {
     expect(seedFrom('item-1')).not.toBe(seedFrom('item-2'));
   });
 });
+
+describe('tồn đọng ôn tập khi chỉ nhận được một phần thẻ đến hạn', () => {
+  /**
+   * The session fetches at most MAX_REVIEWS_PER_SESSION due cards — a learner
+   * back from a long absence can have more due than one request may return — so
+   * the backlog figure comes from a database count, not from the array length.
+   * Without that, the screen would claim "0 more due" while thousands waited.
+   */
+  const refs = (n: number, offset = 0): SessionItemRef[] =>
+    Array.from({ length: n }, (_, i) => ({
+      itemId: `i${offset + i}`,
+      stableKey: `S${String(offset + i + 1).padStart(4, '0')}`,
+      orderIndex: offset + i + 1,
+    }));
+
+  const base = {
+    unseenItems: [],
+    plannedNew: 0,
+    completedNewToday: 0,
+    stageFlags: { review: true, learn: true, consolidate: true },
+  };
+
+  it('báo đúng số thẻ hoãn lại dù chỉ nhận được 120 thẻ', () => {
+    const plan = buildSession({ ...base, dueCards: refs(120), totalDueCards: 1800 });
+
+    expect(plan.review).toHaveLength(120);
+    expect(plan.deferredReviews).toBe(1680);
+  });
+
+  it('không có totalDueCards thì suy từ mảng, như trước đây', () => {
+    const plan = buildSession({ ...base, dueCards: refs(200) });
+    expect(plan.review).toHaveLength(120);
+    expect(plan.deferredReviews).toBe(80);
+  });
+
+  it('không bao giờ báo ít hơn số thẻ thực sự nhận được', () => {
+    // A count that lags behind the rows (a card fell due between the two
+    // queries) must not produce a negative or understated backlog.
+    const plan = buildSession({ ...base, dueCards: refs(150), totalDueCards: 10 });
+    expect(plan.deferredReviews).toBe(30);
+  });
+
+  it('tắt bước ôn thì không báo tồn đọng', () => {
+    const plan = buildSession({
+      ...base,
+      dueCards: refs(120),
+      totalDueCards: 1800,
+      stageFlags: { review: false, learn: true, consolidate: true },
+    });
+    expect(plan.review).toEqual([]);
+    expect(plan.deferredReviews).toBe(0);
+  });
+});
