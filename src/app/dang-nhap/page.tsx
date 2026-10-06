@@ -15,9 +15,10 @@ export async function generateMetadata(): Promise<Metadata> {
 export default async function SignInPage({
   searchParams,
 }: {
-  searchParams: Promise<{ 'tiep-tuc'?: string }>;
+  searchParams: Promise<{ 'tiep-tuc'?: string; loi?: string }>;
 }) {
   const t = await getTranslations('auth.signIn');
+  const tAuth = await getTranslations('auth');
   const tApp = await getTranslations('app');
   const configured = isSupabaseConfigured();
 
@@ -29,15 +30,33 @@ export default async function SignInPage({
   const params = await searchParams;
   const next = params['tiep-tuc'];
 
+  // A failed sign-in link lands back here; say what went wrong rather than
+  // showing an empty form the learner has already filled in once.
+  const linkErrorKeys = ['thieu-ma', 'het-han', 'khac-trinh-duyet'] as const;
+  const linkError = linkErrorKeys.find((key) => key === params.loi);
+
   return (
     <main className="container-page flex min-h-dvh flex-col justify-center py-16">
       <div className="mx-auto w-full max-w-md">
-        <Link href="/" className="font-display text-lg font-semibold tracking-tight">
+        <Link
+          href="/"
+          className="-mx-2 inline-flex min-h-11 items-center px-2 font-display text-lg font-semibold tracking-tight"
+        >
           {tApp('name')}
         </Link>
 
         <h1 className="mt-10 text-3xl font-semibold">{t('title')}</h1>
         <p className="mt-3 text-fg-muted">{t('subtitle')}</p>
+
+        {linkError ? (
+          <div
+            role="alert"
+            className="mt-8 flex items-start gap-2.5 rounded-card border border-danger/40 bg-danger-subtle p-4 text-sm"
+          >
+            <TriangleAlert className="mt-0.5 size-4 shrink-0 text-danger" aria-hidden="true" />
+            <p>{tAuth(`linkErrors.${linkError}`)}</p>
+          </div>
+        ) : null}
 
         {!configured ? (
           <div

@@ -8,8 +8,9 @@ Web app học ngôn ngữ đa ngôn ngữ. Người học chọn ngôn ngữ đ�
 trình độ hiện tại, mục tiêu và khung thời gian; hệ thống tự tính số mục mỗi ngày
 và lịch ôn tập.
 
-Dữ liệu khởi đầu: khóa tiếng Đức `de-a1-b2`, hiện có **600 câu** (A1–A2) chuyển từ
-file Excel gốc. 1.200 câu B1–B2 sẽ được bổ sung bằng `pnpm content:ingest`.
+Dữ liệu: khóa tiếng Đức `de-a1-b2` đã đủ **1.800 câu** (A1 300, A2 300, B1 600,
+B2 600), mỗi câu kèm **phiên âm IPA**, chuyển từ `data-source/1800 Completed.xlsx`
+bằng `pnpm xlsx:convert`.
 
 Benchmark của hệ thống: **1.800 mục ÷ 20 mục/ngày = 90 ngày**, cộng 10–15 ngày đệm.
 
@@ -61,10 +62,25 @@ trần (20/ngày), phương án "dồn nhẹ" không bao giờ khả dụng — 
 brand. Mọi phép tính ngày chạy trên số ngày, không trên mili giây, nên DST và múi
 giờ không làm lệch kết quả. `Date` chỉ dùng cho thời điểm thật (FSRS due time).
 
-### 9. RLS không có ngoại lệ
+### 9. Truy vấn Supabase lớn dần phải đếm hoặc phân trang
+
+Supabase trả tối đa **1000 dòng** mỗi request và **không báo là đã cắt**. Truy vấn
+nào có kết quả lớn dần theo nội dung, theo tiến độ hay theo thời gian đều phải
+dùng `count: 'exact', head: true` (khi chỉ cần con số) hoặc `fetchAllRows()`
+trong `src/lib/data/paginate.ts` (khi thật sự cần mọi dòng).
+
+`.select()` trần chỉ dành cho tập có chặn trên rõ ràng. PGlite trong test không
+có trần này nên sẽ không bao giờ phát hiện giúp bạn (D-042).
+
+### 10. RLS không có ngoại lệ
 Mọi bảng dữ liệu người dùng đều bật RLS, quyền sở hữu luôn lấy từ `auth.uid()`
 trực tiếp trên dòng dữ liệu, không bao giờ từ giá trị client gửi lên.
 `review_logs` cố ý **không có** policy UPDATE/DELETE — nhật ký ôn tập là bất biến.
+
+Một ngoại lệ có chủ đích: xoá cả enrollment thì cascade từ khoá ngoại cuốn theo
+`review_logs` của nó, vì cascade chạy dưới quyền chủ bảng và đi vòng qua RLS. Bất
+biến ở đây nghĩa là "không viết lại lịch sử của khoá đang học", không phải "không
+bao giờ xoá được" (D-039).
 
 ## Lệnh
 
@@ -107,6 +123,7 @@ Máy đang chạy **macOS 12 / Node 21.5.0**, dẫn tới ba ràng buộc:
 | Vitest 5 + Vite 8 cần `node:util.styleText` (Node ≥ 22) | Ghim Vitest 4 + Vite 7 |
 | `next-intl/plugin` kéo `@swc/core`, native binary không load trên macOS 12 | Bỏ plugin, tự set alias `next-intl/config` trong `next.config.ts` |
 | Playwright không hỗ trợ `mac12-arm64` | E2E chạy trên CI (Ubuntu). Local chưa chạy được. |
+| Lighthouse 13 cần Node ≥ 22.19 | Dùng `npx lighthouse@12` khi đo trên máy này |
 
 Nâng lên Node 22 (`.nvmrc` đã ghi sẵn) sẽ gỡ ràng buộc thứ nhất.
 
@@ -114,4 +131,6 @@ Nâng lên Node 22 (`.nvmrc` đã ghi sẵn) sẽ gỡ ràng buộc thứ nhất
 
 - ✅ **Phase 1** — nền tảng, schema + RLS, auth email, pipeline nội dung, landing page.
 - ✅ **Phase 2** — planner, FSRS, onboarding, trang kế hoạch, phiên học đầy đủ.
-- ⬜ **Phase 3** — dashboard, heatmap, streak, PWA, i18n tiếng Anh, e2e, deploy.
+- ✅ **Phase 3** — dashboard, heatmap, streak, danh sách từ, PWA, i18n, e2e, deploy.
+
+Triển khai: [`docs/DEPLOYMENT.md`](docs/DEPLOYMENT.md).

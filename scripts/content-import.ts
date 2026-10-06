@@ -9,6 +9,8 @@
  * content files are reported, never deleted.
  */
 import postgres from 'postgres';
+import { loadEnvLocal } from './lib/load-env.js';
+import { resolveDatabaseUrl } from './lib/database-url.js';
 import { parseCourse, validateItemsFile } from '../src/core/content/validate.js';
 import { itemsFileSchema, type ContentItem } from '../src/core/content/schema.js';
 import { importCourse, type SqlExecutor } from '../src/core/content/import.js';
@@ -17,13 +19,18 @@ import { discoverCourses, readJson, rel } from './lib/paths.js';
 const MISSING_URL_HELP = `
 Thiếu biến môi trường DATABASE_URL.
 
-Đây phải là connection string tới Postgres của Supabase với quyền service role
-(không phải anon key). Lấy ở: Supabase Dashboard > Project Settings > Database >
-Connection string > URI, rồi đặt vào .env.local:
+Cách dễ nhất, không lo mã hoá ký tự đặc biệt — đặt ba dòng này vào .env.local:
 
-  DATABASE_URL="postgresql://postgres.<ref>:<password>@<host>:5432/postgres"
+  SUPABASE_PROJECT_REF=<ref của project, phần trước .supabase.co>
+  SUPABASE_DB_PASSWORD=<mật khẩu database, dán thô, không cần mã hoá>
+  SUPABASE_REGION=ap-southeast-1    # bỏ qua nếu project ở Singapore
 
-Xem docs/ADDING_A_LANGUAGE.md và README.md để biết các bước đầy đủ.
+Script sẽ tự ghép thành connection string qua Session pooler.
+
+Hoặc tự dán DATABASE_URL đầy đủ — nhớ lấy ở tab "Session pooler", không phải
+host trực tiếp db.<ref>.supabase.co (host đó chỉ có IPv6).
+
+Xem docs/DEPLOYMENT.md để biết các bước đầy đủ.
 `.trim();
 
 function parseArgs(): { courseId?: string; dryRun: boolean } {
@@ -34,6 +41,7 @@ function parseArgs(): { courseId?: string; dryRun: boolean } {
 }
 
 async function main(): Promise<number> {
+  loadEnvLocal();
   const { courseId, dryRun } = parseArgs();
   const locations = discoverCourses().filter((c) => !courseId || c.courseId === courseId);
 
@@ -86,23 +94,46 @@ async function main(): Promise<number> {
     return 0;
   }
 
-  const databaseUrl = process.env.DATABASE_URL;
-  if (!databaseUrl) {
-    console.error(`\n${MISSING_URL_HELP}`);
+  const resolved = resolveDatabaseUrl();
+  if (!resolved.url) {
+    console.error(`\n${resolved.problem ?? MISSING_URL_HELP}`);
     return 1;
   }
+  const databaseUrl = resolved.url;
 
-  const sql = postgres(databaseUrl, { max: 1, onnotice: () => {} });
-  const executor: SqlExecutor = {
+  // Supabase requires TLS, and its direct db.<ref> host is IPv6-only — use the
+  // Session pooler URI (aws-N-<region>.pooler.supabase.com) on an IPv4 network.
+  const sql = postgres(databaseUrl, {
+    max: 1,
+    onnotice: () => {},
+    ssl: databaseUrl.includes('supabase') ? 'require' : undefined,
+    connect_timeout: 15,
+    // A statement that cannot finish should fail loudly rather than hang the
+    // whole import with no output.
+    connection: { statement_timeout: 60_000 },
+  });
+
+  /**
+   * Adapts one postgres.js handle to the driver-agnostic interface the core
+   * importer speaks.
+   *
+   * The handle MUST be the transaction's own: with `max: 1` the pool holds a
+   * single connection, and `sql.begin` reserves it for the duration of the
+   * transaction. Querying the outer pool from inside would queue for a
+   * connection that is never released — and even with a larger pool those
+   * statements would run outside the transaction, so a failure could not roll
+   * them back.
+   */
+  const executorFor = (handle: postgres.TransactionSql): SqlExecutor => ({
     query: async <T>(text: string, params?: unknown[]) =>
       // postgres.js needs `unsafe` for $n-style text with a separate params array.
-      (await sql.unsafe(text, params as never[])) as unknown as T[],
-  };
+      (await handle.unsafe(text, params as never[])) as unknown as T[],
+  });
 
   try {
     for (const { course, items } of prepared) {
       console.log(`\nĐang import ${course.id} ...`);
-      const result = await sql.begin(async () => importCourse(executor, course, items));
+      const result = await sql.begin((tx) => importCourse(executorFor(tx), course, items));
 
       console.log(`  Mục thêm mới     : ${result.itemsInserted}`);
       console.log(`  Mục cập nhật     : ${result.itemsUpdated}`);

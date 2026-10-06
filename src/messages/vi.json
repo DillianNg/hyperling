@@ -74,7 +74,8 @@
           "to": "Khối từ",
           "effect": "cả khối được giữ nguyên trong đầu, không rơi rụng từng từ"
         }
-      ]
+      ],
+      "contributionLabel": "Đóng góp"
     },
     "howItWorks": {
       "eyebrow": "Mỗi ngày",
@@ -117,7 +118,7 @@
     },
     "footer": {
       "builtWith": "Nội dung là dữ liệu, code là engine — thêm ngôn ngữ mới chỉ cần thêm file nội dung.",
-      "dataNote": "Khóa tiếng Đức hiện có 600 câu (A1–A2) đã sẵn sàng; phần B1–B2 đang được bổ sung."
+      "dataNote": "Khóa tiếng Đức có đủ 1.800 câu từ A1 đến B2, mỗi câu kèm phiên âm IPA."
     }
   },
   "auth": {
@@ -143,17 +144,53 @@
       "errorBody": "Đường dẫn đăng nhập có thể đã hết hạn hoặc đã được dùng. Hãy yêu cầu một đường dẫn mới.",
       "backToSignIn": "Về trang đăng nhập"
     },
-    "signOut": "Đăng xuất"
+    "signOut": "Đăng xuất",
+    "verifying": {
+      "title": "Đang xác thực đăng nhập...",
+      "failedTitle": "Không xác thực được",
+      "failedBody": "Đường dẫn đăng nhập thiếu thông tin cần thiết, hoặc đã được dùng rồi. Hãy yêu cầu một đường dẫn mới.",
+      "backToSignIn": "Về trang đăng nhập"
+    },
+    "linkErrors": {
+      "thieu-ma": "Đường dẫn đăng nhập không mang theo mã xác thực. Hãy yêu cầu một đường dẫn mới.",
+      "het-han": "Đường dẫn đăng nhập đã hết hạn hoặc đã được dùng. Mỗi đường dẫn chỉ dùng được một lần, trong vòng 1 giờ.",
+      "khac-trinh-duyet": "Đường dẫn này cần được mở trong CÙNG trình duyệt đã yêu cầu nó. Nếu bạn yêu cầu trên máy tính thì hãy mở email trên máy tính, đừng mở trên điện thoại."
+    }
   },
   "dashboard": {
     "title": "Bảng điều khiển",
     "greeting": "Chào {name}",
     "emptyTitle": "Chưa có khóa học nào",
-    "emptyBody": "Phần ghi danh khóa học và phiên học sẽ có trong Phase 2.",
+    "emptyBody": "Tạo lộ trình đầu tiên của bạn — chọn ngôn ngữ, trình độ và thời gian, hệ thống sẽ tính phần còn lại.",
     "yourAccount": "Tài khoản của bạn",
     "email": "Email",
     "timezone": "Múi giờ",
-    "locale": "Ngôn ngữ giao diện"
+    "locale": "Ngôn ngữ giao diện",
+    "today": "Hôm nay",
+    "todayDone": "Hôm nay bạn đã học xong",
+    "streak": "Chuỗi ngày",
+    "streakDays": "{count} ngày",
+    "longestStreak": "Dài nhất: {count} ngày",
+    "noStreak": "Bắt đầu chuỗi đầu tiên hôm nay",
+    "activity": "Hoạt động",
+    "heatmapCell": "{newItems} câu mới, {reviews} lượt ôn",
+    "heatmapLess": "Ít",
+    "heatmapMore": "Nhiều",
+    "levelProgress": "Tiến độ theo cấp độ",
+    "levelProgressLabel": "Tiến độ tổng thể {percent}%",
+    "levelNoContent": "chưa có nội dung",
+    "accuracy": "Độ chính xác",
+    "studyTime": "Thời gian học",
+    "minutes": "{count} phút",
+    "hours": "{count} giờ",
+    "mastered": "Đã thuộc vững",
+    "masteredHint": "Câu đã ôn đúng từ 3 lần trở lên",
+    "totalReviews": "Tổng lượt ôn",
+    "activeDays": "Số ngày đã học",
+    "wordList": "Danh sách từ đã học",
+    "viewPlan": "Kế hoạch",
+    "newCourse": "Thêm khóa mới",
+    "noData": "Chưa có dữ liệu"
   },
   "sentenceType": {
     "declarative": "Câu trần thuật",
@@ -166,7 +203,15 @@
     "subordinate": "Câu phụ",
     "answer": "Câu trả lời",
     "passive": "Câu bị động",
-    "enumeration": "Liệt kê"
+    "enumeration": "Liệt kê",
+    "subordinate_clause": "Mệnh đề phụ",
+    "relative_clause": "Mệnh đề quan hệ",
+    "infinitive_clause": "Mệnh đề nguyên mẫu",
+    "idiom": "Thành ngữ",
+    "colloquial": "Khẩu ngữ",
+    "formal_written": "Văn viết",
+    "common_mistake": "Lưu ý lỗi",
+    "exam_pattern": "Mẫu câu thi"
   },
   "partOfSpeech": {
     "noun": "Danh từ",
@@ -360,5 +405,57 @@
       "backToDashboard": "Về bảng điều khiển",
       "encouragement": "Mỗi ngày một ít, cộng lại thành cả một ngôn ngữ."
     }
+  },
+  "words": {
+    "title": "Từ đã học",
+    "subtitle": "{count} câu bạn đã học trong khóa này.",
+    "search": "Tìm câu, nghĩa hoặc từ vựng...",
+    "searchLabel": "Tìm kiếm",
+    "allLevels": "Mọi cấp độ",
+    "onlyHard": "Chỉ câu khó",
+    "empty": "Chưa có câu nào khớp với bộ lọc.",
+    "emptyAll": "Bạn chưa học câu nào trong khóa này.",
+    "reps": "{count} lần ôn",
+    "lapses": "{count} lần quên",
+    "nextReview": "Ôn lại: {date}",
+    "markHard": "Đánh dấu khó",
+    "unmarkHard": "Bỏ đánh dấu khó",
+    "showing": "Hiện {from}–{to} trong {total}",
+    "previous": "Trước",
+    "next": "Sau",
+    "back": "Quay lại"
+  },
+  "settings": {
+    "title": "Cài đặt",
+    "language": "Ngôn ngữ giao diện",
+    "languageHint": "Thay đổi áp dụng ngay cho toàn bộ giao diện.",
+    "vi": "Tiếng Việt",
+    "en": "English",
+    "appearance": "Giao diện",
+    "theme": "Chủ đề",
+    "themeLight": "Sáng",
+    "themeDark": "Tối",
+    "themeSystem": "Theo hệ thống",
+    "fontScale": "Cỡ chữ",
+    "fontScaleHint": "Áp dụng cho toàn bộ ứng dụng.",
+    "saved": "Đã lưu",
+    "back": "Quay lại",
+    "reset": "Xoá lộ trình học",
+    "resetHint": "Bắt đầu lại từ đầu với một lộ trình mới. Tài khoản của bạn được giữ nguyên.",
+    "resetCurrent": "Lộ trình hiện tại: {course}.",
+    "resetConfirmTitle": "Xoá xong không khôi phục được. Bạn sẽ mất:",
+    "resetLosesCards": "{count} thẻ đã học cùng toàn bộ lịch ôn tập của chúng",
+    "resetLosesLogs": "{count} lượt ôn đã ghi trong nhật ký",
+    "resetLosesPlan": "Kế hoạch theo ngày, chuỗi ngày học và thống kê",
+    "resetKeepsAccount": "Tài khoản và email của bạn được giữ lại — bạn vẫn đăng nhập, và sẽ quay về bước tạo lộ trình.",
+    "resetConfirm": "Xoá và bắt đầu lại",
+    "resetCancel": "Huỷ",
+    "resetWorking": "Đang xoá…",
+    "resetFailed": "Không xoá được. Hãy tải lại trang rồi thử lại.",
+    "resetKeepsNotes": "Ghi chú và dấu “câu khó” của bạn trên {count} câu được giữ lại — đó là chữ bạn tự viết, không phải tiến độ."
+  },
+  "offline": {
+    "title": "Bạn đang ngoại tuyến",
+    "body": "Không có kết nối mạng. Khi có mạng trở lại, mở lại trang này để tiếp tục học."
   }
 }

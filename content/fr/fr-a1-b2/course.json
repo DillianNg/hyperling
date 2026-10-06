@@ -1,0 +1,58 @@
+{
+  "id": "fr-a1-b2",
+  "schemaVersion": 1,
+  "version": "0.1.0",
+  "title": {
+    "vi": "Tiếng Pháp qua câu — A1 đến B2",
+    "en": "French through sentences — A1 to B2"
+  },
+  "description": {
+    "vi": "Khóa mẫu minh hoạ việc thêm một ngôn ngữ mới chỉ bằng file nội dung. Hiện có 20 câu A1.",
+    "en": "Sample course demonstrating that adding a language needs only content files. Currently 20 A1 sentences."
+  },
+  "targetLanguage": "fr",
+  "sourceLanguage": "vi",
+  "levelFramework": "CEFR",
+  "levelFrom": "A1",
+  "levelTo": "B2",
+  "levels": ["A1", "A2", "B1", "B2"],
+  "primaryItemKind": "sentence",
+  "fields": [
+    { "key": "text", "role": "prompt", "required": true, "label": { "vi": "Câu tiếng Pháp", "en": "French sentence" } },
+    { "key": "meaning", "role": "answer", "required": true, "label": { "vi": "Nghĩa tiếng Việt", "en": "Vietnamese meaning" } },
+    { "key": "transliteration", "role": "hint", "display": "toggle", "label": { "vi": "Phiên âm (đọc theo tiếng Việt)", "en": "Vietnamese-style transliteration" } },
+    { "key": "grammarNote", "role": "note", "label": { "vi": "Điểm ngữ pháp", "en": "Grammar point" } },
+    {
+      "key": "sentenceType",
+      "role": "tag",
+      "label": { "vi": "Loại câu", "en": "Sentence type" },
+      "enum": [
+        "declarative",
+        "question",
+        "yes_no_question",
+        "negative",
+        "imperative",
+        "exclamation",
+        "compound",
+        "subordinate",
+        "answer",
+        "passive",
+        "enumeration"
+      ]
+    }
+  ],
+  "glossaryFields": [
+    {
+      "key": "gender",
+      "role": "badge",
+      "colorCoded": true,
+      "label": { "vi": "Giống (Article)", "en": "Noun gender" },
+      "enum": ["le", "la", "l'", "les"]
+    }
+  ],
+  "tts": { "lang": "fr-FR", "rate": 0.9 },
+  "source": {
+    "name": "Khóa mẫu viết tay",
+    "note": "20 câu A1 để minh hoạ quy trình thêm ngôn ngữ. Không phải nội dung đầy đủ."
+  }
+}

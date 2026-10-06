@@ -27,6 +27,16 @@ export interface BuildSessionInput {
   stageFlags: Record<SessionStage, boolean>;
   /** Cap on the review queue, so a long absence does not produce an unusable backlog. */
   maxReviews?: number;
+  /**
+   * How many cards are due in total, when `dueCards` is only the first page of
+   * them. The caller fetches at most `maxReviews` rows — a learner back from a
+   * long absence can have thousands due — so the backlog has to be counted in
+   * the database rather than inferred from the array's length.
+   *
+   * Defaults to `dueCards.length`, which is correct whenever the caller did
+   * pass every due card.
+   */
+  totalDueCards?: number;
 }
 
 export interface SessionPlan {
@@ -51,11 +61,14 @@ export function buildSession(input: BuildSessionInput): SessionPlan {
     completedNewToday,
     stageFlags,
     maxReviews = MAX_REVIEWS_PER_SESSION,
+    totalDueCards = dueCards.length,
   } = input;
 
   const cap = Math.max(maxReviews, 0);
   const review = stageFlags.review ? dueCards.slice(0, cap) : [];
-  const deferredReviews = stageFlags.review ? Math.max(dueCards.length - review.length, 0) : 0;
+  // Never report fewer due cards than were actually handed over.
+  const totalDue = Math.max(totalDueCards, dueCards.length);
+  const deferredReviews = stageFlags.review ? Math.max(totalDue - review.length, 0) : 0;
 
   // A resumed session continues where it stopped rather than starting over.
   const remainingNew = Math.max(plannedNew - completedNewToday, 0);

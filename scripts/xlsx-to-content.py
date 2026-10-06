@@ -1,13 +1,17 @@
 #!/usr/bin/env python3
 """
-One-off converter: the original German spreadsheet -> content/de/de-a1-b2/*.json
+Converter: the German spreadsheet -> content/de/de-a1-b2/items.json
 
-Run once (pnpm xlsx:convert). After this, the app only ever reads the JSON files;
-the spreadsheet is kept in data-source/ purely for traceability.
+Run with `pnpm xlsx:convert`. After this the app only ever reads the JSON files;
+the spreadsheet is kept in data-source/ purely for traceability. course.json is
+maintained by hand and is never written here.
 
-Only rows that actually carry a German sentence are emitted. The spreadsheet has
-1800 rows but 1200 of them are empty placeholders (day 31-90); those are reported
-and skipped, never invented.
+Only rows that actually carry a German sentence are emitted; empty placeholder
+rows are reported and skipped, never invented.
+
+The sheets are read by column position, so the header row is checked first: a
+reordered or renamed column would otherwise be imported silently into the wrong
+field.
 """
 from __future__ import annotations
 
@@ -29,8 +33,33 @@ OUT_DIR = ROOT / "content" / "de" / COURSE_ID
 
 # Candidate locations for the source workbook, first match wins.
 SOURCE_CANDIDATES = [
+    ROOT / "data-source" / "1800 Completed.xlsx",
+    Path.home() / "Downloads" / "1800 Completed.xlsx",
     ROOT / "data-source" / "Customized Learning Deustch.xlsx",
     Path.home() / "Downloads" / "Customized Learning Deustch.xlsx",
+]
+
+# Column positions the reader depends on, as (index, expected header fragment).
+# Matched case-insensitively on a prefix so a cosmetic rewording of a header does
+# not break the import, while a moved column does.
+SENTENCE_COLUMNS = [
+    (0, "id"),
+    (3, "cấp độ"),
+    (4, "chủ đề"),
+    (5, "loại câu"),
+    (6, "điểm ngữ pháp"),
+    (7, "câu tiếng đức"),
+    (8, "phiên âm"),
+    (9, "nghĩa tiếng việt"),
+    (10, "từ mới"),
+]
+
+VOCAB_COLUMNS = [
+    (1, "từ"),
+    (2, "nghĩa tiếng việt"),
+    (3, "loại từ"),
+    (4, "giống"),
+    (5, "id câu"),
 ]
 
 # --- Vietnamese spreadsheet labels -> canonical slugs ------------------------
@@ -47,6 +76,17 @@ SENTENCE_TYPE_MAP = {
     "Câu trả lời": "answer",
     "Câu bị động": "passive",
     "Liệt kê": "enumeration",
+    # Added with the completed B1-B2 half of the workbook. "Câu phụ" and
+    # "Mệnh đề phụ" are kept apart because the source keeps them apart; merging
+    # them would be editing the data, not importing it.
+    "Mệnh đề phụ": "subordinate_clause",
+    "Mệnh đề quan hệ": "relative_clause",
+    "Mệnh đề nguyên mẫu": "infinitive_clause",
+    "Thành ngữ": "idiom",
+    "Khẩu ngữ": "colloquial",
+    "Văn viết": "formal_written",
+    "Lưu ý lỗi": "common_mistake",
+    "Mẫu câu thi": "exam_pattern",
 }
 
 PART_OF_SPEECH_MAP = {
@@ -80,6 +120,19 @@ def order_index_from_key(stable_key: str) -> int:
     return int(match.group(1))
 
 
+def check_columns(ws, columns: list[tuple[int, str]], sheet: str) -> list[str]:
+    """Confirm the header row still matches the positions the reader assumes."""
+    header = next(ws.iter_rows(min_row=2, max_row=2, values_only=True), ())
+    wrong: list[str] = []
+    for index, expected in columns:
+        actual = norm(header[index]).lower() if index < len(header) else ""
+        if not actual.startswith(expected):
+            wrong.append(
+                f"{sheet} cột {index + 1}: cần tiêu đề bắt đầu bằng {expected!r}, đang là {actual!r}"
+            )
+    return wrong
+
+
 def find_source() -> Path:
     for candidate in SOURCE_CANDIDATES:
         if candidate.is_file():
@@ -96,6 +149,17 @@ def main() -> int:
     for required in ("SENTENCES", "VOCAB"):
         if required not in wb.sheetnames:
             sys.exit(f"File Excel thiếu sheet {required!r}.")
+
+    # Stop before reading a single row if the columns have moved: importing the
+    # wrong column into the right field is far worse than failing here.
+    layout = check_columns(wb["SENTENCES"], SENTENCE_COLUMNS, "SENTENCES") + check_columns(
+        wb["VOCAB"], VOCAB_COLUMNS, "VOCAB"
+    )
+    if layout:
+        print("✗ Bố cục cột không khớp với những gì script mong đợi:")
+        for problem in layout:
+            print(f"  - {problem}")
+        sys.exit("Sửa file Excel, hoặc cập nhật SENTENCE_COLUMNS / VOCAB_COLUMNS trong script này.")
 
     # --- glossary, keyed by sentence id -----------------------------------
     glossary_by_item: dict[str, list[dict[str, object]]] = defaultdict(list)

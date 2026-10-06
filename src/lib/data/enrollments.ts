@@ -247,4 +247,61 @@ export async function countCompletedItems(enrollmentId: string): Promise<number>
   return error ? 0 : (count ?? 0);
 }
 
+/** What a reset would destroy — and keep — so the confirmation can name real numbers. */
+export interface EnrollmentFootprint {
+  reviewedCards: number;
+  reviewLogs: number;
+  /** Survives a reset: see deleteEnrollment. Shown so that is not a surprise. */
+  flaggedItems: number;
+}
+
+export async function getEnrollmentFootprint(enrollmentId: string): Promise<EnrollmentFootprint> {
+  const supabase = await createClient();
+
+  const [cards, logs, flags] = await Promise.all([
+    supabase
+      .from('card_states')
+      .select('item_id', { count: 'exact', head: true })
+      .eq('enrollment_id', enrollmentId)
+      .gt('reps', 0),
+    supabase
+      .from('review_logs')
+      .select('id', { count: 'exact', head: true })
+      .eq('enrollment_id', enrollmentId),
+    supabase.from('item_flags').select('item_id', { count: 'exact', head: true }),
+  ]);
+
+  return {
+    reviewedCards: cards.error ? 0 : (cards.count ?? 0),
+    reviewLogs: logs.error ? 0 : (logs.count ?? 0),
+    flaggedItems: flags.error ? 0 : (flags.count ?? 0),
+  };
+}
+
+/**
+ * Removes an enrollment and, by foreign-key cascade, the plan state hanging off
+ * it: daily_plans, card_states, review_logs and study_sessions.
+ *
+ * RLS restricts the delete to the caller's own rows, and the cascade is what
+ * reaches the children — review_logs deliberately has no delete policy of its
+ * own, because a learner may discard a whole course but may never rewrite the
+ * history of one they are still taking.
+ *
+ * Two things deliberately survive:
+ *
+ *   item_flags  keyed (user_id, item_id) rather than by enrollment, because a
+ *               flag is an annotation on a sentence and `note` holds text the
+ *               learner wrote themselves. Deleting authored text under a button
+ *               labelled "delete study plan" would be the wrong default, so the
+ *               confirmation says they are kept instead.
+ *   profiles    the account stays signed in; this resets the plan, not the user.
+ *
+ * Content tables are untouched throughout: this resets the learner, not the course.
+ */
+export async function deleteEnrollment(enrollmentId: string): Promise<{ ok: boolean }> {
+  const supabase = await createClient();
+  const { error } = await supabase.from('enrollments').delete().eq('id', enrollmentId);
+  return { ok: !error };
+}
+
 export { toCalendarDate };

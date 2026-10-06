@@ -197,8 +197,16 @@ export function SpacingDiagram() {
   );
 }
 
-export const METHOD_DIAGRAMS = {
+const DIAGRAMS = {
   lexical: LexicalDiagram,
   sentences: IncrementalDiagram,
   srs: SpacingDiagram,
 } as const;
+
+export type MethodId = keyof typeof DIAGRAMS;
+
+/** Single client boundary, so the server section can stay on the server. */
+export function MethodDiagram({ id }: { id: MethodId }) {
+  const Diagram = DIAGRAMS[id];
+  return Diagram ? <Diagram /> : null;
+}

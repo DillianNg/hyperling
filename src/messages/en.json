@@ -74,7 +74,8 @@
           "to": "Chunks",
           "effect": "the whole phrase stays intact instead of decaying word by word"
         }
-      ]
+      ],
+      "contributionLabel": "Contributes"
     },
     "howItWorks": {
       "eyebrow": "Every day",
@@ -117,7 +118,7 @@
     },
     "footer": {
       "builtWith": "Content is data, code is the engine — adding a language means adding content files.",
-      "dataNote": "The German course currently ships 600 sentences (A1–A2); B1–B2 is being added."
+      "dataNote": "The German course ships all 1,800 sentences from A1 to B2, each with an IPA transcription."
     }
   },
   "auth": {
@@ -143,17 +144,53 @@
       "errorBody": "The sign-in link may have expired or already been used. Request a new one.",
       "backToSignIn": "Back to sign in"
     },
-    "signOut": "Sign out"
+    "signOut": "Sign out",
+    "verifying": {
+      "title": "Signing you in...",
+      "failedTitle": "Could not sign you in",
+      "failedBody": "The sign-in link is missing what it needs, or has already been used. Request a new one.",
+      "backToSignIn": "Back to sign in"
+    },
+    "linkErrors": {
+      "thieu-ma": "That sign-in link carried no verification token. Request a new one.",
+      "het-han": "That sign-in link has expired or was already used. Each link works once, within one hour.",
+      "khac-trinh-duyet": "This link has to be opened in the SAME browser that requested it. If you asked for it on your computer, open the email there rather than on your phone."
+    }
   },
   "dashboard": {
     "title": "Dashboard",
     "greeting": "Hello {name}",
     "emptyTitle": "No course yet",
-    "emptyBody": "Course enrolment and study sessions arrive in Phase 2.",
+    "emptyBody": "Build your first plan — pick a language, a level and a timeframe, and the system works out the rest.",
     "yourAccount": "Your account",
     "email": "Email",
     "timezone": "Time zone",
-    "locale": "Interface language"
+    "locale": "Interface language",
+    "today": "Today",
+    "todayDone": "You are done for today",
+    "streak": "Streak",
+    "streakDays": "{count} days",
+    "longestStreak": "Longest: {count} days",
+    "noStreak": "Start your first streak today",
+    "activity": "Activity",
+    "heatmapCell": "{newItems} new, {reviews} reviews",
+    "heatmapLess": "Less",
+    "heatmapMore": "More",
+    "levelProgress": "Progress by level",
+    "levelProgressLabel": "Overall progress {percent}%",
+    "levelNoContent": "no content yet",
+    "accuracy": "Accuracy",
+    "studyTime": "Study time",
+    "minutes": "{count} min",
+    "hours": "{count} h",
+    "mastered": "Known firmly",
+    "masteredHint": "Sentences reviewed correctly three times or more",
+    "totalReviews": "Total reviews",
+    "activeDays": "Days studied",
+    "wordList": "Sentences learned",
+    "viewPlan": "Plan",
+    "newCourse": "Add a course",
+    "noData": "No data yet"
   },
   "sentenceType": {
     "declarative": "Statement",
@@ -166,7 +203,15 @@
     "subordinate": "Subordinate clause",
     "answer": "Answer",
     "passive": "Passive",
-    "enumeration": "List"
+    "enumeration": "List",
+    "subordinate_clause": "Subordinate clause",
+    "relative_clause": "Relative clause",
+    "infinitive_clause": "Infinitive clause",
+    "idiom": "Idiom",
+    "colloquial": "Colloquial",
+    "formal_written": "Written register",
+    "common_mistake": "Common mistake",
+    "exam_pattern": "Exam pattern"
   },
   "partOfSpeech": {
     "noun": "Noun",
@@ -360,5 +405,57 @@
       "backToDashboard": "Back to dashboard",
       "encouragement": "A little every day adds up to a whole language."
     }
+  },
+  "words": {
+    "title": "Sentences learned",
+    "subtitle": "{count} sentences you have studied on this course.",
+    "search": "Search sentences, meanings or words...",
+    "searchLabel": "Search",
+    "allLevels": "All levels",
+    "onlyHard": "Hard only",
+    "empty": "Nothing matches those filters.",
+    "emptyAll": "You have not studied any sentences on this course yet.",
+    "reps": "{count} reviews",
+    "lapses": "{count} lapses",
+    "nextReview": "Next review: {date}",
+    "markHard": "Mark as hard",
+    "unmarkHard": "Remove hard mark",
+    "showing": "Showing {from}-{to} of {total}",
+    "previous": "Previous",
+    "next": "Next",
+    "back": "Back"
+  },
+  "settings": {
+    "title": "Settings",
+    "language": "Interface language",
+    "languageHint": "Takes effect immediately across the app.",
+    "vi": "Tiếng Việt",
+    "en": "English",
+    "appearance": "Appearance",
+    "theme": "Theme",
+    "themeLight": "Light",
+    "themeDark": "Dark",
+    "themeSystem": "System",
+    "fontScale": "Text size",
+    "fontScaleHint": "Applies across the whole app.",
+    "saved": "Saved",
+    "back": "Back",
+    "reset": "Delete study plan",
+    "resetHint": "Start over with a new plan. Your account is kept.",
+    "resetCurrent": "Current plan: {course}.",
+    "resetConfirmTitle": "This cannot be undone. You will lose:",
+    "resetLosesCards": "{count} studied cards, with their whole review schedule",
+    "resetLosesLogs": "{count} reviews recorded in the log",
+    "resetLosesPlan": "Your day-by-day plan, streak and statistics",
+    "resetKeepsAccount": "Your account and email are kept — you stay signed in, and return to the plan-building steps.",
+    "resetConfirm": "Delete and start over",
+    "resetCancel": "Cancel",
+    "resetWorking": "Deleting…",
+    "resetFailed": "Could not delete. Reload the page and try again.",
+    "resetKeepsNotes": "Your notes and “hard” marks on {count} sentences are kept — that is text you wrote, not progress."
+  },
+  "offline": {
+    "title": "You are offline",
+    "body": "No network connection. Reopen this page once you are back online to keep studying."
   }
 }

@@ -3,11 +3,12 @@
 Web app học ngôn ngữ bằng cả câu. Người học chọn ngôn ngữ đích, trình độ hiện tại,
 mục tiêu và khung thời gian; hệ thống tự tính số mục mỗi ngày và lịch ôn tập riêng.
 
-Khóa khởi đầu: **tiếng Đức `de-a1-b2`** — 600 câu A1–A2 chuyển từ file Excel gốc,
-kèm 739 cặp từ–nghĩa có chú thích giống danh từ.
+Khóa khởi đầu: **tiếng Đức `de-a1-b2`** — đủ 1.800 câu A1–B2 kèm phiên âm IPA,
+kèm 739 cặp từ–nghĩa có chú thích giống danh từ. Kèm khóa mẫu **tiếng Pháp
+`fr-a1-b2`** (20 câu) tạo hoàn toàn bằng file nội dung, không sửa code lõi.
 
-> **Trạng thái:** Phase 1 (nền tảng, dữ liệu, hạ tầng nội dung) đã xong.
-> Phase 2 (planner, onboarding, phiên học) và Phase 3 (dashboard, ra mắt) chưa làm.
+> **Trạng thái:** cả ba phase đã xong. Sẵn sàng deploy — xem
+> [`docs/DEPLOYMENT.md`](docs/DEPLOYMENT.md).
 
 ---
 
@@ -23,8 +24,9 @@ pnpm dev
 Mở http://localhost:3000. Landing page chạy được ngay **không cần Supabase** —
 trang đăng nhập sẽ hiện thông báo chưa cấu hình thay vì lỗi.
 
-Kiểm tra toàn bộ (lint + typecheck + 40 test, trong đó có test RLS chạy trên
-Postgres thật qua PGlite — không cần Docker, không cần credential):
+Kiểm tra toàn bộ (lint + typecheck + 215 test, trong đó có test RLS và một phiên
+học trọn vẹn chạy trên Postgres thật qua PGlite — không cần Docker, không cần
+credential):
 
 ```bash
 pnpm verify
@@ -85,7 +87,7 @@ Và từ **Project Settings → Database → Connection string → URI**:
 
 ```bash
 pnpm content:validate      # kiểm tra trước, không cần database
-pnpm content:import        # upsert 600 mục + 823 liên kết từ vựng
+pnpm content:import        # upsert 1.800 mục + 2.206 liên kết từ vựng
 ```
 
 Chạy lại bao nhiêu lần cũng được: upsert theo `(course_id, stable_key)` nên
@@ -102,6 +104,7 @@ Chạy lại bao nhiêu lần cũng được: upsert theo `(course_id, stable_ke
 | `pnpm verify` | lint + typecheck + test — chạy trước mỗi commit |
 | `pnpm test` | Vitest: unit, RLS, import |
 | `pnpm test:e2e` | Playwright (xem *Giới hạn môi trường*) |
+| `pnpm start` | Chạy production build, dùng để đo Lighthouse |
 | `pnpm content:validate` | Kiểm tra file nội dung, exit 1 nếu có lỗi |
 | `pnpm content:import` | Upsert nội dung vào Postgres |
 | `pnpm content:ingest` | CSV/TSV → items JSON |
@@ -146,6 +149,27 @@ pnpm content:validate fr-a1-b2 && pnpm content:import fr-a1-b2
 ```
 
 Hướng dẫn đầy đủ: [`docs/ADDING_A_LANGUAGE.md`](docs/ADDING_A_LANGUAGE.md)
+
+---
+
+## Chất lượng
+
+Đo trên production build (`pnpm build && pnpm start`):
+
+| Trang | Performance | Accessibility | Best Practices | SEO |
+|---|---|---|---|---|
+| `/` | 92 | 100 | 100 | 100 |
+| `/dang-nhap` | 95 | 100 | 100 | 100 |
+
+215 unit test, trong đó test RLS và một phiên học hoàn chỉnh chạy trên Postgres
+thật. E2E Playwright chạy trên CI.
+
+---
+
+## Triển khai
+
+Từng bước lên Vercel + Supabase, kèm checklist trước khi mở cho người dùng thật:
+[`docs/DEPLOYMENT.md`](docs/DEPLOYMENT.md)
 
 ---
 

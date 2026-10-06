@@ -210,8 +210,10 @@ Theme lưu trong `localStorage` + `matchMedia` — cả hai đều ngoài React 
 qua `useSyncExternalStore` thay vì Context + effect. Một script nhỏ chạy trong
 `<head>` áp theme trước lần vẽ đầu tiên để dark-mode không bị nháy trắng.
 
-Font Inter + Be Vietnam Pro, cả hai nạp subset `vietnamese` và `latin-ext`, nên
-`Nghĩa tiếng Việt` và `Grüße` render cùng một họ chữ, không rơi sang font dự phòng.
+Một họ chữ duy nhất: Inter, variable, nạp subset `vietnamese` và `latin-ext`, nên
+`Nghĩa tiếng Việt` và `Grüße` render cùng một face. Một font riêng cho tiêu đề
+từng tồn tại nhưng bị bỏ — chín file woff2 thêm vào đẩy Largest Contentful Paint
+ra gần bốn giây (xem D-029). Tiêu đề phân cấp bằng độ đậm và letter-spacing.
 
 Chuyển động tôn trọng `prefers-reduced-motion` ở hai nơi: CSS vô hiệu hoá
 transition/animation toàn cục, và `useReducedMotion()` tắt animation của Framer
@@ -225,4 +227,4 @@ Motion trong các sơ đồ.
 |---|---|---|
 | 1 | Nền tảng, schema + RLS, auth, pipeline nội dung, landing | ✅ xong |
 | 2 | Planner (pure, test đầy đủ), FSRS wrapper, onboarding, phiên học | ✅ xong |
-| 3 | Dashboard, heatmap, streak, PWA, i18n tiếng Anh, e2e, deploy | ⬜ |
+| 3 | Dashboard, heatmap, streak, danh sách từ, PWA, i18n, e2e, deploy | ✅ xong |

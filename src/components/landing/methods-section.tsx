@@ -1,11 +1,15 @@
-'use client';
-
-import { useTranslations } from 'next-intl';
+import { getTranslations } from 'next-intl/server';
 import { ArrowRight } from 'lucide-react';
-import { METHOD_DIAGRAMS } from './method-diagrams';
+import { MethodDiagram } from './method-diagrams';
+
+/*
+ * This section renders on the server. Only the three diagrams are client
+ * components, so the landing page ships the animation library for those alone
+ * instead of for all the prose around them.
+ */
 
 interface MethodItem {
-  id: keyof typeof METHOD_DIAGRAMS;
+  id: 'lexical' | 'sentences' | 'srs';
   number: string;
   name: string;
   author: string;
@@ -20,8 +24,8 @@ interface SynergyPoint {
   effect: string;
 }
 
-export function MethodsSection() {
-  const t = useTranslations('landing.methods');
+export async function MethodsSection() {
+  const t = await getTranslations('landing.methods');
   const items = t.raw('items') as MethodItem[];
   const synergy = t.raw('synergyPoints') as SynergyPoint[];
 
@@ -38,7 +42,6 @@ export function MethodsSection() {
 
         <ul className="mt-14 grid gap-6 lg:grid-cols-3">
           {items.map((item) => {
-            const Diagram = METHOD_DIAGRAMS[item.id];
             return (
               <li
                 key={item.id}
@@ -55,13 +58,13 @@ export function MethodsSection() {
                 <p className="mt-5 font-display text-base font-medium">{item.claim}</p>
 
                 <div className="my-6 rounded-lg bg-surface-sunken/60 p-3">
-                  {Diagram ? <Diagram /> : null}
+                  <MethodDiagram id={item.id} />
                 </div>
 
                 <p className="text-[0.9375rem] leading-relaxed text-fg-muted">{item.body}</p>
 
                 <p className="mt-6 border-t border-border pt-4 text-sm text-fg">
-                  <span className="font-medium">Đóng góp: </span>
+                  <span className="font-medium">{t('contributionLabel')}: </span>
                   {item.contribution}
                 </p>
               </li>

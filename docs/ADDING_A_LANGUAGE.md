@@ -10,7 +10,7 @@ ngôn ngữ nào; mọi đặc thù khai báo trong `course.json`.
 
 ## Tình huống 1 — Thêm cấp độ vào khóa đã có
 
-Ví dụ: bổ sung 1.200 câu B1–B2 vào khóa tiếng Đức `de-a1-b2`.
+Ví dụ: bổ sung thêm câu vào một khóa đã có, như khóa tiếng Đức `de-a1-b2`.
 
 Khóa đã khai báo sẵn `levels: ["A1","A2","B1","B2"]`, nên **không cần sửa `course.json`**.
 Chỉ cần đổ nội dung vào.
@@ -29,7 +29,7 @@ lẫn key canonical:
 | `Chủ đề` | `topic` | nên có |
 | `Loại câu` | `sentenceType` | không |
 | `Điểm ngữ pháp` | `grammarNote` | không |
-| `Phiên âm (đọc theo tiếng Việt)` | `transliteration` | không |
+| `Phiên âm IPA (chuẩn Duden)`, `Phiên âm (đọc theo tiếng Việt)`, `IPA` | `transliteration` | không |
 | `Từ mới trong câu` | `newWords` | không |
 
 Cột `Từ mới trong câu` theo đúng định dạng file gốc:
@@ -38,8 +38,10 @@ Cột `Từ mới trong câu` theo đúng định dạng file gốc:
 der Morgen = buổi sáng; gut = tốt
 ```
 
-Giống danh từ được suy ra từ mạo từ `der`/`die`/`das` ở đầu từ. Mục thiếu dấu `=`
-sẽ bị báo lỗi kèm số dòng, **không bị đoán bừa**.
+Giống danh từ được suy ra từ mạo từ đứng đầu — nhưng **danh sách mạo từ lấy từ
+`course.json`**, không hardcode trong code. Khóa tiếng Đức khai báo `der/die/das`,
+khóa tiếng Pháp khai báo `le/la/l'/les`, và cùng một parser xử lý cả hai. Mục
+thiếu dấu `=` sẽ bị báo lỗi kèm số dòng, **không bị đoán bừa**.
 
 Dòng không có câu sẽ bị bỏ qua và đếm lại — không bao giờ bị điền nội dung tự sinh.
 
@@ -50,7 +52,7 @@ pnpm content:ingest -- duong-dan/den/file.tsv --course de-a1-b2 --out items.b1-b
 ```
 
 Kết quả ghi vào `content/de/de-a1-b2/items.b1-b2.json`. File `items.json` cũ
-(600 câu A1–A2) giữ nguyên — một khóa có thể có nhiều file `items*.json`.
+giữ nguyên — một khóa có thể có nhiều file `items*.json`.
 
 ### Bước 3 — Kiểm tra
 
@@ -80,6 +82,12 @@ cấp độ đã có đủ item trong database.
 ## Tình huống 2 — Thêm ngôn ngữ hoàn toàn mới
 
 Ví dụ: tiếng Pháp, A1–B2, nghĩa bằng tiếng Việt.
+
+> **Đã làm thật.** Khóa `fr-a1-b2` trong repo này (20 câu A1) được tạo đúng theo
+> bốn bước dưới đây, không sửa một dòng code lõi nào. Quá trình đó lộ ra một chỗ
+> engine còn hardcode tiếng Đức — mạo từ `der/die/das` nằm trong parser — và đã
+> được sửa thành đọc từ `course.json`. Đây chính là giá trị của việc thêm ngôn
+> ngữ thứ hai: nó chứng minh nguyên tắc, hoặc phát hiện chỗ nguyên tắc bị vi phạm.
 
 ### Bước 1 — Sinh khung khóa
 

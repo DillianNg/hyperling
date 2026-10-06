@@ -1,0 +1,522 @@
+{
+  "courseId": "fr-a1-b2",
+  "schemaVersion": 1,
+  "items": [
+    {
+      "stableKey": "S0001",
+      "kind": "sentence",
+      "level": "A1",
+      "topic": "Chào hỏi & Lịch sự",
+      "orderIndex": 1,
+      "fields": {
+        "text": "Bonjour !",
+        "meaning": "Xin chào! (ban ngày)",
+        "transliteration": "Bông-dua",
+        "grammarNote": "cụm chào hỏi cố định",
+        "sentenceType": "exclamation"
+      },
+      "glossary": [
+        {
+          "term": "le jour",
+          "meaning": "ngày",
+          "partOfSpeech": "noun",
+          "fields": {
+            "gender": "le"
+          }
+        }
+      ]
+    },
+    {
+      "stableKey": "S0002",
+      "kind": "sentence",
+      "level": "A1",
+      "topic": "Chào hỏi & Lịch sự",
+      "orderIndex": 2,
+      "fields": {
+        "text": "Bonsoir !",
+        "meaning": "Chào buổi tối!",
+        "transliteration": "Bông-xoa",
+        "grammarNote": "chào buổi tối",
+        "sentenceType": "exclamation"
+      },
+      "glossary": [
+        {
+          "term": "le soir",
+          "meaning": "buổi tối",
+          "partOfSpeech": "noun",
+          "fields": {
+            "gender": "le"
+          }
+        }
+      ]
+    },
+    {
+      "stableKey": "S0003",
+      "kind": "sentence",
+      "level": "A1",
+      "topic": "Chào hỏi & Lịch sự",
+      "orderIndex": 3,
+      "fields": {
+        "text": "Comment allez-vous ?",
+        "meaning": "Ông/bà có khỏe không?",
+        "transliteration": "Cô-măng ta-lê vu",
+        "grammarNote": "comment + aller, đảo ngữ",
+        "sentenceType": "question"
+      },
+      "glossary": [
+        {
+          "term": "aller",
+          "meaning": "đi",
+          "partOfSpeech": "other",
+          "fields": {}
+        },
+        {
+          "term": "vous",
+          "meaning": "ông/bà",
+          "partOfSpeech": "other",
+          "fields": {}
+        }
+      ]
+    },
+    {
+      "stableKey": "S0004",
+      "kind": "sentence",
+      "level": "A1",
+      "topic": "Chào hỏi & Lịch sự",
+      "orderIndex": 4,
+      "fields": {
+        "text": "Je vais bien, merci.",
+        "meaning": "Tôi khỏe, cảm ơn.",
+        "transliteration": "Giơ-vê biêng, méc-xi",
+        "grammarNote": "aller ở ngôi je",
+        "sentenceType": "answer"
+      },
+      "glossary": [
+        {
+          "term": "bien",
+          "meaning": "tốt",
+          "partOfSpeech": "other",
+          "fields": {}
+        },
+        {
+          "term": "merci",
+          "meaning": "cảm ơn",
+          "partOfSpeech": "other",
+          "fields": {}
+        }
+      ]
+    },
+    {
+      "stableKey": "S0005",
+      "kind": "sentence",
+      "level": "A1",
+      "topic": "Chào hỏi & Lịch sự",
+      "orderIndex": 5,
+      "fields": {
+        "text": "Et toi ?",
+        "meaning": "Còn bạn thì sao?",
+        "transliteration": "Ê toa",
+        "grammarNote": "et toi rút gọn",
+        "sentenceType": "question"
+      },
+      "glossary": [
+        {
+          "term": "toi",
+          "meaning": "bạn",
+          "partOfSpeech": "other",
+          "fields": {}
+        }
+      ]
+    },
+    {
+      "stableKey": "S0006",
+      "kind": "sentence",
+      "level": "A1",
+      "topic": "Giới thiệu bản thân",
+      "orderIndex": 6,
+      "fields": {
+        "text": "Je m'appelle Marie.",
+        "meaning": "Tôi tên là Marie.",
+        "transliteration": "Giơ ma-pel Ma-ri",
+        "grammarNote": "s'appeler phản thân",
+        "sentenceType": "declarative"
+      },
+      "glossary": [
+        {
+          "term": "s'appeler",
+          "meaning": "tên là",
+          "partOfSpeech": "other",
+          "fields": {}
+        }
+      ]
+    },
+    {
+      "stableKey": "S0007",
+      "kind": "sentence",
+      "level": "A1",
+      "topic": "Giới thiệu bản thân",
+      "orderIndex": 7,
+      "fields": {
+        "text": "Comment tu t'appelles ?",
+        "meaning": "Bạn tên gì?",
+        "transliteration": "Cô-măng tuy ta-pel",
+        "grammarNote": "comment + tu",
+        "sentenceType": "question"
+      },
+      "glossary": [
+        {
+          "term": "tu",
+          "meaning": "bạn",
+          "partOfSpeech": "other",
+          "fields": {}
+        }
+      ]
+    },
+    {
+      "stableKey": "S0008",
+      "kind": "sentence",
+      "level": "A1",
+      "topic": "Giới thiệu bản thân",
+      "orderIndex": 8,
+      "fields": {
+        "text": "Je viens du Vietnam.",
+        "meaning": "Tôi đến từ Việt Nam.",
+        "transliteration": "Giơ vi-êng duy Vi-ét-nam",
+        "grammarNote": "venir de + nơi chốn",
+        "sentenceType": "declarative"
+      },
+      "glossary": [
+        {
+          "term": "venir",
+          "meaning": "đến",
+          "partOfSpeech": "other",
+          "fields": {}
+        },
+        {
+          "term": "le Vietnam",
+          "meaning": "Việt Nam",
+          "partOfSpeech": "noun",
+          "fields": {
+            "gender": "le"
+          }
+        }
+      ]
+    },
+    {
+      "stableKey": "S0009",
+      "kind": "sentence",
+      "level": "A1",
+      "topic": "Giới thiệu bản thân",
+      "orderIndex": 9,
+      "fields": {
+        "text": "J'ai vingt-cinq ans.",
+        "meaning": "Tôi hai mươi lăm tuổi.",
+        "transliteration": "Giê văng-xanh ăng",
+        "grammarNote": "avoir + số tuổi",
+        "sentenceType": "declarative"
+      },
+      "glossary": [
+        {
+          "term": "avoir",
+          "meaning": "có",
+          "partOfSpeech": "other",
+          "fields": {}
+        },
+        {
+          "term": "l'an",
+          "meaning": "năm tuổi",
+          "partOfSpeech": "other",
+          "fields": {}
+        }
+      ]
+    },
+    {
+      "stableKey": "S0010",
+      "kind": "sentence",
+      "level": "A1",
+      "topic": "Giới thiệu bản thân",
+      "orderIndex": 10,
+      "fields": {
+        "text": "Quel âge as-tu ?",
+        "meaning": "Bạn bao nhiêu tuổi?",
+        "transliteration": "Ken a-giơ a tuy",
+        "grammarNote": "quel + âge",
+        "sentenceType": "question"
+      },
+      "glossary": [
+        {
+          "term": "l'âge",
+          "meaning": "tuổi",
+          "partOfSpeech": "other",
+          "fields": {}
+        }
+      ]
+    },
+    {
+      "stableKey": "S0011",
+      "kind": "sentence",
+      "level": "A1",
+      "topic": "Số đếm & Thông tin",
+      "orderIndex": 11,
+      "fields": {
+        "text": "C'est la première fois.",
+        "meaning": "Đây là lần đầu tiên.",
+        "transliteration": "Xê la prơ-mi-e phoa",
+        "grammarNote": "danh từ giống cái",
+        "sentenceType": "declarative"
+      },
+      "glossary": [
+        {
+          "term": "la fois",
+          "meaning": "lần",
+          "partOfSpeech": "noun",
+          "fields": {
+            "gender": "la"
+          }
+        },
+        {
+          "term": "premier",
+          "meaning": "đầu tiên",
+          "partOfSpeech": "other",
+          "fields": {}
+        }
+      ]
+    },
+    {
+      "stableKey": "S0012",
+      "kind": "sentence",
+      "level": "A1",
+      "topic": "Số đếm & Thông tin",
+      "orderIndex": 12,
+      "fields": {
+        "text": "Combien ça coûte ?",
+        "meaning": "Cái này giá bao nhiêu?",
+        "transliteration": "Cổng-biêng xa cút",
+        "grammarNote": "combien + coûter",
+        "sentenceType": "question"
+      },
+      "glossary": [
+        {
+          "term": "coûter",
+          "meaning": "có giá",
+          "partOfSpeech": "other",
+          "fields": {}
+        }
+      ]
+    },
+    {
+      "stableKey": "S0013",
+      "kind": "sentence",
+      "level": "A1",
+      "topic": "Ăn uống",
+      "orderIndex": 13,
+      "fields": {
+        "text": "Je voudrais un café.",
+        "meaning": "Tôi muốn một ly cà phê.",
+        "transliteration": "Giơ vu-đrê ăng ca-phê",
+        "grammarNote": "vouloir + danh từ",
+        "sentenceType": "declarative"
+      },
+      "glossary": [
+        {
+          "term": "vouloir",
+          "meaning": "muốn",
+          "partOfSpeech": "other",
+          "fields": {}
+        },
+        {
+          "term": "le café",
+          "meaning": "cà phê",
+          "partOfSpeech": "noun",
+          "fields": {
+            "gender": "le"
+          }
+        }
+      ]
+    },
+    {
+      "stableKey": "S0014",
+      "kind": "sentence",
+      "level": "A1",
+      "topic": "Ăn uống",
+      "orderIndex": 14,
+      "fields": {
+        "text": "Vous avez de l'eau ?",
+        "meaning": "Ông/bà có nước không?",
+        "transliteration": "Vu-da-vê đơ lô",
+        "grammarNote": "avoir + đồ uống",
+        "sentenceType": "question"
+      },
+      "glossary": [
+        {
+          "term": "l'eau",
+          "meaning": "nước",
+          "partOfSpeech": "other",
+          "fields": {}
+        }
+      ]
+    },
+    {
+      "stableKey": "S0015",
+      "kind": "sentence",
+      "level": "A1",
+      "topic": "Ăn uống",
+      "orderIndex": 15,
+      "fields": {
+        "text": "J'aime le pain français.",
+        "meaning": "Tôi thích bánh mì Pháp.",
+        "transliteration": "Giem lơ panh phrăng-xe",
+        "grammarNote": "aimer + danh từ",
+        "sentenceType": "declarative"
+      },
+      "glossary": [
+        {
+          "term": "aimer",
+          "meaning": "thích",
+          "partOfSpeech": "other",
+          "fields": {}
+        },
+        {
+          "term": "le pain",
+          "meaning": "bánh mì",
+          "partOfSpeech": "noun",
+          "fields": {
+            "gender": "le"
+          }
+        }
+      ]
+    },
+    {
+      "stableKey": "S0016",
+      "kind": "sentence",
+      "level": "A1",
+      "topic": "Chỉ đường",
+      "orderIndex": 16,
+      "fields": {
+        "text": "Où est la gare ?",
+        "meaning": "Nhà ga ở đâu?",
+        "transliteration": "U ê la ga",
+        "grammarNote": "où + être",
+        "sentenceType": "question"
+      },
+      "glossary": [
+        {
+          "term": "la gare",
+          "meaning": "nhà ga",
+          "partOfSpeech": "noun",
+          "fields": {
+            "gender": "la"
+          }
+        },
+        {
+          "term": "où",
+          "meaning": "ở đâu",
+          "partOfSpeech": "other",
+          "fields": {}
+        }
+      ]
+    },
+    {
+      "stableKey": "S0017",
+      "kind": "sentence",
+      "level": "A1",
+      "topic": "Chỉ đường",
+      "orderIndex": 17,
+      "fields": {
+        "text": "Tournez à droite.",
+        "meaning": "Rẽ phải.",
+        "transliteration": "Tuốc-nê a đroat",
+        "grammarNote": "mệnh lệnh thức",
+        "sentenceType": "imperative"
+      },
+      "glossary": [
+        {
+          "term": "tourner",
+          "meaning": "rẽ",
+          "partOfSpeech": "other",
+          "fields": {}
+        },
+        {
+          "term": "la droite",
+          "meaning": "bên phải",
+          "partOfSpeech": "noun",
+          "fields": {
+            "gender": "la"
+          }
+        }
+      ]
+    },
+    {
+      "stableKey": "S0018",
+      "kind": "sentence",
+      "level": "A1",
+      "topic": "Chỉ đường",
+      "orderIndex": 18,
+      "fields": {
+        "text": "C'est tout droit.",
+        "meaning": "Đi thẳng là tới.",
+        "transliteration": "Xê tu đroa",
+        "grammarNote": "c'est + tính từ",
+        "sentenceType": "declarative"
+      },
+      "glossary": [
+        {
+          "term": "tout droit",
+          "meaning": "thẳng",
+          "partOfSpeech": "other",
+          "fields": {}
+        }
+      ]
+    },
+    {
+      "stableKey": "S0019",
+      "kind": "sentence",
+      "level": "A1",
+      "topic": "Cuộc hẹn",
+      "orderIndex": 19,
+      "fields": {
+        "text": "Quand est-ce qu'on se voit ?",
+        "meaning": "Khi nào mình gặp nhau?",
+        "transliteration": "Căng ét-xơ công xơ voa",
+        "grammarNote": "quand + verbe",
+        "sentenceType": "question"
+      },
+      "glossary": [
+        {
+          "term": "quand",
+          "meaning": "khi nào",
+          "partOfSpeech": "other",
+          "fields": {}
+        },
+        {
+          "term": "se voir",
+          "meaning": "gặp nhau",
+          "partOfSpeech": "other",
+          "fields": {}
+        }
+      ]
+    },
+    {
+      "stableKey": "S0020",
+      "kind": "sentence",
+      "level": "A1",
+      "topic": "Cuộc hẹn",
+      "orderIndex": 20,
+      "fields": {
+        "text": "À demain !",
+        "meaning": "Hẹn mai gặp lại!",
+        "transliteration": "A đơ-manh",
+        "grammarNote": "cụm chia tay",
+        "sentenceType": "exclamation"
+      },
+      "glossary": [
+        {
+          "term": "demain",
+          "meaning": "ngày mai",
+          "partOfSpeech": "other",
+          "fields": {}
+        }
+      ]
+    }
+  ]
+}
