@@ -12,7 +12,6 @@ import {
   smallint,
   text,
   timestamp,
-  unique,
   uniqueIndex,
   uuid,
 } from 'drizzle-orm/pg-core';
@@ -62,6 +61,8 @@ export const courses = pgTable('courses', {
   levelTo: text('level_to').notNull(),
   levels: text('levels').array().notNull(),
   primaryItemKind: text('primary_item_kind').notNull(),
+  /** 'curriculum' (imported content) or 'notebook' (holds learners' own rows). */
+  kind: text('kind').notNull().default('curriculum'),
   fieldSchema: jsonb('field_schema').notNull(),
   tts: jsonb('tts'),
   source: jsonb('source'),
@@ -77,6 +78,8 @@ export const items = pgTable(
       .notNull()
       .references(() => courses.id, { onDelete: 'cascade' }),
     stableKey: text('stable_key').notNull(),
+    /** Null for imported content; the learner's id for a sentence they wrote. */
+    ownerId: uuid('owner_id'),
     kind: text('kind').notNull(),
     levelCode: text('level_code').notNull(),
     topic: text('topic').notNull(),
@@ -86,8 +89,11 @@ export const items = pgTable(
     updatedAt: timestamp('updated_at', { withTimezone: true }).notNull().defaultNow(),
   },
   (t) => [
-    unique('items_stable_key_unique').on(t.courseId, t.stableKey),
-    unique('items_order_index_unique').on(t.courseId, t.orderIndex),
+    // Uniqueness of (course_id, stable_key) and (course_id, order_index) is
+    // enforced by *partial* unique indexes since migration 0006 — one pair for
+    // imported rows, one per owner for notebook rows. Drizzle cannot express a
+    // partial unique index, and the migration SQL is the source of truth for
+    // constraints anyway (principle 6), so they are not restated here.
     index('items_course_order_idx').on(t.courseId, t.orderIndex),
     index('items_course_level_idx').on(t.courseId, t.levelCode, t.orderIndex),
   ],
@@ -100,6 +106,8 @@ export const glossaryTerms = pgTable(
     courseId: text('course_id')
       .notNull()
       .references(() => courses.id, { onDelete: 'cascade' }),
+    /** Null for imported content; the learner's id for a note they wrote. */
+    ownerId: uuid('owner_id'),
     term: text('term').notNull(),
     meaning: text('meaning').notNull(),
     partOfSpeech: text('part_of_speech').notNull().default('other'),
@@ -107,7 +115,7 @@ export const glossaryTerms = pgTable(
     createdAt: timestamp('created_at', { withTimezone: true }).notNull().defaultNow(),
   },
   (t) => [
-    unique('glossary_terms_unique').on(t.courseId, t.term, t.meaning),
+    // Partial unique indexes since migration 0006, as for items above.
     index('glossary_terms_course_term_idx').on(t.courseId, t.term),
   ],
 );
