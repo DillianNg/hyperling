@@ -2,7 +2,7 @@ import Link from 'next/link';
 import { redirect } from 'next/navigation';
 import type { Metadata } from 'next';
 import { getTranslations } from 'next-intl/server';
-import { ArrowRight, Flame, Plus, Settings } from 'lucide-react';
+import { ArrowRight, Flame, NotebookPen, Plus, Settings } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { ThemeToggle } from '@/components/theme-toggle';
@@ -11,6 +11,7 @@ import { ProgressRing } from '@/components/dashboard/progress-ring';
 import { createClient, getCurrentUser } from '@/lib/supabase/server';
 import { getCourse } from '@/lib/data/courses';
 import { countCompletedItems, listEnrollments } from '@/lib/data/enrollments';
+import { countNotebookItems, studyScope } from '@/lib/data/notebook';
 import { getEnrollmentStats } from '@/lib/data/stats';
 import { getTodaySession } from '@/lib/data/study';
 import { countItemsForGoal, levelsToStudy } from '@/core/planner/levels';
@@ -42,10 +43,17 @@ export default async function DashboardPage() {
     listEnrollments('active'),
   ]);
 
-  // Each enrollment tracks independently: one learner on two courses never
-  // shares a queue, a streak or a set of numbers.
+  // Each course tracks independently: one learner on two courses never shares a
+  // queue, a streak or a set of numbers.
+  //
+  // A notebook is not a course and gets no card of its own. It is the learner's
+  // own sentences for a language they are already studying, so it folds into
+  // that course's card — its reviews extend the same streak — while keeping its
+  // own queue and leaving the course's plan alone.
   const cards = await Promise.all(
-    enrollments.map(async (enrollment) => {
+    enrollments
+      .filter((enrollment) => enrollment.kind === 'curriculum')
+      .map(async (enrollment) => {
       const course = await getCourse(enrollment.courseId);
       if (!course) return null;
 
@@ -55,10 +63,19 @@ export default async function DashboardPage() {
         itemCountByLevel: course.itemCountByLevel,
       });
 
-      const [session, completedItems, stats] = await Promise.all([
+      const scope = await studyScope({
+        enrollment,
+        targetLanguage: course.targetLanguage,
+        enrollments,
+      });
+
+      const [session, completedItems, stats, notebookCount] = await Promise.all([
         getTodaySession({ enrollment, userId: user.id, totalItems, now: new Date() }),
         countCompletedItems(enrollment.id),
-        getEnrollmentStats({ enrollmentId: enrollment.id, courseId: enrollment.courseId }),
+        getEnrollmentStats({ enrollmentIds: scope.enrollmentIds, courseIds: scope.courseIds }),
+        scope.notebook
+          ? countNotebookItems({ userId: user.id, notebookCourseId: scope.notebook.courseId })
+          : Promise.resolve(0),
       ]);
 
       const today = calendarDateInTimezone(new Date(), enrollment.timezone);
@@ -70,6 +87,8 @@ export default async function DashboardPage() {
         session,
         completedItems,
         stats,
+        notebook: scope.notebook,
+        notebookCount,
         today,
         streak: computeStreak({
           activity: stats.activity,
@@ -144,6 +163,8 @@ export default async function DashboardPage() {
                 session,
                 completedItems,
                 stats,
+                notebook,
+                notebookCount,
                 streak,
                 heatmap,
                 levelProgress,
@@ -222,6 +243,17 @@ export default async function DashboardPage() {
                             <Button size="lg" variant="outline" asChild>
                               <Link href={`/ke-hoach/${enrollment.id}`}>{tPlan('title')}</Link>
                             </Button>
+                            {/* The learner's own sentences. Shown beside the plan
+                                rather than inside it: adding one must never move
+                                the target date. */}
+                            <Button size="lg" variant="ghost" asChild>
+                              <Link href="/so-tay">
+                                <NotebookPen aria-hidden="true" />
+                                {notebookCount > 0
+                                  ? t('notebookCount', { count: notebookCount })
+                                  : t('notebookEmpty')}
+                              </Link>
+                            </Button>
                           </div>
                         </div>
                       </CardContent>
@@ -274,9 +306,19 @@ export default async function DashboardPage() {
                             <Metric label={t('activeDays')} value={String(streak.totalActiveDays)} />
                           </dl>
 
-                          <Button variant="outline" size="sm" className="mt-7" asChild>
-                            <Link href={`/tu-vung/${enrollment.id}`}>{t('wordList')}</Link>
-                          </Button>
+                          {/* The numbers above already include the notebook, so
+                              its queue is offered here rather than as a second
+                              set of statistics. */}
+                          <div className="mt-7 flex flex-wrap gap-3">
+                            <Button variant="outline" size="sm" asChild>
+                              <Link href={`/tu-vung/${enrollment.id}`}>{t('wordList')}</Link>
+                            </Button>
+                            {notebook ? (
+                              <Button variant="ghost" size="sm" asChild>
+                                <Link href={`/hoc/${notebook.id}`}>{t('notebookStudy')}</Link>
+                              </Button>
+                            ) : null}
+                          </div>
                         </CardContent>
                       </Card>
                     </div>

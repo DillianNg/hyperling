@@ -190,7 +190,10 @@
     "wordList": "Sentences learned",
     "viewPlan": "Plan",
     "newCourse": "Add a course",
-    "noData": "No data yet"
+    "noData": "No data yet",
+    "notebookCount": "Notebook ({count})",
+    "notebookEmpty": "My notebook",
+    "notebookStudy": "Study the notebook"
   },
   "sentenceType": {
     "declarative": "Statement",
@@ -452,10 +455,54 @@
     "resetCancel": "Cancel",
     "resetWorking": "Deleting…",
     "resetFailed": "Could not delete. Reload the page and try again.",
-    "resetKeepsNotes": "Your notes and “hard” marks on {count} sentences are kept — that is text you wrote, not progress."
+    "resetKeepsNotes": "Your notes and “hard” marks on {count} sentences are kept — that is text you wrote, not progress.",
+    "resetKeepsNotebook": "Your notebook ({count} sentences) and its review schedule are untouched — resetting clears the course's progress only."
   },
   "offline": {
     "title": "You are offline",
     "body": "No network connection. Reopen this page once you are back online to keep studying."
+  },
+  "notebook": {
+    "title": "My notebook",
+    "subtitle": "German sentences you met elsewhere. They are reviewed by the same algorithm as the main course, and count towards the same statistics.",
+    "back": "Back to dashboard",
+    "needCourse": "A notebook belongs to a course you are studying: it reuses that course's way of presenting a sentence. Start the German course first, then come back.",
+    "startCourse": "Start learning",
+    "form": {
+      "text": "German sentence",
+      "textPlaceholder": "Ich habe das Buch gelesen.",
+      "meaning": "Vietnamese meaning",
+      "meaningPlaceholder": "Tôi đã đọc quyển sách đó.",
+      "optional": "Add transcription, topic, grammar, word notes (optional)",
+      "transliteration": "IPA transcription",
+      "transliterationPlaceholder": "ɪç ˈhaːbə das buːx ɡəˈleːzn̩",
+      "transliterationHint": "Leave it blank if you have not looked it up. The study card hides this rather than showing an empty field.",
+      "topic": "Topic",
+      "topicPlaceholder": "Past tense",
+      "grammarNote": "Grammar point",
+      "grammarNotePlaceholder": "Perfekt with haben + Partizip II.",
+      "glossary": "Word notes",
+      "glossaryTerm": "Word or phrase",
+      "glossaryMeaning": "Meaning",
+      "glossaryGender": "Noun gender",
+      "glossaryNoGender": "— none —",
+      "glossaryRemove": "Remove this note",
+      "glossaryAdd": "Add a note",
+      "submit": "Add sentence",
+      "save": "Save changes",
+      "saving": "Saving…",
+      "cancel": "Cancel"
+    },
+    "list": {
+      "heading": "Your sentences ({count})",
+      "study": "Study the notebook",
+      "empty": "Nothing here yet. Add your first sentence above — the sentence and its meaning are all that is required.",
+      "reps": "reviewed {count} times",
+      "unstudied": "not studied yet",
+      "edit": "Edit this sentence",
+      "delete": "Delete this sentence",
+      "confirmDelete": "Delete this sentence and its whole review history?",
+      "confirmYes": "Delete"
+    }
   }
 }

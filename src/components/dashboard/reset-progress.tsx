@@ -14,6 +14,8 @@ export interface ResetProgressProps {
   reviewedCards: number;
   reviewLogs: number;
   flaggedItems: number;
+  /** Sentences the learner wrote themselves, which a reset deliberately keeps. */
+  notebookItems: number;
 }
 
 /**
@@ -30,6 +32,7 @@ export function ResetProgress({
   reviewedCards,
   reviewLogs,
   flaggedItems,
+  notebookItems,
 }: ResetProgressProps) {
   const t = useTranslations('settings');
   const router = useRouter();
@@ -76,6 +79,14 @@ export function ResetProgress({
             {flaggedItems > 0 ? (
               <p className="mt-2 text-sm text-fg-muted">
                 {t('resetKeepsNotes', { count: flaggedItems })}
+              </p>
+            ) : null}
+            {/* Said explicitly, because this is the question a learner about to
+                press a destructive button will actually have: the sentences
+                they wrote themselves are not progress, and are not touched. */}
+            {notebookItems > 0 ? (
+              <p className="mt-2 text-sm text-fg-muted">
+                {t('resetKeepsNotebook', { count: notebookItems })}
               </p>
             ) : null}
 

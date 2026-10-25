@@ -12,6 +12,7 @@ import { getUserLocale } from '@/lib/i18n/locale';
 import { createClient, getCurrentUser } from '@/lib/supabase/server';
 import { getCourse } from '@/lib/data/courses';
 import { getEnrollmentFootprint, listEnrollments } from '@/lib/data/enrollments';
+import { countNotebookItems, notebookCourseIdFor } from '@/lib/data/notebook';
 import { changeLocale } from './actions';
 
 export async function generateMetadata(): Promise<Metadata> {
@@ -37,11 +38,20 @@ export default async function SettingsPage() {
 
   // Reset is only offered when there is a plan to reset; a learner who has not
   // finished onboarding has nothing here but a confusing red box.
-  const [enrollment] = await listEnrollments();
+  // The curriculum enrollment, explicitly: the learner's notebook is also an
+  // enrollment, and resetting that instead of the course is not what the button
+  // on this page offers to do.
+  const enrollment = (await listEnrollments()).find((item) => item.kind === 'curriculum');
   const course = enrollment ? await getCourse(enrollment.courseId) : null;
   const footprint = enrollment
     ? await getEnrollmentFootprint(enrollment.id)
     : { reviewedCards: 0, reviewLogs: 0, flaggedItems: 0 };
+
+  // Counted so the confirmation can say what survives, not only what is lost.
+  const notebookCourseId = course ? notebookCourseIdFor(course.targetLanguage) : null;
+  const notebookItems = notebookCourseId
+    ? await countNotebookItems({ userId: user.id, notebookCourseId })
+    : 0;
 
   return (
     <main className="container-page py-10">
@@ -85,6 +95,7 @@ export default async function SettingsPage() {
             reviewedCards={footprint.reviewedCards}
             reviewLogs={footprint.reviewLogs}
             flaggedItems={footprint.flaggedItems}
+            notebookItems={notebookItems}
           />
         ) : null}
       </div>

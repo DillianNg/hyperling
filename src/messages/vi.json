@@ -190,7 +190,10 @@
     "wordList": "Danh sách từ đã học",
     "viewPlan": "Kế hoạch",
     "newCourse": "Thêm khóa mới",
-    "noData": "Chưa có dữ liệu"
+    "noData": "Chưa có dữ liệu",
+    "notebookCount": "Sổ tay ({count})",
+    "notebookEmpty": "Sổ tay của tôi",
+    "notebookStudy": "Học sổ tay"
   },
   "sentenceType": {
     "declarative": "Câu trần thuật",
@@ -452,10 +455,54 @@
     "resetCancel": "Huỷ",
     "resetWorking": "Đang xoá…",
     "resetFailed": "Không xoá được. Hãy tải lại trang rồi thử lại.",
-    "resetKeepsNotes": "Ghi chú và dấu “câu khó” của bạn trên {count} câu được giữ lại — đó là chữ bạn tự viết, không phải tiến độ."
+    "resetKeepsNotes": "Ghi chú và dấu “câu khó” của bạn trên {count} câu được giữ lại — đó là chữ bạn tự viết, không phải tiến độ.",
+    "resetKeepsNotebook": "Sổ tay của bạn ({count} câu) và lịch ôn của nó được giữ nguyên — xoá lộ trình chỉ xoá tiến độ của khóa học."
   },
   "offline": {
     "title": "Bạn đang ngoại tuyến",
     "body": "Không có kết nối mạng. Khi có mạng trở lại, mở lại trang này để tiếp tục học."
+  },
+  "notebook": {
+    "title": "Sổ tay của tôi",
+    "subtitle": "Những câu tiếng Đức bạn gặp bên ngoài. Chúng được ôn theo cùng thuật toán với khóa chính, và tính vào cùng một bộ thống kê.",
+    "back": "Về bảng điều khiển",
+    "needCourse": "Sổ tay đi kèm một khóa đang học: nó dùng lại cách trình bày câu của khóa đó. Hãy bắt đầu khóa tiếng Đức trước, rồi quay lại đây.",
+    "startCourse": "Bắt đầu học",
+    "form": {
+      "text": "Câu tiếng Đức",
+      "textPlaceholder": "Ich habe das Buch gelesen.",
+      "meaning": "Nghĩa tiếng Việt",
+      "meaningPlaceholder": "Tôi đã đọc quyển sách đó.",
+      "optional": "Thêm phiên âm, chủ đề, ngữ pháp, từ vựng (không bắt buộc)",
+      "transliteration": "Phiên âm IPA",
+      "transliterationPlaceholder": "ɪç ˈhaːbə das buːx ɡəˈleːzn̩",
+      "transliterationHint": "Để trống nếu bạn chưa tra. Thẻ học sẽ ẩn phần này thay vì hiện ô rỗng.",
+      "topic": "Chủ đề",
+      "topicPlaceholder": "Thì quá khứ",
+      "grammarNote": "Điểm ngữ pháp",
+      "grammarNotePlaceholder": "Perfekt với haben + Partizip II.",
+      "glossary": "Chú thích từ vựng",
+      "glossaryTerm": "Từ / cụm từ",
+      "glossaryMeaning": "Nghĩa",
+      "glossaryGender": "Giống (Artikel)",
+      "glossaryNoGender": "— không có —",
+      "glossaryRemove": "Bỏ chú thích này",
+      "glossaryAdd": "Thêm chú thích",
+      "submit": "Thêm câu",
+      "save": "Lưu thay đổi",
+      "saving": "Đang lưu…",
+      "cancel": "Hủy"
+    },
+    "list": {
+      "heading": "Câu của bạn ({count})",
+      "study": "Học sổ tay",
+      "empty": "Chưa có câu nào. Thêm câu đầu tiên ở trên — chỉ cần câu tiếng Đức và nghĩa.",
+      "reps": "đã ôn {count} lượt",
+      "unstudied": "chưa học",
+      "edit": "Sửa câu này",
+      "delete": "Xoá câu này",
+      "confirmDelete": "Xoá câu này và toàn bộ lịch sử ôn của nó?",
+      "confirmYes": "Xoá"
+    }
   }
 }

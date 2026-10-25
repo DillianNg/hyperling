@@ -6,6 +6,8 @@ import { ArrowLeft } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { WordList } from '@/components/dashboard/word-list';
 import { getEnrollment } from '@/lib/data/enrollments';
+import { getCourse } from '@/lib/data/courses';
+import { studyScope } from '@/lib/data/notebook';
 import { getStudiedLevels, listLearnedItems } from '@/lib/data/stats';
 import { getCurrentUser } from '@/lib/supabase/server';
 
@@ -32,12 +34,20 @@ export default async function WordsPage({
   const enrollment = await getEnrollment(enrollmentId);
   if (!enrollment) redirect('/bang-dieu-khien');
 
+  const course = await getCourse(enrollment.courseId);
+  if (!course) redirect('/bang-dieu-khien');
+
+  // The learner's own sentences belong in this list too — they studied them,
+  // so searching for one should find it. `level` then includes the notebook's
+  // own level alongside the CEFR ones.
+  const scope = await studyScope({ enrollment, targetLanguage: course.targetLanguage });
+
   const query = await searchParams;
   const page = Math.max(Number.parseInt(query.trang ?? '1', 10) || 1, 1);
 
   const [result, levels] = await Promise.all([
     listLearnedItems({
-      enrollmentId,
+      enrollmentIds: scope.enrollmentIds,
       userId: user.id,
       ...(query.q ? { search: query.q } : {}),
       ...(query.cap ? { level: query.cap } : {}),
@@ -45,7 +55,7 @@ export default async function WordsPage({
       limit: PAGE_SIZE,
       offset: (page - 1) * PAGE_SIZE,
     }),
-    getStudiedLevels(enrollmentId, enrollment.courseId),
+    getStudiedLevels(scope.enrollmentIds, scope.courseIds),
   ]);
 
   return (
