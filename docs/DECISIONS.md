@@ -647,3 +647,108 @@ họ cho câu `S0935` — "Bạn **quan tâm đến** cái gì?".
 
 **Hệ quả.** 2.206 liên kết từ vựng, 1.910 từ riêng biệt, và `xlsx:convert` lần
 đầu báo "✓ Không phát hiện vấn đề nào trong dữ liệu nguồn."
+
+---
+
+### D-044 · Câu người học tự thêm là dòng `items` có chủ sở hữu, không phải bảng riêng
+
+**Bối cảnh.** Người học muốn thêm câu tiếng Đức gặp bên ngoài vào lộ trình riêng,
+và muốn thống kê tính cả những câu đó.
+
+**Lựa chọn đã cân nhắc.** Một bảng `user_items` riêng là cách tách bạch nhất,
+nhưng `card_states.item_id` có khoá ngoại tới `items.id`, nên sẽ cần bảng thẻ thứ
+hai, rồi FSRS thứ hai, rồi mọi truy vấn thống kê nhân đôi.
+
+**Quyết định.** Câu của người học là **dòng `items` bình thường**, phân biệt bằng
+cột `owner_id` mới (`null` = nội dung đã import). Nhờ vậy FSRS, `buildSession`,
+danh sách từ và dashboard dùng lại nguyên vẹn, không chỗ nào cần biết khái niệm
+"câu riêng".
+
+**Hệ quả kéo theo, cả ba đều bắt buộc (migration 0006).**
+
+1. **Quyền riêng tư.** Policy cũ của `items` là `using (true)` — mọi người đăng
+   nhập đọc mọi dòng, vì trước đó mọi dòng đều là nội dung công khai. Giữ nguyên
+   thì câu riêng của người này sẽ hiện ra với người khác. Đổi thành
+   `owner_id is null or owner_id = auth.uid()`, kèm policy ghi ghim
+   `owner_id = auth.uid()` ở cả `using` và `with check` — thiếu `with check` thì
+   người học có thể chuyển câu của mình sang chủ khác.
+2. **Tính duy nhất theo chủ sở hữu.** `unique (course_id, order_index)` đúng cho
+   nội dung đã import nhưng sai cho sổ tay: người thứ hai cũng bắt đầu từ 1. Tách
+   thành **4 partial unique index** — nội dung import giữ y nguyên đảm bảo cũ,
+   mỗi người có dãy số riêng. Dùng `unique (course_id, owner_id, order_index)`
+   thì **không** được: Postgres coi `null` là khác nhau, nên hai dòng import có
+   thể trùng `order_index`.
+3. **Grant.** Migration 0003 cố ý chỉ cho `select` trên bảng nội dung. Policy ghi
+   mà không có grant thì Postgres từ chối trước khi xét policy
+   ("permission denied for table items") — test RLS đã bắt được đúng lỗi này.
+
+**Giá phải trả, phát hiện nhờ test.** Postgres **không thể** dùng partial index
+làm đích `on conflict`. `content:import` upsert theo `(course_id, stable_key)`,
+nên sau migration nó sẽ chết. Khắc phục: nêu rõ vị từ —
+`on conflict (course_id, stable_key) where owner_id is null` — đó là cú pháp
+suy luận partial index. Nếu chạy migration trước khi chạy test thì import đã
+hỏng trên database thật.
+
+---
+
+### D-045 · Sổ tay là enrollment không có kế hoạch, thống kê thì gộp
+
+**Bối cảnh.** Hai yêu cầu của người học kéo về hai phía: sổ tay **học song song**
+(không xê dịch mốc 90 ngày), nhưng thống kê **gộp chung** với khóa chính.
+
+**Quyết định.** Tách ở chỗ xếp lịch, gộp ở chỗ báo cáo.
+
+- Sổ tay là một enrollment riêng trên course `de-personal`, nên hàng đợi và lịch
+  FSRS của nó độc lập, và `totalItems` của khóa chính không đổi khi thêm câu —
+  nguyên tắc #7 (planner không tự quyết) được giữ nguyên.
+- Sổ tay **không chạy planner**. Câu đến khi người học gặp, nên không có tổng số
+  để chia và không có ngày đích để trượt; hỏi planner là bịa ra cả hai.
+  `getTodaySession` rẽ nhánh theo `enrollment.kind`. Các cột ngày và `new_per_day`
+  của dòng enrollment đó chỉ để thoả check constraint, không ai đọc.
+- Trần `MAX_NEW_PER_DAY` vẫn áp dụng, **dùng lại hằng số cũ** chứ không thêm số
+  mới (nguyên tắc #3).
+- `getEnrollmentStats` nhận **danh sách** enrollment thay vì một id. `daily_plans`
+  có một dòng mỗi enrollment mỗi ngày, nên một ngày học cả hai sẽ xuất hiện hai
+  lần; gộp theo ngày bằng `mergeActivityByDate()` đặt trong `src/core/stats/` để
+  test được mà không cần database.
+
+**`enrollment.kind` đọc từ `courses.kind`, không lưu lại.** Hai nơi lưu cùng một
+sự thật thì sẽ có ngày lệch nhau.
+
+**Trình độ.** Sổ tay dùng framework riêng `PERSONAL`, không phải một bậc CEFR.
+Câu gặp ngoài đời chưa ai xếp loại; gán A1 hay B1 thay người học là bịa dữ liệu,
+và còn đưa câu đó vào tầm với của planner.
+
+**Reset lộ trình không xoá sổ tay.** `item_flags` đã được giữ lại vì "đó là chữ
+người học tự viết" (D-039); câu họ tự soạn càng đúng lý đó hơn. Sổ tay là
+enrollment khác nên cascade không với tới, và hộp thoại xác nhận nói rõ điều đó.
+
+---
+
+### D-046 · Khóa sổ tay do `content:import` tạo, không chỉ do migration
+
+**Bối cảnh.** Migration 0006 tạo course `de-personal` bằng cách copy
+`field_schema` từ `de-a1-b2`, để câu người học tự thêm hiện đúng như câu hệ thống
+và không bao giờ lệch khỏi nó.
+
+**Vấn đề.** Trên môi trường mới, migration chạy **trước** khi có nội dung nào, nên
+không có gì để copy: `de-personal` sẽ không được tạo và sổ tay không dùng được.
+Trên database hiện tại thì không thấy, vì `de-a1-b2` đã có sẵn.
+
+**Quyết định.** `importCourse()` cũng upsert khóa sổ tay cho cùng ngôn ngữ. Import
+chạy bằng service role nên qua được RLS, và nó vốn đã giữ `field_schema` trong
+tay. Thứ tự triển khai không còn quan trọng, và chạy lại import sẽ tự chữa.
+
+Migration vẫn giữ phần insert của nó: nó vô hại ở nơi khác và giúp database đang
+chạy có ngay khóa sổ tay mà không phải import lại.
+
+**Chỉ yêu cầu câu + nghĩa.** Bắt nhập IPA ngay sẽ chặn đúng khoảnh khắc duy nhất
+người học thực sự chịu ghi câu lại. `study-card.tsx` vốn đã kiểm tra sự tồn tại
+của từng trường tuỳ chọn, nên câu chỉ có text + nghĩa hiển thị gọn gàng chứ không
+để lại tiêu đề trống. Trường rỗng **không** được lưu thành chuỗi rỗng.
+
+**Lỗi thứ tự `.min(1).trim()`.** Zod chạy check theo thứ tự khai báo, nên
+`.min(1)` trước `.trim()` cho một chuỗi toàn khoảng trắng đi qua rồi mới cắt thành
+rỗng. Đã đảo lại thành `.trim().min(1)` ở cả `notebook.ts` và
+`glossaryEntrySchema`/`topic` trong `schema.ts` — chỗ sau là lỗi có sẵn, giờ người
+học chạm tới được vì form sổ tay dùng chung schema đó.

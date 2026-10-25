@@ -14,6 +14,10 @@ bằng `pnpm xlsx:convert`.
 
 Benchmark của hệ thống: **1.800 mục ÷ 20 mục/ngày = 90 ngày**, cộng 10–15 ngày đệm.
 
+Ngoài nội dung đã import, người học tự thêm được câu của riêng mình ở `/so-tay`.
+Những câu đó học và ôn bằng cùng engine, tính vào cùng thống kê, nhưng **không**
+làm xê dịch mốc 90 ngày của khóa chính — xem nguyên tắc #10.
+
 ## Nguyên tắc kiến trúc bất di bất dịch
 
 ### 1. Nội dung là dữ liệu, code là engine
@@ -72,7 +76,28 @@ trong `src/lib/data/paginate.ts` (khi thật sự cần mọi dòng).
 `.select()` trần chỉ dành cho tập có chặn trên rõ ràng. PGlite trong test không
 có trần này nên sẽ không bao giờ phát hiện giúp bạn (D-042).
 
-### 10. RLS không có ngoại lệ
+### 10. Nội dung của người học có chủ sở hữu
+
+Câu do người học tự thêm là dòng `items` bình thường, phân biệt bằng `owner_id`
+(`null` = nội dung đã import từ `content/`). Nhờ vậy FSRS, `buildSession`, danh
+sách từ và dashboard dùng lại nguyên vẹn — không chỗ nào trong engine cần biết
+khái niệm "câu riêng".
+
+Ba điều đi kèm, đừng tách rời (migration 0006):
+- Tính duy nhất của `(course_id, stable_key)` và `(course_id, order_index)` là
+  **partial unique index**, không còn là constraint. Hệ quả: `on conflict` phải
+  nêu vị từ — `on conflict (course_id, stable_key) where owner_id is null` —
+  vì Postgres không suy luận được partial index nếu thiếu nó.
+- Policy ghi ghim `owner_id = auth.uid()` ở **cả** `using` và `with check`.
+  Thiếu `with check` thì người học chuyển được câu của mình sang chủ khác.
+- Policy không có grant thì vô dụng: Postgres từ chối statement trước khi xét
+  policy. Bảng nội dung mặc định chỉ có `select` (migration 0003).
+
+Sổ tay là enrollment riêng và **không chạy planner**: câu đến khi người học gặp,
+không có tổng số để chia cũng không có ngày đích. Thống kê thì gộp —
+`getEnrollmentStats` nhận danh sách enrollment (D-044, D-045, D-046).
+
+### 11. RLS không có ngoại lệ
 Mọi bảng dữ liệu người dùng đều bật RLS, quyền sở hữu luôn lấy từ `auth.uid()`
 trực tiếp trên dòng dữ liệu, không bao giờ từ giá trị client gửi lên.
 `review_logs` cố ý **không có** policy UPDATE/DELETE — nhật ký ôn tập là bất biến.
@@ -132,5 +157,7 @@ Nâng lên Node 22 (`.nvmrc` đã ghi sẵn) sẽ gỡ ràng buộc thứ nhất
 - ✅ **Phase 1** — nền tảng, schema + RLS, auth email, pipeline nội dung, landing page.
 - ✅ **Phase 2** — planner, FSRS, onboarding, trang kế hoạch, phiên học đầy đủ.
 - ✅ **Phase 3** — dashboard, heatmap, streak, danh sách từ, PWA, i18n, e2e, deploy.
+- ✅ **Sổ tay riêng** — người học tự thêm câu (`/so-tay`), ôn bằng cùng engine,
+  gộp vào cùng thống kê. Cần migration **0006**.
 
 Triển khai: [`docs/DEPLOYMENT.md`](docs/DEPLOYMENT.md).

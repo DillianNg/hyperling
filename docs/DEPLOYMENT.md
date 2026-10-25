@@ -25,6 +25,7 @@ Vào **SQL Editor**, chạy lần lượt **đúng thứ tự**, mỗi file mộ
 | 3 | `supabase/migrations/0003_rls_policies.sql` | RLS cho toàn bộ 13 bảng |
 | 4 | `supabase/migrations/0004_add_french.sql` | Thêm tiếng Pháp vào bảng `languages` |
 | 5 | `supabase/migrations/0005_backfill_profiles.sql` | Bù `profiles` cho tài khoản đăng ký trước khi 0002 chạy |
+| 6 | `supabase/migrations/0006_personal_items.sql` | Sổ tay riêng: `items.owner_id`, partial unique index, RLS + grant ghi, khóa `de-personal` |
 
 Hoặc dùng Supabase CLI nếu đã cài:
 
@@ -121,7 +122,7 @@ import idempotent, tiến độ người học không bị ảnh hưởng.
 
 | Lỗi | Nguyên nhân | Cách xử lý |
 |---|---|---|
-| `relation "courses" does not exist` | Migration ở mục 1.2 chưa chạy | Chạy 0001→0005 trong SQL Editor |
+| `relation "courses" does not exist` | Migration ở mục 1.2 chưa chạy | Chạy 0001→0006 trong SQL Editor |
 | `getaddrinfo ENOTFOUND db.<ref>.supabase.co` | Host trực tiếp **chỉ có IPv6** | Dùng ba biến ở trên — script tự chọn Session pooler |
 | `password authentication failed` | Mật khẩu còn nguyên dấu `[...]` placeholder | Dán mật khẩu thật, hoặc reset như trên |
 | `SASL_SIGNATURE_MISMATCH` | Mật khẩu có ký tự đặc biệt chưa encode trong `DATABASE_URL` tự dán | Bỏ `DATABASE_URL`, dùng ba biến ở trên |
@@ -282,3 +283,34 @@ dòng vào bảng `languages`, chạy trong SQL Editor của Supabase.
 
 Viết file migration mới trong `supabase/migrations/`, đánh số tiếp theo, chạy
 trong SQL Editor. Không sửa file migration cũ đã chạy trên production.
+
+---
+
+## Sổ tay riêng của người học (migration 0006)
+
+Sau khi chạy `0006_personal_items.sql`, **chạy lại `pnpm content:import de-a1-b2`**
+một lần. Migration tạo khóa `de-personal` bằng cách copy `field_schema` của
+`de-a1-b2`, nhưng trên môi trường mới migration chạy trước khi có nội dung, nên
+không có gì để copy; import sẽ tự tạo và tự chữa (D-046).
+
+Kiểm tra bằng SQL Editor:
+
+```sql
+-- Phải có đúng một dòng, kind = 'notebook', field_schema giống de-a1-b2.
+select id, kind, level_framework, levels from public.courses where id = 'de-personal';
+
+-- Phải có 4 index (2 cho nội dung import, 2 cho sổ tay theo chủ sở hữu).
+select indexname from pg_indexes
+where tablename = 'items' and indexname like '%unique%';
+
+-- Phải thấy insert/update/delete cho authenticated.
+select grantee, privilege_type from information_schema.role_table_grants
+where table_name = 'items' and grantee = 'authenticated';
+```
+
+| Triệu chứng | Nguyên nhân | Cách xử lý |
+|---|---|---|
+| `permission denied for table items` khi thêm câu | Phần grant ở mục 5 của 0006 chưa chạy | Chạy lại đoạn `grant` cuối file 0006 |
+| `no unique or exclusion constraint matching the ON CONFLICT specification` khi import | Đang chạy bản `import.ts` cũ với schema mới | Deploy lại code: upsert phải có `where owner_id is null` |
+| Trang `/so-tay` báo cần bắt đầu khóa học | Chưa có enrollment `kind = 'curriculum'` | Hoàn tất `/bat-dau` trước |
+| Thêm câu được nhưng không thấy trong phiên học | Chưa chạy lại import nên thiếu khóa `de-personal` | `pnpm content:import de-a1-b2` |

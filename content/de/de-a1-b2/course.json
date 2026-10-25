@@ -1,7 +1,7 @@
 {
   "id": "de-a1-b2",
   "schemaVersion": 1,
-  "version": "2.0.0",
+  "version": "2.0.1",
   "title": {
     "vi": "Tiếng Đức qua câu — A1 đến B2",
     "en": "German through sentences — A1 to B2"
@@ -109,7 +109,7 @@
     "rate": 0.9
   },
   "source": {
-    "name": "Customized Learning Deustch.xlsx",
-    "note": "1800 dòng gốc, trong đó 600 dòng (S0001–S0600) có nội dung. 1200 dòng S0601–S1800 là khung trống, sẽ bổ sung sau."
+    "name": "1800 Completed.xlsx",
+    "note": "1800 câu có nội dung đầy đủ (A1 300, A2 300, B1 600, B2 600), mỗi câu kèm phiên âm IPA và ít nhất một chú thích từ vựng."
   }
 }
