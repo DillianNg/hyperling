@@ -142,8 +142,11 @@ export const partOfSpeechSchema = z.enum([
 export type PartOfSpeech = z.infer<typeof partOfSpeechSchema>;
 
 export const glossaryEntrySchema = z.object({
-  term: z.string().min(1, 'Thiếu từ/cụm từ.').trim(),
-  meaning: z.string().min(1, 'Thiếu nghĩa của từ.').trim(),
+  // Trimmed before being measured, not after: `.min(1).trim()` accepts a run of
+  // spaces and stores it as an empty term. Reachable from learner input since
+  // the notebook feeds this same schema.
+  term: z.string().trim().min(1, 'Thiếu từ/cụm từ.'),
+  meaning: z.string().trim().min(1, 'Thiếu nghĩa của từ.'),
   partOfSpeech: partOfSpeechSchema.default('other'),
   /** Free-form per-language extras declared via course.glossaryFields, e.g. `{ gender: "der" }`. */
   fields: z.record(z.string(), z.string()).default({}),
@@ -159,7 +162,7 @@ export const itemSchema = z.object({
   stableKey: stableKeySchema,
   kind: z.enum(['sentence', 'word', 'phrase']),
   level: cefrLevelSchema,
-  topic: z.string().min(1, 'Thiếu chủ đề.').trim(),
+  topic: z.string().trim().min(1, 'Thiếu chủ đề.'),
   /** Teaching order within the course, 1-based and gapless. The planner maps it to dates. */
   orderIndex: z.number().int().positive(),
   /** Values for the fields the course declared. Validated against them in validateItemsFile(). */
