@@ -11,7 +11,13 @@ import {
   endOfDayInstant,
   type CalendarDate,
 } from '@/core/planner/calendar';
-import { MAX_REVIEWS_PER_SESSION, type ExerciseKind, type FsrsRatingName } from '@/config/app.config';
+import {
+  MAX_NEW_PER_DAY,
+  MAX_REVIEWS_PER_SESSION,
+  type ExerciseKind,
+  type FsrsRatingName,
+} from '@/config/app.config';
+import { NOTEBOOK_LEVEL } from '@/core/content/notebook';
 import { getDistractorPool, getItemsByIds, getUnseenItems, type StudyItem } from './courses';
 import { getDailyPlan, type Enrollment } from './enrollments';
 
@@ -61,8 +67,22 @@ export async function getTodaySession(args: {
   const supabase = await createClient();
 
   const today = calendarDateInTimezone(now, enrollment.timezone);
-  const plannedNew = plannedNewForDate(enrollment, totalItems, today);
-  const levels = levelsToStudy(enrollment.levelFrom, enrollment.levelTo);
+
+  // A notebook has no plan to run. Its sentences arrive whenever the learner
+  // meets one, so there is no total to divide by a daily rate and no target
+  // date to fall behind — asking the planner would mean inventing both.
+  //
+  // What it does keep is the hard ceiling on new items per day (principle 7)
+  // and the day's own progress, so a session resumed after a break continues
+  // instead of starting over. Its level is its own, outside CEFR, so
+  // levelsToStudy is not applicable either.
+  const isNotebook = enrollment.kind === 'notebook';
+  const plannedNew = isNotebook
+    ? MAX_NEW_PER_DAY
+    : plannedNewForDate(enrollment, totalItems, today);
+  const levels = isNotebook
+    ? [NOTEBOOK_LEVEL]
+    : levelsToStudy(enrollment.levelFrom, enrollment.levelTo);
 
   const dayRow = await getDailyPlan(enrollment.id, today);
   const completedNewToday = dayRow?.completedNew ?? 0;

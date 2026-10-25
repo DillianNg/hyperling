@@ -22,6 +22,16 @@ export interface Enrollment {
   timezone: string;
   stageFlags: Record<SessionStage, boolean>;
   status: 'active' | 'paused' | 'done' | 'abandoned';
+  /**
+   * Whether this enrollment runs a curriculum or the learner's own notebook.
+   *
+   * Read from the course rather than stored here, so the two can never disagree.
+   * A notebook enrollment carries no plan: its date and `newPerDay` columns
+   * exist only to satisfy the table's constraints and are never fed to the
+   * planner — sentences arrive whenever the learner meets them, so there is no
+   * total to divide by and no target date to miss.
+   */
+  kind: 'curriculum' | 'notebook';
 }
 
 interface EnrollmentRow {
@@ -37,11 +47,15 @@ interface EnrollmentRow {
   timezone: string;
   stage_flags: Partial<Record<SessionStage, boolean>> | null;
   status: string;
+  // Embedded from courses. PostgREST returns an object for this many-to-one
+  // relationship, but an array shape is tolerated so a change there degrades
+  // to 'curriculum' instead of throwing.
+  courses: { kind?: string } | Array<{ kind?: string }> | null;
 }
 
 const ENROLLMENT_SELECT =
   'id, course_id, level_from, level_to, start_date, target_date, new_per_day, ' +
-  'rest_weekdays, buffer_days, timezone, stage_flags, status';
+  'rest_weekdays, buffer_days, timezone, stage_flags, status, courses!inner(kind)';
 
 function toEnrollment(row: EnrollmentRow): Enrollment | null {
   const startDate = parseCalendarDate(row.start_date);
@@ -66,7 +80,13 @@ function toEnrollment(row: EnrollmentRow): Enrollment | null {
       consolidate: row.stage_flags?.consolidate ?? true,
     },
     status: (row.status as Enrollment['status']) ?? 'active',
+    kind: courseKind(row.courses),
   };
+}
+
+function courseKind(embedded: EnrollmentRow['courses']): Enrollment['kind'] {
+  const course = Array.isArray(embedded) ? embedded[0] : embedded;
+  return course?.kind === 'notebook' ? 'notebook' : 'curriculum';
 }
 
 export async function listEnrollments(status?: Enrollment['status']): Promise<Enrollment[]> {
