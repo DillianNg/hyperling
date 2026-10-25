@@ -234,7 +234,12 @@ describe('RLS: nội dung khóa học đọc được, không ghi được', () 
     expect(n).toBe(1);
   });
 
-  it('người đã đăng nhập KHÔNG ghi được vào items hay courses', async () => {
+  it('người đã đăng nhập KHÔNG sửa được nội dung đã import', async () => {
+    // Since migration 0006 a learner may write to `items` — but only rows they
+    // own. Published content has no owner, so it matches no write policy. The
+    // refusal therefore changed shape: an INSERT that claims no owner is still
+    // an outright error, while a sweeping UPDATE simply matches nothing. Both
+    // leave the curriculum exactly as imported, which is what this guards.
     await expect(
       t.asUser(alice, () =>
         t.db.query(
@@ -244,9 +249,19 @@ describe('RLS: nội dung khóa học đọc được, không ghi được', () 
       ),
     ).rejects.toThrow(/permission denied|row-level security/i);
 
-    await expect(
-      t.asUser(alice, () => t.db.query(`update public.items set topic = 'hacked'`)),
-    ).rejects.toThrow(/permission denied|row-level security/i);
+    await t.asUser(alice, () =>
+      t.db.query(`update public.items set topic = 'hacked' where owner_id is null`),
+    );
+    await t.asUser(alice, () =>
+      t.db.query(`delete from public.items where owner_id is null`),
+    );
+
+    // Read back as the table owner, so no policy can hide the damage.
+    const content = await t.db.query<{ stable_key: string; topic: string }>(
+      `select stable_key, topic from public.items where owner_id is null`,
+    );
+    expect(content.rows).toHaveLength(1);
+    expect(content.rows[0]!.topic).toBe('Chào hỏi');
 
     await expect(
       t.asUser(alice, () => t.db.query(`delete from public.courses`)),
@@ -387,5 +402,211 @@ describe('Xoá lộ trình học — cascade và những gì cố ý sống sót
       [alice, bob],
     );
     expect(others.rows[0]!.n).toBe(2);
+  });
+});
+
+/**
+ * The learner's own sentences (migration 0006).
+ *
+ * `items` was world-readable to anyone signed in — `using (true)` — because
+ * every row in it was published course content. The moment a learner can write
+ * their own sentences into that table, that policy publishes them: a private
+ * note, a sentence from a work email, anything they wrote down. These tests are
+ * the ones that would have caught that, so they are written against the
+ * boundary itself rather than against the UI that happens to respect it.
+ */
+describe('sổ tay riêng — RLS trên items do người học tự thêm', () => {
+  let aliceNotebook: string;
+  let bobNotebook: string;
+
+  beforeAll(async () => {
+    // The notebook course, as the import script provisions it.
+    await t.db.exec(`
+      insert into public.levels (framework, code, ord) values ('PERSONAL', 'PERSONAL', 0)
+      on conflict (framework, code) do nothing;
+      insert into public.courses (
+        id, version, kind, title, target_language, source_language,
+        level_framework, level_from, level_to, levels, primary_item_kind, field_schema
+      ) values (
+        'de-personal', '1.0.0', 'notebook', '{"vi":"Sổ tay"}'::jsonb, 'de', 'vi',
+        'PERSONAL', 'PERSONAL', 'PERSONAL', array['PERSONAL'], 'sentence', '{"fields":[]}'::jsonb
+      ) on conflict (id) do nothing;
+    `);
+
+    for (const [user, label] of [
+      [alice, 'alice'],
+      [bob, 'bob'],
+    ] as const) {
+      const id = await t.asUser(user, async () => {
+        const r = await t.db.query<{ id: string }>(
+          `insert into public.items
+             (course_id, owner_id, stable_key, kind, level_code, topic, order_index, fields)
+           values ('de-personal', $1, 'P0001', 'sentence', 'PERSONAL', 'Sổ tay', 1, $2::jsonb)
+           returning id`,
+          [user, JSON.stringify({ text: `Satz von ${label}`, meaning: `Câu của ${label}` })],
+        );
+        return r.rows[0]!.id;
+      });
+      if (label === 'alice') aliceNotebook = id;
+      else bobNotebook = id;
+    }
+  });
+
+  it('người học chỉ đọc được câu của chính mình', async () => {
+    const aliceSees = await t.asUser(alice, async () =>
+      (
+        await t.db.query<{ id: string }>(
+          `select id from public.items where course_id = 'de-personal'`,
+        )
+      ).rows.map((r) => r.id),
+    );
+
+    expect(aliceSees).toEqual([aliceNotebook]);
+    expect(aliceSees).not.toContain(bobNotebook);
+  });
+
+  it('nội dung đã import vẫn đọc được với mọi người', async () => {
+    // The policy must narrow private rows without hiding the curriculum.
+    for (const user of [alice, bob]) {
+      const seen = await t.asUser(user, async () =>
+        (
+          await t.db.query<{ stable_key: string }>(
+            `select stable_key from public.items where owner_id is null`,
+          )
+        ).rows.map((r) => r.stable_key),
+      );
+      expect(seen).toEqual(['S0001']);
+    }
+  });
+
+  it('không thêm được câu mang owner_id của người khác', async () => {
+    await expect(
+      t.asUser(alice, () =>
+        t.db.query(
+          `insert into public.items
+             (course_id, owner_id, stable_key, kind, level_code, topic, order_index, fields)
+           values ('de-personal', $1, 'P0099', 'sentence', 'PERSONAL', 'Sổ tay', 99, '{}'::jsonb)`,
+          [bob],
+        ),
+      ),
+    ).rejects.toThrow(/row-level security/i);
+  });
+
+  it('không thêm được câu không có chủ (giả dạng nội dung hệ thống)', async () => {
+    // owner_id null is what marks a row as published content. A learner able to
+    // write one could put a sentence into every other learner's course.
+    await expect(
+      t.asUser(alice, () =>
+        t.db.query(
+          `insert into public.items
+             (course_id, stable_key, kind, level_code, topic, order_index, fields)
+           values ('de-a1-b2', 'S9999', 'sentence', 'A1', 'Chào hỏi', 9999, '{}'::jsonb)`,
+        ),
+      ),
+    ).rejects.toThrow(/row-level security/i);
+  });
+
+  it('không sửa và không xoá được câu của người khác', async () => {
+    const updated = await t.asUser(alice, async () =>
+      t.db.query(`update public.items set topic = 'đã sửa' where id = $1`, [bobNotebook]),
+    );
+    expect(updated.affectedRows ?? 0).toBe(0);
+
+    const deleted = await t.asUser(alice, async () =>
+      t.db.query(`delete from public.items where id = $1`, [bobNotebook]),
+    );
+    expect(deleted.affectedRows ?? 0).toBe(0);
+
+    // Bob's sentence is untouched, read back as Bob.
+    const stillThere = await t.asUser(bob, async () =>
+      (await t.db.query<{ topic: string }>(`select topic from public.items where id = $1`, [bobNotebook]))
+        .rows,
+    );
+    expect(stillThere).toHaveLength(1);
+    expect(stillThere[0]!.topic).toBe('Sổ tay');
+  });
+
+  it('không chuyển được câu của mình sang cho người khác', async () => {
+    // `with check` on the update policy, not just `using`: without it a learner
+    // could hand a row away and lose access to something they still own.
+    await expect(
+      t.asUser(alice, () =>
+        t.db.query(`update public.items set owner_id = $1 where id = $2`, [bob, aliceNotebook]),
+      ),
+    ).rejects.toThrow(/row-level security/i);
+  });
+
+  it('khách chưa đăng nhập không đọc được câu nào', async () => {
+    // Refused one layer earlier than RLS: anon holds no privilege on the table
+    // at all (migration 0003 revokes it), so this never reaches a policy.
+    await expect(t.asAnon(() => t.db.query(`select id from public.items`))).rejects.toThrow(
+      /permission denied/i,
+    );
+  });
+
+  it('hai người học đều dùng được P0001 và order_index 1', async () => {
+    // Uniqueness is per owner. Both notebook rows above are 'P0001' with
+    // order_index 1 and both were accepted — a course-wide constraint would
+    // have rejected the second learner's very first sentence.
+    const all = await t.db.query<{ owner_id: string; stable_key: string; order_index: number }>(
+      `select owner_id, stable_key, order_index from public.items
+       where course_id = 'de-personal' order by owner_id`,
+    );
+    expect(all.rows).toHaveLength(2);
+    expect(all.rows.map((r) => r.stable_key)).toEqual(['P0001', 'P0001']);
+    expect(all.rows.map((r) => r.order_index)).toEqual([1, 1]);
+    expect(new Set(all.rows.map((r) => r.owner_id)).size).toBe(2);
+  });
+
+  it('nhưng một người không dùng lại được khoá của chính mình', async () => {
+    await expect(
+      t.asUser(alice, () =>
+        t.db.query(
+          `insert into public.items
+             (course_id, owner_id, stable_key, kind, level_code, topic, order_index, fields)
+           values ('de-personal', $1, 'P0001', 'sentence', 'PERSONAL', 'Sổ tay', 2, '{}'::jsonb)`,
+          [alice],
+        ),
+      ),
+    ).rejects.toThrow(/duplicate key|unique/i);
+  });
+
+  it('nội dung đã import vẫn không cho trùng order_index', async () => {
+    // The guarantee the old constraint gave must survive being split in two:
+    // the teaching order of published content is still exactly one sequence.
+    await expect(
+      t.db.query(
+        `insert into public.items (course_id, stable_key, kind, level_code, topic, order_index, fields)
+         values ('de-a1-b2', 'S0002', 'sentence', 'A1', 'Chào hỏi', 1, '{}'::jsonb)`,
+      ),
+    ).rejects.toThrow(/duplicate key|unique/i);
+  });
+
+  it('xoá câu thì cuốn theo tiến độ của đúng câu đó', async () => {
+    const extra = await t.asUser(alice, async () => {
+      const r = await t.db.query<{ id: string }>(
+        `insert into public.items
+           (course_id, owner_id, stable_key, kind, level_code, topic, order_index, fields)
+         values ('de-personal', $1, 'P0050', 'sentence', 'PERSONAL', 'Sổ tay', 50, '{}'::jsonb)
+         returning id`,
+        [alice],
+      );
+      const itemId = r.rows[0]!.id;
+      await t.db.query(
+        `insert into public.card_states (user_id, item_id, enrollment_id, due)
+         values ($1, $2, $3, now())`,
+        [alice, itemId, aliceEnrollment],
+      );
+      return itemId;
+    });
+
+    await t.asUser(alice, () => t.db.query(`delete from public.items where id = $1`, [extra]));
+
+    const left = await t.db.query(`select 1 from public.card_states where item_id = $1`, [extra]);
+    expect(left.rows).toEqual([]);
+
+    // The learner's other sentence is unaffected.
+    const survives = await t.db.query(`select 1 from public.items where id = $1`, [aliceNotebook]);
+    expect(survives.rows).toHaveLength(1);
   });
 });

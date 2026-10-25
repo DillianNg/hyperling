@@ -128,12 +128,53 @@ describe('content:import', () => {
     expect(result.orphanStableKeys).toEqual([]);
 
     expect(await counts()).toEqual({
-      courses: 1,
+      // Two: the German course and the notebook course that holds learners'
+      // own German sentences. See the notebook assertions below.
+      courses: 2,
       items: 1800,
       glossary_terms: result.glossaryTermsUpserted,
       item_glossary: 2206,
     });
   }, 180_000);
+
+  it('tạo luôn khóa sổ tay cho cùng ngôn ngữ, dùng lại field_schema của khóa chính', async () => {
+    // Provisioned by the import rather than by a migration: migrations run
+    // before any content exists, so a migration could not copy a field schema
+    // that is not there yet. Without this the notebook would have nowhere to
+    // put a sentence on a freshly deployed environment.
+    const notebook = await sql.query<{
+      kind: string;
+      level_framework: string;
+      levels: string[];
+      target_language: string;
+      field_schema: { fields?: unknown[] };
+    }>(
+      `select kind, level_framework, levels, target_language, field_schema
+       from courses where id = 'de-personal'`,
+    );
+
+    expect(notebook).toHaveLength(1);
+    expect(notebook[0]!.kind).toBe('notebook');
+    expect(notebook[0]!.target_language).toBe('de');
+    // Its own framework, so no CEFR level is implied for a sentence the learner
+    // met in the wild and nobody has graded.
+    expect(notebook[0]!.level_framework).toBe('PERSONAL');
+    expect(notebook[0]!.levels).toEqual(['PERSONAL']);
+
+    // Copied, not restated: a learner's own sentence must render with the same
+    // IPA hint and noun-gender badge as a taught one, and must keep doing so as
+    // the course's schema evolves.
+    const main = await sql.query<{ field_schema: { fields?: unknown[] } }>(
+      `select field_schema from courses where id = 'de-a1-b2'`,
+    );
+    expect(notebook[0]!.field_schema).toEqual(main[0]!.field_schema);
+
+    // The notebook ships empty. Every row in it is written by a learner.
+    const owned = await sql.query<{ n: string }>(
+      `select count(*)::text as n from items where course_id = 'de-personal'`,
+    );
+    expect(owned[0]!.n).toBe('0');
+  });
 
   it('lần 2: không sinh thêm một bản ghi nào (idempotent)', async () => {
     const before = await counts();
