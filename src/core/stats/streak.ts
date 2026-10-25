@@ -25,6 +25,33 @@ export interface DayActivity {
   reviews: number;
 }
 
+/**
+ * Folds activity rows that share a date into one entry.
+ *
+ * Needed because a learner's daily activity is recorded per enrollment, and a
+ * course plus the learner's own notebook are two enrollments reporting the same
+ * days. The streak and the heatmap ask "did I study on this day", which has one
+ * answer; left unmerged, a day studied in both would appear twice and every
+ * figure derived from the list would be overstated.
+ *
+ * Returns a new list sorted by date, so callers need not rely on query order.
+ */
+export function mergeActivityByDate(activity: readonly DayActivity[]): DayActivity[] {
+  const byDate = new Map<CalendarDate, DayActivity>();
+
+  for (const day of activity) {
+    const existing = byDate.get(day.date);
+    if (existing) {
+      existing.newItems += day.newItems;
+      existing.reviews += day.reviews;
+    } else {
+      byDate.set(day.date, { date: day.date, newItems: day.newItems, reviews: day.reviews });
+    }
+  }
+
+  return [...byDate.values()].sort((a, b) => a.date.localeCompare(b.date));
+}
+
 export interface StreakSummary {
   /** Consecutive active days ending today (or yesterday, if today is still open). */
   current: number;

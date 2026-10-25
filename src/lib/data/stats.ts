@@ -3,11 +3,16 @@ import { rows } from './rows';
 import { fetchAllRows } from './paginate';
 import { createClient } from '@/lib/supabase/server';
 import { parseCalendarDate, type CalendarDate } from '@/core/planner/calendar';
-import type { DayActivity } from '@/core/stats/streak';
+import { mergeActivityByDate, type DayActivity } from '@/core/stats/streak';
 
 /**
- * Dashboard statistics. Each query is scoped to one enrollment, because a
- * learner running two courses has two independent sets of numbers.
+ * Dashboard statistics.
+ *
+ * Scoped to a *set* of enrollments rather than one. Two different courses still
+ * have two independent sets of numbers, but a course and the learner's own
+ * notebook are one effort: a sentence they wrote down counts towards the same
+ * streak, the same accuracy and the same review total as one that was imported.
+ * The caller decides which enrollments belong together.
  */
 
 export interface EnrollmentStats {
@@ -23,17 +28,24 @@ export interface EnrollmentStats {
 }
 
 export async function getEnrollmentStats(args: {
-  enrollmentId: string;
-  courseId: string;
+  /** Enrollments whose activity counts as one effort, e.g. a course and its notebook. */
+  enrollmentIds: readonly string[];
+  /** Courses those enrollments draw items from, for the per-level breakdown. */
+  courseIds: readonly string[];
 }): Promise<EnrollmentStats> {
   const supabase = await createClient();
-  const { enrollmentId, courseId } = args;
+  const enrollmentIds = [...args.enrollmentIds];
+  const courseIds = [...args.courseIds];
+
+  if (enrollmentIds.length === 0) {
+    return { activity: [], learnedByLevel: {}, masteredCount: 0, accuracy: null, totalReviews: 0, totalMinutes: 0 };
+  }
 
   const [plans, cards, logs, sessions] = await Promise.all([
     supabase
       .from('daily_plans')
       .select('plan_date, completed_new, completed_reviews')
-      .eq('enrollment_id', enrollmentId)
+      .in('enrollment_id', enrollmentIds)
       .order('plan_date'),
     // Both of these outgrow the server's 1000-row response cap with ordinary
     // use — one card per studied sentence, and several log rows per card — and
@@ -43,33 +55,35 @@ export async function getEnrollmentStats(args: {
       supabase
         .from('card_states')
         .select('item_id, reps, state')
-        .eq('enrollment_id', enrollmentId)
+        .in('enrollment_id', enrollmentIds)
         .range(from, to),
     ),
     fetchAllRows<{ is_correct: boolean | null }>((from, to) =>
-      supabase.from('review_logs').select('is_correct').eq('enrollment_id', enrollmentId).range(from, to),
+      supabase.from('review_logs').select('is_correct').in('enrollment_id', enrollmentIds).range(from, to),
     ),
     // One row per study day, so this stays far below the cap.
-    supabase.from('study_sessions').select('duration_ms').eq('enrollment_id', enrollmentId),
+    supabase.from('study_sessions').select('duration_ms').in('enrollment_id', enrollmentIds),
   ]);
 
-  const activity = rows<{
-    plan_date: string;
-    completed_new: number;
-    completed_reviews: number;
-  }>(plans.data).flatMap((row) => {
-    const date = parseCalendarDate(row.plan_date);
-    return date
-      ? [{ date, newItems: row.completed_new, reviews: row.completed_reviews }]
-      : [];
-  });
+  // One row per enrollment per day, so a course and its notebook both report
+  // the same date; merged so a day studied in both counts once.
+  const activity = mergeActivityByDate(
+    rows<{
+      plan_date: string;
+      completed_new: number;
+      completed_reviews: number;
+    }>(plans.data).flatMap((row) => {
+      const date = parseCalendarDate(row.plan_date);
+      return date ? [{ date, newItems: row.completed_new, reviews: row.completed_reviews }] : [];
+    }),
+  );
 
   // "Mastered" means the card has survived several successful reviews and is in
   // the review state, i.e. it has graduated out of learning and not lapsed back.
   const masteredCount = cards.filter((row) => row.state === 2 && row.reps >= 3).length;
 
   const learnedByLevel = await countLearnedByLevel(
-    courseId,
+    courseIds,
     cards.filter((row) => row.reps > 0).map((row) => row.item_id),
   );
 
@@ -93,10 +107,10 @@ export async function getEnrollmentStats(args: {
 }
 
 async function countLearnedByLevel(
-  courseId: string,
+  courseIds: readonly string[],
   itemIds: readonly string[],
 ): Promise<Record<string, number>> {
-  if (itemIds.length === 0) return {};
+  if (itemIds.length === 0 || courseIds.length === 0) return {};
 
   const supabase = await createClient();
   const counts: Record<string, number> = {};
@@ -107,7 +121,7 @@ async function countLearnedByLevel(
     const { data } = await supabase
       .from('items')
       .select('level_code')
-      .eq('course_id', courseId)
+      .in('course_id', [...courseIds])
       .in('id', itemIds.slice(i, i + CHUNK));
 
     for (const row of rows<{ level_code: string }>(data)) {
@@ -144,7 +158,8 @@ export interface LearnedWordsPage {
  * text lives inside a JSONB column.
  */
 export async function listLearnedItems(args: {
-  enrollmentId: string;
+  /** Enrollments to draw from — a course together with its notebook. */
+  enrollmentIds: readonly string[];
   userId: string;
   search?: string;
   level?: string;
@@ -153,9 +168,12 @@ export async function listLearnedItems(args: {
   offset?: number;
 }): Promise<LearnedWordsPage> {
   const supabase = await createClient();
-  const { enrollmentId, userId, search, level, onlyHard } = args;
+  const { userId, search, level, onlyHard } = args;
+  const enrollmentIds = [...args.enrollmentIds];
   const limit = args.limit ?? 50;
   const offset = args.offset ?? 0;
+
+  if (enrollmentIds.length === 0) return { words: [], total: 0 };
 
   // The word list is the whole studied history, which passes the server's
   // 1000-row cap on a finished course — and a clipped page would silently drop
@@ -165,7 +183,7 @@ export async function listLearnedItems(args: {
       supabase
         .from('card_states')
         .select('item_id, reps, lapses, due')
-        .eq('enrollment_id', enrollmentId)
+        .in('enrollment_id', enrollmentIds)
         .gt('reps', 0)
         .order('due')
         .range(from, to),
@@ -294,13 +312,17 @@ async function fetchItems(itemIds: readonly string[], level?: string): Promise<F
 }
 
 /** Levels that actually appear in the learner's studied items, for the filter. */
-export async function getStudiedLevels(enrollmentId: string, courseId: string): Promise<string[]> {
+export async function getStudiedLevels(
+  enrollmentIds: readonly string[],
+  courseIds: readonly string[],
+): Promise<string[]> {
+  if (enrollmentIds.length === 0) return [];
   const supabase = await createClient();
   const cards = await fetchAllRows<{ item_id: string }>((from, to) =>
     supabase
       .from('card_states')
       .select('item_id')
-      .eq('enrollment_id', enrollmentId)
+      .in('enrollment_id', [...enrollmentIds])
       .gt('reps', 0)
       .range(from, to),
   );
@@ -308,6 +330,6 @@ export async function getStudiedLevels(enrollmentId: string, courseId: string): 
   const ids = cards.map((row) => row.item_id);
   if (ids.length === 0) return [];
 
-  const counts = await countLearnedByLevel(courseId, ids);
+  const counts = await countLearnedByLevel(courseIds, ids);
   return Object.keys(counts).sort();
 }
